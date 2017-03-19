@@ -1,3 +1,1 @@
-web: python export LINE_CHANNEL_SECRET=f242e1b2bdbbc8926019b30aa0185e8c
-web: python export LINE_CHANNEL_ACCESS_TOKEN=kBjzWfU2oNvmhX+PLiEnu8s6+a+J9o0+sCD/2govWs1r4C22Jv3vR+C2G8ebDm68NlGDiD6cgzApzavBf75cFxagJWTXO2uIoCleK84YPu1yIIsiP2LfkQY05tTTzeKkaGvnvbymLEyv4shhHv3qBAdB04t89/1O/w1cDnyilFU=
 web: python app.py
