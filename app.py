@@ -95,12 +95,8 @@ def handle_text_message(event):
             profile = line_bot_api.get_profile(event.source.user_id)
             line_bot_api.reply_message(
                 event.reply_token, [
-                    TextSendMessage(
-                        text='Display name: ' + profile.display_name
-                    ),
-                    TextSendMessage(
-                        text='Status message: ' + profile.status_message
-                    )
+                    TextSendMessage(text='Display name: ' + profile.display_name),
+                    TextSendMessage(text='Status message: ' + profile.status_message),
                 ]
             )
         else:
@@ -114,7 +110,7 @@ def handle_text_message(event):
             line_bot_api.leave_group(event.source.group_id)
         elif isinstance(event.source, SourceRoom):
             line_bot_api.reply_message(
-                event.reply_token, TextMessage(text='Leaving group'))
+                event.reply_token, TextMessage(text='Leaving room'))
             line_bot_api.leave_room(event.source.room_id)
         else:
             line_bot_api.reply_message(
@@ -179,11 +175,12 @@ def handle_location_message(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
+    package_id = event.message.package_id
+    sticker_id = event.message.sticker_id
+
     line_bot_api.reply_message(
         event.reply_token,
-        StickerSendMessage(
-            package_id=event.message.package_id,
-            sticker_id=event.message.sticker_id)
+        StickerSendMessage(package_id=2, sticker_id=144)
     )
 
 
@@ -214,6 +211,10 @@ def handle_content_message(event):
             TextSendMessage(text='Save content.'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
         ])
+
+@handler.add(MessageEvent)
+def log_function(event):
+    app.logger.info(event)
 
 
 @handler.add(FollowEvent)
