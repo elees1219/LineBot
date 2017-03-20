@@ -58,10 +58,6 @@ def make_static_tmp_dir():
         else:
             raise
 
-def initialize_database():
-    db.create_all()
-
-
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -253,6 +249,5 @@ def handle_beacon(event):
 if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
-    initialize_database()
 
     app.run(port=os.environ['PORT'], host='0.0.0.0')
