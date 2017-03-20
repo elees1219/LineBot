@@ -25,6 +25,15 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 
+# Main initializing
+app = Flask(__name__)
+
+# Database initializing
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+db = SQLAlchemy(app)
+
+
+
 class db_reply(db.Model):
     """Manager of creating keyword dictionary"""
 
@@ -38,13 +47,6 @@ class db_reply(db.Model):
 
     def __repr__(self):
         return '<Keyword %r>' % self.keyword % '<Reply %r>' % self.reply
-
-# Main initializing
-app = Flask(__name__)
-
-# Database initializing
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-db = SQLAlchemy(app)
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
