@@ -32,8 +32,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
-
-
 class db_reply(db.Model):
     """Manager of creating keyword dictionary"""
 
@@ -278,5 +276,7 @@ def handle_beacon(event):
 if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
+
+    db.Table('db_reply', db_reply.id, db_reply.keyword, db_reply.reply)
 
     app.run(port=os.environ['PORT'], host='0.0.0.0')
