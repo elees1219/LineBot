@@ -29,6 +29,9 @@
     <Compile Include="db_manager\db_reply.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="db_manager\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\2.7" />

@@ -1,5 +1,3 @@
-from app import db
-
 class db_reply(db.model):
     """Manager of creating keyword dictionary"""
 
