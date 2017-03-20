@@ -1,29 +1,14 @@
-# -*- coding: utf-8 -*-
-
-#  Licensed under the Apache License, Version 2.0 (the "License"); you may
-#  not use this file except in compliance with the License. You may obtain
-#  a copy of the License at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-#  License for the specific language governing permissions and limitations
-#  under the License.
-
 from __future__ import unicode_literals
 
 import errno
 import os
 import sys
 import tempfile
-import urlparse
-
-from argparse import ArgumentParser
 
 from flask import Flask, request, abort
 from flask_sqlalchemy import SQLAlchemy
+
+from app import db
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -42,7 +27,10 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 
+# Main initializing
 app = Flask(__name__)
+
+# Database initializing
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
@@ -55,23 +43,11 @@ if channel_secret is None:
 if channel_access_token is None:
     print('Specify LINE_CHANNEL_ACCESS_TOKEN as environment variable.')
     sys.exit(1)
-
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
-urlparse.uses_netloc.append("postgres")
-url = urlparse.urlparse(os.environ["DATABASE_URL"])
-
-sqlconn = psycopg2.connect(
-    database=url.path[1:],
-    user=url.username,
-    password=url.password,
-    host=url.hostname,
-    port=url.port
-)
-
+# File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
-
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -82,6 +58,9 @@ def make_static_tmp_dir():
             pass
         else:
             raise
+
+def initialize_database():
+    db.create_all()
 
 
 @app.route("/callback", methods=['POST'])
@@ -105,8 +84,6 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
-
-
 
     return
 
@@ -277,5 +254,6 @@ def handle_beacon(event):
 if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
+    initialize_database()
 
     app.run(port=os.environ['PORT'], host='0.0.0.0')
