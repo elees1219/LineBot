@@ -277,6 +277,5 @@ if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
 
-    db.Table('db_reply', db_reply.id, db_reply.keyword, db_reply.reply)
-
+    db.create_all()
     app.run(port=os.environ['PORT'], host='0.0.0.0')
