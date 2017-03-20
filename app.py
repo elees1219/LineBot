@@ -100,10 +100,10 @@ def handle_text_message(event):
     try:
         if cmd == 'ADD':
             add_pair = db_reply(keyword, reply)
-            db.session.add(new_pair)
+            db.session.add(add_pair)
         elif cmd == 'DEL':
             del_pair = db_reply(keyword, reply)
-            db.session.delete(new_pair)
+            db.session.delete(del_pair)
 
         db.session.commit()
 
