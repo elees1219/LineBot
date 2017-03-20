@@ -212,9 +212,10 @@ def handle_content_message(event):
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
         ])
 
+
 @handler.add(MessageEvent)
 def log_function(event):
-    app.logger.info(event)
+    print event
 
 
 @handler.add(FollowEvent)
