@@ -5,8 +5,6 @@ import os
 import sys
 import tempfile
 
-import db_reply
-
 from flask import Flask, request, abort
 from flask_sqlalchemy import SQLAlchemy
 
