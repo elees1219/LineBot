@@ -215,7 +215,7 @@ def handle_content_message(event):
 
 @handler.add(MessageEvent)
 def log_function(event):
-    print event
+    print(event)
 
 
 @handler.add(FollowEvent)
