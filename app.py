@@ -18,9 +18,12 @@ import errno
 import os
 import sys
 import tempfile
+import urlparse
+
 from argparse import ArgumentParser
 
 from flask import Flask, request, abort
+from flask_sqlalchemy import SQLAlchemy
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -40,6 +43,8 @@ from linebot.models import (
 )
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+db = SQLAlchemy(app)
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -53,6 +58,17 @@ if channel_access_token is None:
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+
+urlparse.uses_netloc.append("postgres")
+url = urlparse.urlparse(os.environ["DATABASE_URL"])
+
+sqlconn = psycopg2.connect(
+    database=url.path[1:],
+    user=url.username,
+    password=url.password,
+    host=url.hostname,
+    port=url.port
+)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
@@ -89,6 +105,10 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
+
+
+
+    return
 
     if text == 'profile':
         if isinstance(event.source, SourceUser):
@@ -213,7 +233,6 @@ def handle_content_message(event):
         ])
 
 
-@handler.add(MessageEvent)
 def log_function(event):
     print(event)
 
