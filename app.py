@@ -4,11 +4,10 @@ import errno
 import os
 import sys
 import tempfile
+import db_manager
 
 from flask import Flask, request, abort
 from flask_sqlalchemy import SQLAlchemy
-
-from app import db
 
 from linebot import (
     LineBotApi, WebhookHandler
