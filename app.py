@@ -4,7 +4,8 @@ import errno
 import os
 import sys
 import tempfile
-import db_manager
+
+import db_reply
 
 from flask import Flask, request, abort
 from flask_sqlalchemy import SQLAlchemy
@@ -80,7 +81,23 @@ def callback():
 def handle_text_message(event):
     text = event.message.text
 
+    cmd, keyword, reply = text.split(',')
+
+    try:
+        if cmd == 'ADD':
+            add_pair = db_reply(keyword, reply)
+            db.session.add(new_pair)
+        elif cmd == 'DEL':
+            del_pair = db_reply(keyword, reply)
+            db.session.delete(new_pair)
+
+        db.session.commit()
+    except:
+        raise
+
     return
+
+
 
     if text == 'profile':
         if isinstance(event.source, SourceUser):
@@ -203,10 +220,6 @@ def handle_content_message(event):
             TextSendMessage(text='Save content.'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
         ])
-
-
-def log_function(event):
-    print(event)
 
 
 @handler.add(FollowEvent)
