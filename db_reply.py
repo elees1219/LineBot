@@ -1,6 +1,6 @@
 from app import db
 
-class db_reply(db.model):
+class db_reply(db.Model):
     """Manager of creating keyword dictionary"""
 
     id = db.Column(db.Integer, primary_key=True)
