@@ -105,9 +105,9 @@ def handle_text_message(event):
 
         db.session.commit()
 
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=(cmd == 'ADD' if 'Added' else 'Deleted')))
-    except Exception as ex:
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text='Exception: \n' + ex.args + '\n' + ex.message))
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=('Added' if cmd == 'ADD' else 'Deleted')))
+    except:
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text='Error.'))
 
     return
 
