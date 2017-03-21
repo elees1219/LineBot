@@ -93,6 +93,7 @@ def database_initialize():
         cur.execute('SELECT version()')
         db_version = cur.fetchone()
         cur.close()
+        return db_version
     except psycopg2.Error as ex:
         print ex.message
     except Exception as ex:
@@ -103,7 +104,6 @@ def database_initialize():
         if conn is not None:
             conn.close()
             print('Database connection closed.')
-    
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
