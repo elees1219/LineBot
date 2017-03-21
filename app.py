@@ -93,17 +93,12 @@ def database_initialize():
         cur.execute('SELECT version()')
         db_version = cur.fetchone()
         cur.close()
-        return db_version
+        return str(db_version)
     except psycopg2.Error as ex:
-        print ex.message
+        return str(ex.message)
     except Exception as ex:
-        print ex.message
-    finally:
-        sys.stdout.flush()
+         return str(ex.message)
 
-        if conn is not None:
-            conn.close()
-            print('Database connection closed.')
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
@@ -123,7 +118,7 @@ def handle_text_message(event):
     except ValueError:
         pass
     except Exception as ex:
-        line_bot_api.reply_message(rep, TextSendMessage(text=ex.message))
+        line_bot_api.reply_message(rep, TextSendMessage(text='Args:\n' + ex.args + 'Msg:\n' + ex.message))
     finally:
         line_bot_api.reply_message(rep, TextSendMessage(text=text))
 
