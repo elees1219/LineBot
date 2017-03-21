@@ -95,10 +95,12 @@ def database_initialize():
         line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Database initializing completed. DB ver. ' + db_version))
         cur.close()
     except psycopg2.Error as ex:
-        line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Error from psycopg2.\nMessage: ' + ex.message))
+        print ex.message
     except Exception as ex:
-        line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Error.\nMessage: ' + ex.message))
+        print ex.message
     finally:
+        sys.stdout.flush()
+
         if conn is not None:
             conn.close()
             print('Database connection closed.')
@@ -282,4 +284,4 @@ if __name__ == "__main__":
     # initialize database connection
     database_initialize()
 
-    app.run(port=os.environ['PORT'], host='0.0.0.0')
+    app.run(port=os.environ['PORT'], host='0.0.0.0', debug=True)
