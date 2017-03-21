@@ -107,10 +107,15 @@ def database_initialize():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
+    rep = event.reply_token
     text = event.message.text
 
-    cmd, keyword, reply = text.split(',')
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    try:
+        cmd, keyword, reply = text.split(',')
+    except ValueError:
+        pass
+    finally:
+        line_bot_api.reply_message(rep, TextSendMessage(text=text))
 
     return
 
