@@ -94,8 +94,10 @@ def database_initialize():
         db_version = cur.fetchone()
         line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Database initializing completed. DB ver. ' + db_version))
         cur.close()
-    except (Exception, psycopg2.Error) as ex:
-        line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Error.\nMessage: ' + str(ex)))
+    except psycopg2.Error as ex:
+        line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Error from psycopg2.\nMessage: ' + ex.message))
+    except Exception as ex:
+        line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Error.\nMessage: ' + ex.message))
     finally:
         if conn is not None:
             conn.close()
