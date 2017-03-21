@@ -92,7 +92,6 @@ def database_initialize():
         cur = conn.cursor()
         cur.execute('SELECT version()')
         db_version = cur.fetchone()
-        line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Database initializing completed. DB ver. ' + db_version))
         cur.close()
     except psycopg2.Error as ex:
         print ex.message
