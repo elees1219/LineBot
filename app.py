@@ -111,7 +111,11 @@ def handle_text_message(event):
     text = event.message.text
 
     try:
+        if text == "db_version":
+            line_bot_api.reply_message(rep, TextSendMessage(text=db_version))
+
         cmd, keyword, reply = text.split(',')
+
         line_bot_api.reply_message(rep, [
             TextSendMessage(text=cmd), 
             TextSendMessage(text=keyword), 
