@@ -112,6 +112,9 @@ def handle_text_message(event):
 
     try:
         cmd, keyword, reply = text.split(',')
+        line_bot_api.reply_message(rep, TextSendMessage(text=cmd))
+        line_bot_api.reply_message(rep, TextSendMessage(text=keyword))
+        line_bot_api.reply_message(rep, TextSendMessage(text=reply))
     except ValueError:
         pass
     finally:
