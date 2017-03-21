@@ -112,7 +112,7 @@ def handle_text_message(event):
 
     try:
         if text == "db_version":
-            line_bot_api.reply_message(rep, TextSendMessage(text=db_version))
+            line_bot_api.reply_message(rep, TextSendMessage(text=database_initialize()))
 
         cmd, keyword, reply = text.split(',')
 
@@ -294,8 +294,5 @@ def handle_beacon(event):
 if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
-
-    # initialize database connection
-    database_initialize()
 
     app.run(port=os.environ['PORT'], host='0.0.0.0')
