@@ -5,8 +5,11 @@ import os
 import sys
 import tempfile
 
+# Database import
+import psycopg2
+import urlparse
+
 from flask import Flask, request, abort
-from flask_sqlalchemy import SQLAlchemy
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -29,22 +32,15 @@ from linebot.models import (
 app = Flask(__name__)
 
 # Database initializing
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-db = SQLAlchemy(app)
-
-class db_reply(db.Model):
-    """Manager of creating keyword dictionary"""
-
-    id = db.Column(db.Integer, primary_key=True)
-    keyword = db.Column(db.String(30), unique=True)
-    reply = db.Column(db.String(30))
-
-    def __init__(self, keyword, reply):
-        self.keyword = keyword
-        self.reply = reply
-
-    def __repr__(self):
-        return '<Keyword %r>' % self.keyword % '<Reply %r>' % self.reply
+urlparse.uses_netloc.append("postgres")
+url = urlparse.urlparse(os.environ["DATABASE_URL"])
+conn = psycopg2.connect(
+    database=url.path[1:],
+    user=url.username,
+    password=url.password,
+    host=url.hostname,
+    port=url.port
+)
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -61,6 +57,7 @@ handler = WebhookHandler(channel_secret)
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
+
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
@@ -70,6 +67,7 @@ def make_static_tmp_dir():
             pass
         else:
             raise
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -89,25 +87,27 @@ def callback():
     return 'OK'
 
 
+def database_initialize():
+    try:
+        cur = conn.cursor()
+        cur.execute('SELECT version()')
+        db_version = cur.fetchone()
+        line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Database initializing completed. DB ver. ' + db_version))
+        cur.close()
+    except (Exception, psycopg2.Error) as ex:
+        line_bot_api.push_message('ucc365846a0976f26c6c1a8368dec6e86', TextSendMessage(text='Error.\nMessage: ' + ex))
+    finally:
+        if conn is not None:
+            conn.close()
+            print('Database connection closed.')
+    
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
 
     cmd, keyword, reply = text.split(',')
-
-    try:
-        if cmd == 'ADD':
-            add_pair = db_reply(keyword, reply)
-            db.session.add(add_pair)
-        elif cmd == 'DEL':
-            del_pair = db_reply(keyword, reply)
-            db.session.delete(del_pair)
-
-        db.session.commit()
-
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=('Added' if cmd == 'ADD' else 'Deleted')))
-    except BaseException as ex:
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=('Error.\n\nArgs: {0}\nMessage:\n{1}').format(ex.args, ex.message)))
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
 
     return
 
@@ -277,5 +277,7 @@ if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
 
-    db.create_all()
+    # initialize database connection
+    database_initialize()
+
     app.run(port=os.environ['PORT'], host='0.0.0.0')
