@@ -283,4 +283,4 @@ if __name__ == "__main__":
     # initialize database connection
     database_initialize()
 
-    app.run(port=os.environ['PORT'], host='0.0.0.0', debug=True)
+    app.run(port=os.environ['PORT'], host='0.0.0.0')
