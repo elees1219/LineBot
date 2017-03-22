@@ -7,7 +7,7 @@ class db_manager(object):
     
     def __init__(self, scheme, db_url):
         urlparse.uses_netloc.append(scheme)
-        url = urlparse.urlparse(os.environ[db_url])
+        url = urlparse.urlparse(db_url)
         self.conn = psycopg2.connect(
             database=url.path[1:],
             user=url.username,
