@@ -4,7 +4,7 @@ import urlparse
 import psycopg2
 
 class db_manager(object):
-    
+
     def __init__(self, scheme, db_url):
         urlparse.uses_netloc.append(scheme)
         url = urlparse.urlparse(db_url)
@@ -19,7 +19,7 @@ class db_manager(object):
 
     def db_version():
         try:
-            cur = conn.cursor()
+            cur = self.conn.cursor()
             cur.execute('SELECT version()')
             db_version = cur.fetchone()
             cur.close()
