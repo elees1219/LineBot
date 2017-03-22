@@ -6,10 +6,7 @@ import sys
 import tempfile
 
 # Database import
-import psycopg2
-import urlparse
-
-import db_manage
+from db import db_manager
 
 from flask import Flask, request, abort
 
