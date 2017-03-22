@@ -17,7 +17,7 @@ class db_manager(object):
         )
 
 
-    def db_version():
+    def db_version(self):
         try:
             cur = self.conn.cursor()
             cur.execute('SELECT version()')
