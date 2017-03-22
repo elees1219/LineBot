@@ -9,6 +9,8 @@ import tempfile
 import psycopg2
 import urlparse
 
+import db_manage
+
 from flask import Flask, request, abort
 
 from linebot import (
@@ -32,15 +34,7 @@ from linebot.models import (
 app = Flask(__name__)
 
 # Database initializing
-urlparse.uses_netloc.append("postgres")
-url = urlparse.urlparse(os.environ["DATABASE_URL"])
-conn = psycopg2.connect(
-    database=url.path[1:],
-    user=url.username,
-    password=url.password,
-    host=url.hostname,
-    port=url.port
-)
+db = db_manage.db_manager("postgres", os.environ["DATABASE_URL"])
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -87,19 +81,6 @@ def callback():
     return 'OK'
 
 
-def database_initialize():
-    try:
-        cur = conn.cursor()
-        cur.execute('SELECT version()')
-        db_version = cur.fetchone()
-        cur.close()
-        return str(db_version)
-    except psycopg2.Error as ex:
-        return str(ex.message)
-    except Exception as ex:
-         return str(ex.message)
-
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     rep = event.reply_token
@@ -107,7 +88,7 @@ def handle_text_message(event):
 
     try:
         if text == "db_version":
-            line_bot_api.reply_message(rep, TextSendMessage(text=database_initialize()))
+            line_bot_api.reply_message(rep, TextSendMessage(text=db.db_version()))
 
         cmd, keyword, reply = text.split(',')
 
