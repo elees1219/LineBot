@@ -34,7 +34,7 @@ from linebot.models import (
 app = Flask(__name__)
 
 # Database initializing
-db = db_manage.db_manager("postgres", os.environ["DATABASE_URL"])
+db = db_manager("postgres", os.environ["DATABASE_URL"])
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
