@@ -96,7 +96,7 @@ def handle_text_message(event):
     except ValueError:
         pass
     except Exception as ex:
-        line_bot_api.reply_message(rep, TextSendMessage(text='Args:\n' + ex.args + 'Msg:\n' + ex.message))
+        line_bot_api.reply_message(rep, TextSendMessage(text='Args:\n' + '\n'.join(ex.args) + 'Msg:\n' + ex.message))
     finally:
         line_bot_api.reply_message(rep, TextSendMessage(text=text))
 
