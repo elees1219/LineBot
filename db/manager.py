@@ -10,7 +10,7 @@ class db_manager(object):
     # Change Language to bilangual
     # Check Data Exist and iterate to display
     # Re-organize package
-    # Make user easy to input like ¤p¤ô¥À  A  Keyword  Reply - using double space to separate
+    # Make user easy to input like -JELLYFISH  A  Keyword  Reply- (using double space to separate)
     # Add function to know who add keyword
     # Add keyword analysis
     # No Result No Return
