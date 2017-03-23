@@ -91,7 +91,7 @@ def handle_text_message(event):
 
 
     try:
-        cmd, keyword, reply = text.split(',')
+        cmd, keyword, reply = text.split('|')
 
         if cmd == "SQL":
             line_bot_api.reply_message(rep, TextSendMessage(text=db.sql_cmd(keyword)))
