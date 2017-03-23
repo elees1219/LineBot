@@ -12,12 +12,15 @@ class db_manager(object):
 
 
     def db_version(self):
+        self.set_connection()
         try:
             self.cur.execute('SELECT version();')
             db_version = self.cur.fetchone()
         except psycopg2.Error as ex:
+            self.close_connection()
             return str(ex.message)
         except Exception as ex:
+            self.close_connection()
             return str(ex.message)
 
         self.close_connection()
@@ -25,41 +28,50 @@ class db_manager(object):
 
 
     def table_create(self):
+        self.set_connection()
         try:
             self.cur.execute('CREATE TABLE keyword_dict(\
                             id SERIAL,\
                             keyword VARCHAR(255),\
-                            reply VARCHAR(255)\
-                            );')
+                            reply VARCHAR(255));')
         except psycopg2.Error as ex:
+            self.close_connection()
             return str(ex.message)
         except Exception as ex:
+            self.close_connection()
             return str(ex.message)
 
         self.close_connection()
 
 
     def table_exist(self):
+        self.set_connection()
         try:
             self.cur.execute('SELECT * FROM keyword_dict;')
 
             recv_content = self.cur.fetchone()
         except psycopg2.Error as ex:
+            self.close_connection()
             return str(ex.message)
         except Exception as ex:
+            self.close_connection()
             return str(ex.message)
 
         self.close_connection()
         return str(recv_content)
 
+
     def insert_keyword(self, keyword, reply):
+        self.set_connection()
         try:
             self.cur.execute('INSERT INTO keyword_dict(keyword, reply)\
                               VALUES(' + keyword + ', ' + reply + ') RETURNING id;')
             register_id = self.cur.fetchone()[0]
         except psycopg2.Error as ex:
+            self.close_connection()
             return str(ex.message)
         except Exception as ex:
+            self.close_connection()
             return str(ex.message)
         
         self.close_connection()
@@ -67,12 +79,15 @@ class db_manager(object):
 
 
     def sql_cmd(self, cmd):
+        self.set_connection()
         try:
             self.cur.execute(cmd)
             cmd_return = self.cur.fetchone()
         except psycopg2.Error as ex:
+            self.close_connection()
             return str(ex.message)
         except Exception as ex:
+            self.close_connection()
             return str(ex.message)
         
         self.close_connection()
