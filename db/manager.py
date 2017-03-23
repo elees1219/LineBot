@@ -20,8 +20,8 @@ class db_manager(object):
 
     def db_version(self):
         try:
-            cur.execute('SELECT version()')
-            db_version = cur.fetchone()
+            self.cur.execute('SELECT version()')
+            db_version = self.cur.fetchone()
             return str(db_version)
         except psycopg2.Error as ex:
             return str(ex.message)
@@ -30,7 +30,7 @@ class db_manager(object):
 
     def table_create(self):
         try:
-            cur.execute('CREATE TABLE keyword_dict(\
+            self.cur.execute('CREATE TABLE keyword_dict(\
                             id SERIAL,\
                             keyword VARCHAR(255),\
                             reply VARCHAR(255)\
