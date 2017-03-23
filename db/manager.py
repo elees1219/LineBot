@@ -80,6 +80,7 @@ class db_manager(object):
                    '\nKeyword: ' + str(Result[1]) + 
                    '\nReply: ' + str(Result[2]))
 
+
     def get_reply(self, keyword):
         self.set_connection()
         try:
@@ -100,19 +101,27 @@ class db_manager(object):
         self.close_connection()
         return str(reply)
 
+
     def delete_keyword(self, keyword):
         self.set_connection()
         try:
             self.cur.execute('DELETE FROM keyword_dict \
                               WHERE keyword = \'' + keyword + '\' RETURNING *;')
-            kw = self.cur.fetchone()[1]
-            reply = self.cur.fetchone()[2]
+
+            result = self.cur.fetchone()
+            kw = 'None'
+            reply = 'None'
+
+            if result:
+                kw = result[1]
+                reply = result[2]
+
         except psycopg2.Error as ex:
             self.close_connection()
-            return str(ex.message)
+            return str('psycopg2.Error in delete_keyword\n' + ex.message)
         except Exception as ex:
             self.close_connection()
-            return str(ex.message)
+            return str('Exception in delete_keyword\n' + ex.message)
         
         self.close_connection()
         return str('Auto reply pair below has been DELETED.\nkeyword: ' + kw + '\nreply: ' + reply)
