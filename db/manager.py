@@ -15,18 +15,30 @@ class db_manager(object):
             host=url.hostname,
             port=url.port
         )
+        self.cur = self.conn.cursor()
 
 
     def db_version(self):
         try:
-            cur = self.conn.cursor()
             cur.execute('SELECT version()')
             db_version = cur.fetchone()
-            cur.close()
             return str(db_version)
         except psycopg2.Error as ex:
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
 
+    def table_create(self):
+        try:
+            cur.execute('CREATE TABLE keyword_dict(\
+                            id SERIAL,\
+                            keyword VARCHAR(255),\
+                            reply VARCHAR(255)\
+                        )')
+        except psycopg2.Error as ex:
+            return str(ex.message)
+        except Exception as ex:
+            return str(ex.message)
 
+    def close_connection(self):
+        self.cur.close()

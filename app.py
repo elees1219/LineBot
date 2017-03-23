@@ -86,6 +86,8 @@ def handle_text_message(event):
     try:
         if text == "db_version":
             line_bot_api.reply_message(rep, TextSendMessage(text=db.db_version()))
+        elif text == "db_create":
+            line_bot_api.reply_message(rep, TextSendMessage(text=db.table_create()))
 
         cmd, keyword, reply = text.split(',')
 
