@@ -75,7 +75,7 @@ class db_manager(object):
             return str(ex.message)
         
         self.close_connection()
-        return str('Keyword ID: ' + register_id)
+        return str('Keyword ID: ' + str(register_id))
 
     def get_reply(self, keyword):
         self.set_connection()
