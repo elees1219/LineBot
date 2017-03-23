@@ -83,12 +83,6 @@ def handle_text_message(event):
     rep = event.reply_token
     text = event.message.text
 
-    if text == 'db_create':
-        if db.table_exist() == str(True):
-            line_bot_api.reply_message(rep, TextSendMessage(text='Table Already Created.'))
-        else:
-            line_bot_api.reply_message(rep, TextSendMessage(text=db.table_create()))
-
     try:
         cmd, keyword, reply = text.split('|')
 
@@ -99,13 +93,20 @@ def handle_text_message(event):
         elif cmd == "DEL":
             line_bot_api.reply_message(rep, TextSendMessage(text=db.delete_keyword(keyword)))
     except ValueError:
-        pass
+        reply = db.get_reply(text)
+        if reply is not None:
+            line_bot_api.reply_message(rep, TextSendMessage(text=reply))
+            return
+
+        if text == 'db_create':
+            if db.table_exist() == str(True):
+                line_bot_api.reply_message(rep, TextSendMessage(text='Table Already Created.'))
+            else:
+                line_bot_api.reply_message(rep, TextSendMessage(text=db.table_create()))
     except Exception as ex:
         line_bot_api.reply_message(rep, TextSendMessage(text='Args:\n' + '\n'.join(ex.args) + 'Msg:\n' + ex.message))
     finally:
         pass
-
-    line_bot_api.reply_message(rep, TextSendMessage(text=db.get_reply(text)))
 
     return
 
