@@ -81,7 +81,7 @@ class db_manager(object):
         self.set_connection()
         try:
             self.cur.execute('SELECT * FROM keyword_dict \
-                              WHERE `keyword` = \'' + keyword + '\';')
+                              WHERE keyword = \'' + keyword + '\';')
             reply = self.cur.fetchone()[2]
         except psycopg2.Error as ex:
             self.close_connection()
@@ -97,7 +97,7 @@ class db_manager(object):
         self.set_connection()
         try:
             self.cur.execute('DELETE FROM keyword_dict \
-                              WHERE `keyword` = \'' + keyword + '\';')
+                              WHERE keyword = \'' + keyword + '\';')
             kw = self.cur.fetchone()[1]
             reply = self.cur.fetchone()[2]
         except psycopg2.Error as ex:
