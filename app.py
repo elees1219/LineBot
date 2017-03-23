@@ -89,7 +89,6 @@ def handle_text_message(event):
         else:
             line_bot_api.reply_message(rep, TextSendMessage(text=db.table_create()))
 
-
     try:
         cmd, keyword, reply = text.split('|')
 
@@ -97,12 +96,16 @@ def handle_text_message(event):
             line_bot_api.reply_message(rep, TextSendMessage(text=db.sql_cmd(keyword)))
         elif cmd == "ADD":
             line_bot_api.reply_message(rep, TextSendMessage(text=db.insert_keyword(keyword, reply)))
+        elif cmd == "DEL":
+            line_bot_api.reply_message(rep, TextSendMessage(text=db.delete_keyword(keyword)))
     except ValueError:
         pass
     except Exception as ex:
         line_bot_api.reply_message(rep, TextSendMessage(text='Args:\n' + '\n'.join(ex.args) + 'Msg:\n' + ex.message))
     finally:
         line_bot_api.reply_message(rep, TextSendMessage(text=text))
+
+    line_bot_api.reply_message(rep, TextSendMessage(text=db.get_reply(text)))
 
     return
 

@@ -65,8 +65,8 @@ class db_manager(object):
         self.set_connection()
         try:
             self.cur.execute('INSERT INTO keyword_dict(keyword, reply)\
-                              VALUES(' + keyword + ', ' + reply + ') RETURNING id;')
-            register_id = self.cur.fetchone()[0]
+                              VALUES(\'' + keyword + '\', \'' + reply + '\') RETURNING id;')
+            register_id = self.cur.fetchone()['id']
         except psycopg2.Error as ex:
             self.close_connection()
             return str(ex.message)
@@ -75,7 +75,40 @@ class db_manager(object):
             return str(ex.message)
         
         self.close_connection()
-        return str(register_id)
+        return str('Keyword ID: ' + register_id)
+
+    def get_reply(self, keyword):
+        self.set_connection()
+        try:
+            self.cur.execute('SELECT * FROM keyword_dict \
+                              WHERE `keyword` = \'' + keyword + '\';')
+            reply = self.cur.fetchone()['reply']
+        except psycopg2.Error as ex:
+            self.close_connection()
+            return str(ex.message)
+        except Exception as ex:
+            self.close_connection()
+            return str(ex.message)
+        
+        self.close_connection()
+        return str(reply)
+
+    def delete_keyword(self, keyword):
+        self.set_connection()
+        try:
+            self.cur.execute('DELETE FROM keyword_dict \
+                              WHERE `keyword` = \'' + keyword + '\';')
+            kw = self.cur.fetchone()['keyword']
+            reply = self.cur.fetchone()['reply']
+        except psycopg2.Error as ex:
+            self.close_connection()
+            return str(ex.message)
+        except Exception as ex:
+            self.close_connection()
+            return str(ex.message)
+        
+        self.close_connection()
+        return str('Auto reply pair below has been DELETED.\nkeyword: ' + kw + '\nreply: ' + reply)
 
 
     def sql_cmd(self, cmd):
