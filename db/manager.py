@@ -37,7 +37,7 @@ class db_manager(object):
                             id SERIAL,\
                             keyword VARCHAR(255),\
                             reply VARCHAR(255)\
-                            ;)')
+                            );')
             self.conn.commit()
         except psycopg2.Error as ex:
             return str(ex.message)
