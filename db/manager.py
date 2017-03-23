@@ -26,8 +26,8 @@ class db_manager(object):
             db_version = self.cur.fetchone()
             return str(db_version)
         except psycopg2.Error as ex:
-            close_connection()
-            set_connection()
+            self.close_connection()
+            self.set_connection()
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
@@ -41,8 +41,8 @@ class db_manager(object):
                             reply VARCHAR(255)\
                             );')
         except psycopg2.Error as ex:
-            close_connection()
-            set_connection()
+            self.close_connection()
+            self.set_connection()
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
@@ -57,8 +57,8 @@ class db_manager(object):
             else:
                 return str(False)
         except psycopg2.Error as ex:
-            close_connection()
-            set_connection()
+            self.close_connection()
+            self.set_connection()
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
@@ -71,8 +71,8 @@ class db_manager(object):
 
             return str(self.cur.fetchone()[0])
         except psycopg2.Error as ex:
-            close_connection()
-            set_connection()
+            self.close_connection()
+            self.set_connection()
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
