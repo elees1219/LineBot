@@ -260,8 +260,11 @@ def handle_join(event):
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text='Welcome to use the shadow of JELLYFISH!\n\n' + 
-                             'use \'ADD|(Keyword)|(Reply)\' to add new word pair.\n' + 
-                             'use \'DEL|(Keyword)| to delete word pair\'\n' + 
+                             '======================================\n'+
+                             'USAGE: \n'+
+                             '\'ADD|(Keyword)|(Reply)\' to add new word pair.\n' + 
+                             '\'DEL|(Keyword)|\' to delete the specified word pair.\n' + 
+                             '======================================\n'+
                              'Other function such as locking specified user\'s keyword, or gaming... etc. ' + 
                              'has not yet developed. The only function is to reply something with keyword sent.\n' + 
                              'To contact the developer, use the URL below http://line.me/ti/p/~chris80124 \n\n' + 
