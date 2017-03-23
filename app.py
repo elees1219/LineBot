@@ -103,7 +103,7 @@ def handle_text_message(event):
     except Exception as ex:
         line_bot_api.reply_message(rep, TextSendMessage(text='Args:\n' + '\n'.join(ex.args) + 'Msg:\n' + ex.message))
     finally:
-        line_bot_api.reply_message(rep, TextSendMessage(text=text))
+        pass
 
     line_bot_api.reply_message(rep, TextSendMessage(text=db.get_reply(text)))
 
