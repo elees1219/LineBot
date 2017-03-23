@@ -82,7 +82,11 @@ class db_manager(object):
         try:
             self.cur.execute('SELECT * FROM keyword_dict \
                               WHERE keyword = \'' + keyword + '\';')
-            reply = self.cur.fetchone()[2]
+            exec_res = self.cur.fetchone()
+            reply = None
+
+            if exec_res:
+                reply = exec_res[2]
         except psycopg2.Error as ex:
             self.close_connection()
             return str(ex.message)
