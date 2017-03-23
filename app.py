@@ -186,6 +186,8 @@ def handle_text_message(event):
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
+    return
+
     line_bot_api.reply_message(
         event.reply_token,
         LocationSendMessage(
@@ -210,6 +212,8 @@ def handle_sticker_message(event):
 # Other Message Type
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
+    return
+
     if isinstance(event.message, ImageMessage):
         ext = 'jpg'
     elif isinstance(event.message, VideoMessage):
@@ -238,12 +242,16 @@ def handle_content_message(event):
 
 @handler.add(FollowEvent)
 def handle_follow(event):
+    return
+
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text='Got follow event'))
 
 
 @handler.add(UnfollowEvent)
 def handle_unfollow():
+    return
+
     app.logger.info("Got Unfollow event")
 
 
@@ -251,16 +259,18 @@ def handle_unfollow():
 def handle_join(event):
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text='Joined this ' + event.source.type))
+        TextSendMessage(text='Joined this chatting channel.\nchannel ID: ' + event.source.userId))
 
 
 @handler.add(LeaveEvent)
 def handle_leave():
+    return
     app.logger.info("Got leave event")
 
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
+    return
     if event.postback.data == 'ping':
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text='pong'))
@@ -268,6 +278,7 @@ def handle_postback(event):
 
 @handler.add(BeaconEvent)
 def handle_beacon(event):
+    return
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text='Got beacon event. hwid=' + event.beacon.hwid))
