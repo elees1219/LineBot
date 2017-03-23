@@ -26,6 +26,8 @@ class db_manager(object):
             db_version = self.cur.fetchone()
             return str(db_version)
         except psycopg2.Error as ex:
+            close_connection()
+            set_connection()
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
@@ -38,8 +40,9 @@ class db_manager(object):
                             keyword VARCHAR(255),\
                             reply VARCHAR(255)\
                             );')
-            self.conn.commit()
         except psycopg2.Error as ex:
+            close_connection()
+            set_connection()
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
@@ -54,6 +57,8 @@ class db_manager(object):
             else:
                 return str(False)
         except psycopg2.Error as ex:
+            close_connection()
+            set_connection()
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
@@ -63,10 +68,11 @@ class db_manager(object):
         try:
             self.cur.execute('INSERT INTO keyword_dict(keyword, reply)\
                               VALUES(' + keyword + ', ' + reply + ') RETURNING id;')
-            self.conn.commit()
 
             return str(self.cur.fetchone()[0])
         except psycopg2.Error as ex:
+            close_connection()
+            set_connection()
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
@@ -74,3 +80,6 @@ class db_manager(object):
 
     def close_connection(self):
         self.cur.close()
+
+    def set_connection(self):
+        self.cur = self.conn.cursor()

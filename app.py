@@ -83,10 +83,7 @@ def handle_text_message(event):
     rep = event.reply_token
     text = event.message.text
 
-
-    if text == 'db_version':
-        line_bot_api.reply_message(rep, TextSendMessage(text=db.db_version()))
-    elif text == 'db_create':
+    if text == 'db_create':
         if db.table_exist() == str(True):
             line_bot_api.reply_message(rep, TextSendMessage(text='Table Already Created.'))
         else:
