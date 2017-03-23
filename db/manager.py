@@ -5,6 +5,16 @@ import psycopg2
 
 class db_manager(object):
 
+    # SQL Command Escape Value
+    # Common Operation to use
+    # Change Language to bilangual
+    # Check Data Exist and iterate to display
+    # Re-organize package
+    # Make user easy to input like ¤p¤ô¥À  A  Keyword  Reply - using double space to separate
+    # Add function to know who add keyword
+    # Add keyword analysis
+    # No Result No Return
+
     def __init__(self, scheme, db_url):
         urlparse.uses_netloc.append(scheme)
         self.url = urlparse.urlparse(db_url)
@@ -79,7 +89,6 @@ class db_manager(object):
         return str('Keyword ID: ' + str(Result[0]) + 
                    '\nKeyword: ' + str(Result[1]) + 
                    '\nReply: ' + str(Result[2]))
-
 
     def get_reply(self, keyword):
         self.set_connection()
