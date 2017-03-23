@@ -93,7 +93,10 @@ def handle_text_message(event):
     try:
         cmd, keyword, reply = text.split(',')
 
-        line_bot_api.reply_message(rep, TextSendMessage(text=db.insert_keyword(keyword, reply)))
+        if cmd == "SQL":
+            line_bot_api.reply_message(rep, TextSendMessage(text=db.sql_cmd(cmd)))
+        elif cmd == "ADD":
+            line_bot_api.reply_message(rep, TextSendMessage(text=db.insert_keyword(keyword, reply)))
     except ValueError:
         pass
     except Exception as ex:

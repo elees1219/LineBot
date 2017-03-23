@@ -24,6 +24,7 @@ class db_manager(object):
         try:
             self.cur.execute('SELECT version();')
             db_version = self.cur.fetchone()
+            conn.commit()
             return str(db_version)
         except psycopg2.Error as ex:
             self.close_connection()
@@ -40,6 +41,7 @@ class db_manager(object):
                             keyword VARCHAR(255),\
                             reply VARCHAR(255)\
                             );')
+            conn.commit()
         except psycopg2.Error as ex:
             self.close_connection()
             self.set_connection()
@@ -51,6 +53,7 @@ class db_manager(object):
     def table_exist(self):
         try:
             self.cur.execute('SELECT * FROM keyword_dict;')
+            conn.commit()
 
             if self.cur.fetchone() is not None:
                 return str(True)
@@ -68,6 +71,7 @@ class db_manager(object):
         try:
             self.cur.execute('INSERT INTO keyword_dict(keyword, reply)\
                               VALUES(' + keyword + ', ' + reply + ') RETURNING id;')
+            conn.commit()
 
             return str(self.cur.fetchone()[0])
         except psycopg2.Error as ex:
@@ -77,6 +81,18 @@ class db_manager(object):
         except Exception as ex:
             return str(ex.message)
 
+    def sql_cmd(self, cmd):
+        try:
+            self.cur.execute(cmd)
+            conn.commit()
+
+            return str(self.cur.fetchone())
+        except psycopg2.Error as ex:
+            self.close_connection()
+            self.set_connection()
+            return str(ex.message)
+        except Exception as ex:
+            return str(ex.message)
 
     def close_connection(self):
         self.cur.close()
