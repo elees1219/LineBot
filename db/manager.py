@@ -65,8 +65,9 @@ class db_manager(object):
         self.set_connection()
         try:
             self.cur.execute('INSERT INTO keyword_dict(keyword, reply)\
-                              VALUES(\'' + keyword + '\', \'' + reply + '\') RETURNING id;')
-            register_id = self.cur.fetchone()[0]
+                              VALUES(\'' + keyword + '\', \'' + reply + '\') RETURNING *;')
+            Result = self.cur.fetchone()
+
         except psycopg2.Error as ex:
             self.close_connection()
             return str(ex.message)
@@ -75,7 +76,9 @@ class db_manager(object):
             return str(ex.message)
         
         self.close_connection()
-        return str('Keyword ID: ' + str(register_id))
+        return str('Keyword ID: ' + str(Result[0]) + 
+                   '\nKeyword: ' + str(Result[1]) + 
+                   '\nReply: ' + str(Result[2]))
 
     def get_reply(self, keyword):
         self.set_connection()
@@ -101,7 +104,7 @@ class db_manager(object):
         self.set_connection()
         try:
             self.cur.execute('DELETE FROM keyword_dict \
-                              WHERE keyword = \'' + keyword + '\';')
+                              WHERE keyword = \'' + keyword + '\' RETURNING *;')
             kw = self.cur.fetchone()[1]
             reply = self.cur.fetchone()[2]
         except psycopg2.Error as ex:
