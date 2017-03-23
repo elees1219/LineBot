@@ -83,18 +83,20 @@ def handle_text_message(event):
     rep = event.reply_token
     text = event.message.text
 
-    try:
-        if text == "db_version":
-            line_bot_api.reply_message(rep, TextSendMessage(text=db.db_version()))
-        elif text == "db_create":
+
+    if text == 'db_version':
+        line_bot_api.reply_message(rep, TextSendMessage(text=db.db_version()))
+    elif text == 'db_create':
+        if db.table_exist() == str(True):
+            line_bot_api.reply_message(rep, TextSendMessage(text='Table Already Created.'))
+        else:
             line_bot_api.reply_message(rep, TextSendMessage(text=db.table_create()))
 
+
+    try:
         cmd, keyword, reply = text.split(',')
 
-        line_bot_api.reply_message(rep, [
-            TextSendMessage(text=cmd), 
-            TextSendMessage(text=keyword), 
-            TextSendMessage(text=reply)])
+        line_bot_api.reply_message(rep, TextSendMessage(text=db.insert_keyword(keyword, reply)))
     except ValueError:
         pass
     except Exception as ex:

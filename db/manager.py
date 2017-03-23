@@ -18,9 +18,11 @@ class db_manager(object):
         self.cur = self.conn.cursor()
 
 
+    # Table Exist
+
     def db_version(self):
         try:
-            self.cur.execute('SELECT version()')
+            self.cur.execute('SELECT version();')
             db_version = self.cur.fetchone()
             return str(db_version)
         except psycopg2.Error as ex:
@@ -28,17 +30,47 @@ class db_manager(object):
         except Exception as ex:
             return str(ex.message)
 
+
     def table_create(self):
         try:
             self.cur.execute('CREATE TABLE keyword_dict(\
                             id SERIAL,\
                             keyword VARCHAR(255),\
                             reply VARCHAR(255)\
-                        )')
+                            ;)')
+            self.conn.commit()
         except psycopg2.Error as ex:
             return str(ex.message)
         except Exception as ex:
             return str(ex.message)
+
+
+    def table_exist(self):
+        try:
+            self.cur.execute('SELECT * FROM keyword_dict;')
+
+            if self.cur.fetchone() is not None:
+                return str(True)
+            else:
+                return str(False)
+        except psycopg2.Error as ex:
+            return str(ex.message)
+        except Exception as ex:
+            return str(ex.message)
+
+
+    def insert_keyword(self, keyword, reply):
+        try:
+            self.cur.execute('INSERT INTO keyword_dict(keyword, reply)\
+                              VALUES(' + keyword + ', ' + reply + ') RETURNING id;')
+            self.conn.commit()
+
+            return str(self.cur.fetchone()[0])
+        except psycopg2.Error as ex:
+            return str(ex.message)
+        except Exception as ex:
+            return str(ex.message)
+
 
     def close_connection(self):
         self.cur.close()
