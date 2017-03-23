@@ -32,7 +32,7 @@ class db_manager(object):
         try:
             self.cur.execute('CREATE TABLE keyword_dict(\
                             id SERIAL,\
-                            keyword VARCHAR(255),\
+                            keyword VARCHAR(255) PRIMARY KEY,\
                             reply VARCHAR(255));')
         except psycopg2.Error as ex:
             self.close_connection()

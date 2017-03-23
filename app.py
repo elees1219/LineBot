@@ -94,7 +94,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(rep, TextSendMessage(text=db.delete_keyword(keyword)))
     except ValueError:
         reply = db.get_reply(text)
-        if reply is not None:
+        if reply != 'None':
             line_bot_api.reply_message(rep, TextSendMessage(text=reply))
             return
 
