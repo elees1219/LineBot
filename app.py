@@ -125,7 +125,7 @@ def handle_text_message(event):
     except ValueError:
         kw = db.get_reply(text)
         if kw is not None:
-            api.reply_message(rep, TextSendMessage(text='ARP: ' + kw[kwdict_col.reply]))
+            api.reply_message(rep, TextSendMessage(text='ARP: ' + kw[0][kwdict_col.reply]))
         return
     except Exception as ex:
         api.reply_message(rep, TextSendMessage(text='Error Args:\n' + '\n'.join(ex.args) + '\nMsg:\n' + ex.message))
