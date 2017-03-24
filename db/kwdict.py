@@ -45,7 +45,7 @@ class kw_dict_mgr(object):
 
     def search_keyword(self, keyword):
         kw = keyword
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%{kw}%\';'.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
             return result
@@ -85,12 +85,10 @@ class kw_dict_mgr(object):
             result = self.cur.fetchall()
         except psycopg2.Error as ex:
             self._close_connection()
-            return ex.message
-            # return [[args for args in ex.args]]
+            return [[args for args in ex.args]]
         except Exception as ex:
             self._close_connection()
-            return ex.message
-            # return [[args for args in ex.args]]
+            return [[args for args in ex.args]]
         
         self._close_connection()
         return result
