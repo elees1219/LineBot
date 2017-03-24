@@ -107,7 +107,6 @@ def handle_text_message(event):
                     results = db.insert_keyword(param1, param2, uid)
                     text = u'Pair Added. Total: {len}\n'.format(len=len(results))
                     for result in results:
-                        text += str(result)
                         text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                         text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
                         text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
@@ -163,6 +162,8 @@ def handle_text_message(event):
                 api.reply_message(rep, TextSendMessage(text=str(db.get_tables())))
         else:
             pass
+    except ValueError:
+        pass
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = 'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
