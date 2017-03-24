@@ -54,7 +54,6 @@ class kw_dict_mgr(object):
 
 
     def search_keyword(self, startIndex, endIndex):
-        kw = keyword
         cmd = u'SELECT * FROM keyword_dict WHERE id >= {si} AND id <= {ei};'.format(si=startIndex, ei=endIndex)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
