@@ -172,19 +172,16 @@ def handle_text_message(event):
         else:
             pass
     except ValueError as ex:
-        res = db.get_reply(text)
-        if res is not None:
-            result = res[0]
-            api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
-        else:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
-            api.reply_message(rep, TextSendMessage(text=text))
+        pass
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
         api.reply_message(rep, TextSendMessage(text=text))
-
+    
+    res = db.get_reply(text)
+    if res is not None:
+        result = res[0]
+        api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
 
     return
 
