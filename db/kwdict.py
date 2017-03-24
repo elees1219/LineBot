@@ -16,12 +16,6 @@ class kw_dict_mgr(object):
         self._set_connection()
 
 
-    def get_tables(self):
-        cmd = u'SELECT * FROM pg_catalog.pg_tables'
-        result = self.sql_cmd(cmd)
-        return result
-
-
     def create_kwdict(self):
         cmd = u'CREATE TABLE keyword_dict( \
                     id SERIAL, keyword TEXT PRIMARY KEY, reply TEXT, \

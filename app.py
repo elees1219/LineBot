@@ -5,6 +5,7 @@ import os
 import sys
 import tempfile
 import traceback
+import md5
 
 # Database import
 from db import kw_dict_mgr, kwdict_col
@@ -86,7 +87,7 @@ def handle_text_message(event):
 
     try:
         head, oth = split(text, '  ', 2)
-        split_count = {'S': 3, 'A': 4, 'D': 3, 'Q': 3, 'C': 2, 'I': 3, 'T': 2}
+        split_count = {'S': 4, 'A': 4, 'D': 3, 'Q': 3, 'C': 2, 'I': 3, 'T': 2}
 
         if head == 'JC':
             params = split(oth, '  ', split_count[oth[0]] - 1)
@@ -98,15 +99,17 @@ def handle_text_message(event):
 
             # [P]SQL Command
             if cmd == 'S':
-                results = db.sql_cmd(param1)
-
-                if results is not None:
-                    text = 'SQL command result: \n'
-                    for result in results:
-                        text = str(result) + '\n'
+                if md5.new(param2).hexdigest() == '37f9105623c89106783932dffac1ce11':
+                    results = db.sql_cmd(param1)
+                    if results is not None:
+                        text = 'SQL command result: \n'
+                        for result in results:
+                            text = str(result) + '\n'
+                else:
+                    text = 'This is a restricted function.'
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # [T]ADD keyword
+            # [P]ADD keyword
             elif cmd == 'A':
                 text = 'Please go to 1v1 chat to add keyword pair.'
 
@@ -120,7 +123,7 @@ def handle_text_message(event):
                         text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # [N]DELETE keyword
+            # [P]DELETE keyword
             elif cmd == 'D':
                 text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                 results = db.delete_keyword(param1)
@@ -151,7 +154,7 @@ def handle_text_message(event):
             elif cmd == 'I':
                 results = db.get_info(param1)
 
-                if results is not None:
+                if results is None:
                     text = 'Specified keyword: {kw} not exists.'.format(kw=param1)
                     api.reply_message(rep, TextSendMessage(text=text))
                 else:
@@ -165,9 +168,6 @@ def handle_text_message(event):
                         prof_name = api.get_profile([kwdict_col.creator])
                         text += 'Created by {name}.\n'.format(name=prof_name)
                     api.reply_message(rep, TextSendMessage(text=text))
-            # [T]get TABLES list
-            elif cmd == 'T':
-                api.reply_message(rep, TextSendMessage(text=str(db.get_tables())))
         else:
             pass
     except ValueError:
