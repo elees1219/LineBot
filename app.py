@@ -85,9 +85,7 @@ def handle_text_message(event):
     text = event.message.text
 
     try:
-        head, cmd, param1, param2 = text.split('$')
-        text = text[len(head) + len(cmd) + len(param1) + 3:]
-        param2 = text
+        head, cmd, param1, param2 = split(text, ' ', 4)
 
         if head == 'JC':
             # SQL Command
@@ -110,9 +108,9 @@ def handle_text_message(event):
                     text = u'Pair Added. Total: {len}\n'.format(len=len(results))
                     for result in results:
                         text += str(result)
-                        text += u'ID: {id}\n'.format(id=str(result[kwdict_col.id]))
-                        #text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
-                        #text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
+                        text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                        text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
+                        text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # DELETE keyword
@@ -165,16 +163,15 @@ def handle_text_message(event):
                 api.reply_message(rep, TextSendMessage(text=str(db.get_tables())))
         else:
             pass
-    except ValueError:
-        res = db.get_reply(text)
-        if res is not None:
-            result = res[0]
-            api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
-        return
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = 'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
         api.reply_message(rep, TextSendMessage(text=text))
+
+    res = db.get_reply(text)
+    if res is not None:
+        result = res[0]
+        api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
 
     return
 
@@ -357,6 +354,16 @@ def handle_beacon(event):
     api.reply_message(
         event.reply_token,
         TextSendMessage(text='Got beacon event. hwid=' + event.beacon.hwid))
+
+
+def split(text, splitter, size):
+    list = []
+    for i in range(size - 1):
+        list.append(text[0:text.index(splitter)])
+        text = text[text.index(splitter)+1:]
+  
+    list.append(text)
+    return list
 
 
 if __name__ == "__main__":
