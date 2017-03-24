@@ -96,7 +96,11 @@ def handle_text_message(event):
 
                 if isinstance(event.source, SourceUser):
                     uid = event.source.user_id
-                    text = db.insert_keyword(param1, param2, uid)
+                    result = db.insert_keyword(param1, param2, uid)
+                    text = u'Pair Added.'
+                    text += u'ID: {id}'.format(id=result[kwdict_col.id])
+                    text += u'Keyword: {kw}'.format(kw=result[kwdict_col.keyword])
+                    text += u'Reply: {rep}'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             elif cmd == 'D':
@@ -106,7 +110,7 @@ def handle_text_message(event):
             elif cmd == 'I':
                 results = db.get_info(param1)
 
-                if len(results) > 0:
+                if results is not None:
                     text = 'Specified keyword: {kw} not exists.'.format(kw=param1)
                     api.reply_message(rep, TextSendMessage(text=text))
                 else:

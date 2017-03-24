@@ -25,7 +25,7 @@ class kw_dict_mgr(object):
     def create_kwdict(self):
         cmd = u'CREATE TABLE keyword_dict( \
                     id SERIAL, keyword TEXT PRIMARY KEY, reply TEXT, \
-                    creator TEXT NOT NULL, deleted BOOLEAN DEFAULT FALSE, used_time INTEGER NOT NULL) RETURNING *;'
+                    creator TEXT NOT NULL, deleted BOOLEAN DEFAULT FALSE, used_time INTEGER NOT NULL);'
         result = self.sql_cmd(cmd)
         return result
 
