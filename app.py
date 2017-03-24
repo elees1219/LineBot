@@ -6,7 +6,7 @@ import sys
 import tempfile
 
 # Database import
-from db import db_manager
+from db import kw_dict_mgr, kwdict_col
 
 from flask import Flask, request, abort
 
@@ -31,7 +31,7 @@ from linebot.models import (
 app = Flask(__name__)
 
 # Database initializing
-db = db_manager("postgres", os.environ["DATABASE_URL"])
+db = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -42,7 +42,7 @@ if channel_secret is None:
 if channel_access_token is None:
     print('Specify LINE_CHANNEL_ACCESS_TOKEN as environment variable.')
     sys.exit(1)
-line_bot_api = LineBotApi(channel_access_token)
+api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
 # File path
@@ -84,58 +84,77 @@ def handle_text_message(event):
     text = event.message.text
 
     try:
-        cmd, keyword, reply = text.split('|')
+        head, cmd, param1, param2 = text.split('  ')
 
-        if cmd == "SQL":
-            line_bot_api.reply_message(rep, TextSendMessage(text=db.sql_cmd(keyword)))
-        elif cmd == "ADD":
-            line_bot_api.reply_message(rep, TextSendMessage(text=db.insert_keyword(keyword, reply)))
-        elif cmd == "DEL":
-            line_bot_api.reply_message(rep, TextSendMessage(text=db.delete_keyword(keyword)))
+        if head == 'JC':
+            if cmd == 'S':
+                api.reply_message(rep, TextSendMessage(text=db.sql_cmd(param1)))
+            elif cmd == 'A':
+                text = 'Please go to 1v1 chat to add keyword pair.'
+
+                if isinstance(event.source, SourceUser):
+                    uid = event.source.user_id
+                    text = db.insert_keyword(param1, param2, uid)
+
+                api.reply_message(rep, TextSendMessage(text=text))
+            elif cmd == 'D':
+                api.reply_message(rep, TextSendMessage(text=db.delete_keyword(param1)))
+            elif cmd == 'C':
+                api.reply_message(rep, TextSendMessage(text=db.create_kwdict()))
+            elif cmd == 'I':
+                results = db.get_info(param1)
+
+                if len(results) > 0:
+                    text = 'Specified keyword: {kw} not exists.'.format(kw=param1)
+                    api.reply_message(rep, TextSendMessage(text=text))
+                else:
+                    text = None
+                    for result in results:
+                        text += 'ID: {id}\n'.format(id=result[kwdict_col.id])
+                        text += 'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                        text += 'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                        text += 'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
+                        profile = api.get_profile(event.source.user_id)
+                        prof_name = api.get_profile([kwdict_col.creator])
+                        text += 'Created by {name}.\n'.format(name=prof_name)
+                    api.reply_message(rep, TextSendMessage(text=text))
+        else:
+            pass
     except ValueError:
-        reply = db.get_reply(text)
-        if reply != 'None':
-            line_bot_api.reply_message(rep, TextSendMessage(text=reply))
-            return
-
-        if text == 'db_create':
-            if db.table_exist() == str(True):
-                line_bot_api.reply_message(rep, TextSendMessage(text='Table Already Created.'))
-            else:
-                line_bot_api.reply_message(rep, TextSendMessage(text=db.table_create()))
-    except Exception as ex:
-        line_bot_api.reply_message(rep, TextSendMessage(text='Args:\n' + '\n'.join(ex.args) + 'Msg:\n' + ex.message))
-    finally:
         pass
+    except Exception as ex:
+        api.reply_message(rep, TextSendMessage(text='Error Args:\n' + '\n'.join(ex.args) + '\nMsg:\n' + ex.message))
 
+    kw = db.get_reply(text)
+    if kw is not None:
+        api.reply_message(rep, TextSendMessage(text=kw[kwdict_col.reply]))
     return
-
 
 
     if text == 'profile':
         if isinstance(event.source, SourceUser):
-            profile = line_bot_api.get_profile(event.source.user_id)
-            line_bot_api.reply_message(
+            profile = api.get_profile(event.source.user_id)
+            api.reply_message(
                 event.reply_token, [
                     TextSendMessage(text='Display name: ' + profile.display_name),
                     TextSendMessage(text='Status message: ' + profile.status_message),
                 ]
             )
         else:
-            line_bot_api.reply_message(
+            api.reply_message(
                 event.reply_token,
                 TextMessage(text="Bot can't use profile API without user ID"))
     elif text == 'bye':
         if isinstance(event.source, SourceGroup):
-            line_bot_api.reply_message(
+            api.reply_message(
                 event.reply_token, TextMessage(text='Leaving group'))
-            line_bot_api.leave_group(event.source.group_id)
+            api.leave_group(event.source.group_id)
         elif isinstance(event.source, SourceRoom):
-            line_bot_api.reply_message(
+            api.reply_message(
                 event.reply_token, TextMessage(text='Leaving room'))
-            line_bot_api.leave_room(event.source.room_id)
+            api.leave_room(event.source.room_id)
         else:
-            line_bot_api.reply_message(
+            api.reply_message(
                 event.reply_token,
                 TextMessage(text="Bot can't leave from 1:1 chat"))
     elif text == 'confirm':
@@ -145,7 +164,7 @@ def handle_text_message(event):
         ])
         template_message = TemplateSendMessage(
             alt_text='Confirm alt text', template=confirm_template)
-        line_bot_api.reply_message(event.reply_token, template_message)
+        api.reply_message(event.reply_token, template_message)
     elif text == 'buttons':
         buttons_template = ButtonsTemplate(
             title='My buttons sample', text='Hello, my buttons', actions=[
@@ -159,7 +178,7 @@ def handle_text_message(event):
             ])
         template_message = TemplateSendMessage(
             alt_text='Buttons alt text', template=buttons_template)
-        line_bot_api.reply_message(event.reply_token, template_message)
+        api.reply_message(event.reply_token, template_message)
     elif text == 'carousel':
         carousel_template = CarouselTemplate(columns=[
             CarouselColumn(text='hoge1', title='fuga1', actions=[
@@ -176,11 +195,11 @@ def handle_text_message(event):
         ])
         template_message = TemplateSendMessage(
             alt_text='Buttons alt text', template=carousel_template)
-        line_bot_api.reply_message(event.reply_token, template_message)
+        api.reply_message(event.reply_token, template_message)
     elif text == 'imagemap':
         pass
     else:
-        line_bot_api.reply_message(
+        api.reply_message(
             event.reply_token, TextSendMessage(text=event.message.text))
 
 
@@ -188,7 +207,7 @@ def handle_text_message(event):
 def handle_location_message(event):
     return
 
-    line_bot_api.reply_message(
+    api.reply_message(
         event.reply_token,
         LocationSendMessage(
             title=event.message.title, address=event.message.address,
@@ -203,7 +222,7 @@ def handle_sticker_message(event):
     sticker_id = event.message.sticker_id
 
     return
-    line_bot_api.reply_message(
+    api.reply_message(
         event.reply_token,
         StickerSendMessage(package_id=2, sticker_id=144)
     )
@@ -223,7 +242,7 @@ def handle_content_message(event):
     else:
         return
 
-    message_content = line_bot_api.get_message_content(event.message.id)
+    message_content = api.get_message_content(event.message.id)
     with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
         for chunk in message_content.iter_content():
             tf.write(chunk)
@@ -233,7 +252,7 @@ def handle_content_message(event):
     dist_name = os.path.basename(dist_path)
     os.rename(tempfile_path, dist_path)
 
-    line_bot_api.reply_message(
+    api.reply_message(
         event.reply_token, [
             TextSendMessage(text='Save content.'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
@@ -244,7 +263,7 @@ def handle_content_message(event):
 def handle_follow(event):
     return
 
-    line_bot_api.reply_message(
+    api.reply_message(
         event.reply_token, TextSendMessage(text='Got follow event'))
 
 
@@ -257,7 +276,7 @@ def handle_unfollow():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    line_bot_api.reply_message(
+    api.reply_message(
         event.reply_token,
         TextSendMessage(text='Welcome to use the shadow of JELLYFISH!\n\n' + 
                              '======================================\n'+
@@ -281,14 +300,14 @@ def handle_leave():
 def handle_postback(event):
     return
     if event.postback.data == 'ping':
-        line_bot_api.reply_message(
+        api.reply_message(
             event.reply_token, TextSendMessage(text='pong'))
 
 
 @handler.add(BeaconEvent)
 def handle_beacon(event):
     return
-    line_bot_api.reply_message(
+    api.reply_message(
         event.reply_token,
         TextSendMessage(text='Got beacon event. hwid=' + event.beacon.hwid))
 

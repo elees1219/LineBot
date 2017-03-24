@@ -1,4 +1,5 @@
 Flask
 Flask-SQLAlchemy
+enum34
 line-bot-sdk
 psycopg2

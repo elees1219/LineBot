@@ -26,7 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="app.py" />
-    <Compile Include="db\manager.py" />
+    <Compile Include="db\kwdict.py" />
     <Compile Include="db\__init__.py">
       <SubType>Code</SubType>
     </Compile>

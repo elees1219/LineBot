@@ -1,3 +1,3 @@
-from .manager import (
-    db_manager
+from .kwdict import (
+    kw_dict_mgr, kwdict_col
 )
