@@ -97,8 +97,8 @@ def handle_text_message(event):
                 if isinstance(event.source, SourceUser):
                     uid = event.source.user_id
                     result = db.insert_keyword(param1, param2, uid)
-                    text = str(uid)
-                    text = str(result)
+                    text = len(result)
+                    text += str(result)
                     text += u'Pair Added.'
                     text += u'ID: {id}'.format(id=result[kwdict_col.id])
                     text += u'Keyword: {kw}'.format(kw=result[kwdict_col.keyword])
@@ -135,8 +135,6 @@ def handle_text_message(event):
         if kw is not None:
             api.reply_message(rep, TextSendMessage(text='ARP: ' + str(kw)))
         return
-    except Exception as ex:
-        api.reply_message(rep, TextSendMessage(text='Error Args:\n' + '\n'.join(ex.args) + '\nMsg:\n' + ex.message))
 
     return
 
