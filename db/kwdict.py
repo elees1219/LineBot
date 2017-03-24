@@ -111,4 +111,4 @@ class kw_dict_mgr(object):
 
 _col_tuple = collections.namedtuple('kwdict_col',
                                     ['id', 'keyword', 'reply', 'creator', 'deleted', 'used_time'])
-kwdict_col = _col_tuple('id', 'keyword', 'reply', 'creator', 'deleted', 'used_time')
+kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5)
