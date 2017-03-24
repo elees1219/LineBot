@@ -34,15 +34,15 @@ class kw_dict_mgr(object):
 
     def insert_keyword(self, keyword, reply, creator_id):
         cmd = 'INSERT INTO keyword_dict(keyword, reply, creator) \
-               VALUES(\'{kw}\', \'{rep}\', \'{cid}\') RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
+               VALUES(\'{kw}\', \'{rep}\', \'{cid}\') RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id).encode('utf-8')
         result = self.sql_cmd(cmd, keyword, reply)[0]
         return result
 
 
     def get_reply(self, keyword):
         kw = keyword
-        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE;'.format(kw=keyword)
-        cmd_update = 'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\''.format(kw=keyword)
+        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE;'.format(kw=keyword).encode('utf-8')
+        cmd_update = 'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\''.format(kw=keyword).encode('utf-8')
         self.sql_cmd(cmd_update)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
@@ -53,7 +53,7 @@ class kw_dict_mgr(object):
 
     def get_info(self, keyword):
         kw = keyword
-        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword)
+        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword).encode('utf-8')
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
             return result
@@ -62,7 +62,7 @@ class kw_dict_mgr(object):
 
 
     def delete_keyword(self, keyword):
-        cmd = 'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' RETURNING *;'.format(kw=keyword)
+        cmd = 'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' RETURNING *;'.format(kw=keyword).encode('utf-8')
         result = self.sql_cmd(cmd, keyword)
         if len(result) > 0:
             return result
