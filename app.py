@@ -142,7 +142,7 @@ def handle_text_message(event):
                 results = db.search_keyword(param1)
 
                 if results is not None:
-                    text = 'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
+                    text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
                     for result in results:
                         pass
                         text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
@@ -156,17 +156,17 @@ def handle_text_message(event):
                 results = db.get_info(param1)
 
                 if results is None:
-                    text = 'Specified keyword: {kw} not exists.'.format(kw=param1)
+                    text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
                     api.reply_message(rep, TextSendMessage(text=text))
                 else:
                     text = ''
                     for result in results:
-                        text += 'ID: {id}\n'.format(id=result[kwdict_col.id])
-                        text += 'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                        text += 'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
-                        text += 'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
+                        text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                        text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                        text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                        text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
                         profile = api.get_profile(event.source.user_id)
-                        text += 'Created by {name}.\n'.format(name=profile.display_name)
+                        text += u'Created by {name}.\n'.format(name=profile.display_name)
                     api.reply_message(rep, TextSendMessage(text=text))
         else:
             pass
@@ -177,11 +177,11 @@ def handle_text_message(event):
             api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
         else:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            text = 'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
+            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
             api.reply_message(rep, TextSendMessage(text=text))
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        text = 'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
+        text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
         api.reply_message(rep, TextSendMessage(text=text))
 
 
