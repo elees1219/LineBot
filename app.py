@@ -106,12 +106,12 @@ def handle_text_message(event):
 
                 if isinstance(event.source, SourceUser):
                     uid = event.source.user_id
-                    result = db.insert_keyword(param1, param2, uid)
-                    text = str(result)
+                    results = db.insert_keyword(param1, param2, uid)
                     text += u'Pair Added.\n'
-                    #text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                    #text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                    #text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                    for result in results:
+                        text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                        text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                        text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # DELETE keyword
@@ -168,7 +168,7 @@ def handle_text_message(event):
         res = db.get_reply(text)
         if res is not None:
             result = res[0]
-            api.reply_message(rep, TextSendMessage(text='ARP: ' + str(result[kwdict_col.reply])))
+            api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
         return
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
