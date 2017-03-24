@@ -84,7 +84,9 @@ def handle_text_message(event):
     text = event.message.text
 
     try:
-        head, cmd, param1, param2 = text.split('  ')
+        head, cmd, param1, param2 = text.split('$')
+        text = text[len(head) + len(cmd) + len(param1) + 3:]
+        param2 = text
 
         if head == 'JC':
             if cmd == 'S':
@@ -125,7 +127,7 @@ def handle_text_message(event):
     except ValueError:
         kw = db.get_reply(text)
         if kw is not None:
-            api.reply_message(rep, TextSendMessage(text='ARP: ' + kw[0][kwdict_col.reply]))
+            api.reply_message(rep, TextSendMessage(text='ARP: ' + str(kw)))
         return
     except Exception as ex:
         api.reply_message(rep, TextSendMessage(text='Error Args:\n' + '\n'.join(ex.args) + '\nMsg:\n' + ex.message))
