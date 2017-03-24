@@ -109,9 +109,9 @@ def handle_text_message(event):
                     result = db.insert_keyword(param1, param2, uid)
                     text = str(result)
                     text += u'Pair Added.\n'
-                    text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                    text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                    #text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                    #text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                    #text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # DELETE keyword
@@ -165,9 +165,10 @@ def handle_text_message(event):
         else:
             pass
     except ValueError:
-        kw = db.get_reply(text)
-        if kw is not None:
-            api.reply_message(rep, TextSendMessage(text='ARP: ' + str(kw)))
+        res = db.get_reply(text)
+        if res is not None:
+            result = res[0]
+            api.reply_message(rep, TextSendMessage(text='ARP: ' + str(result[kwdict_col.reply])))
         return
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
