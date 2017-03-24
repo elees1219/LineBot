@@ -31,8 +31,8 @@ class kw_dict_mgr(object):
 
 
     def insert_keyword(self, keyword, reply, creator_id):
-        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator) \
-               VALUES(\'{kw}\', \'{rep}\', \'{cid}\') RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
+        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time) \
+               VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
         result = self.sql_cmd(cmd, keyword, reply)
         return result
 
@@ -91,10 +91,10 @@ class kw_dict_mgr(object):
             result = self.cur.fetchall()
         except psycopg2.Error as ex:
             self._close_connection()
-            return str(ex.message)
+            return [arg for args in ex.args]
         except Exception as ex:
             self._close_connection()
-            return str(ex.message)
+            return [arg for args in ex.args]
         
         self._close_connection()
         return result
