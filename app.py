@@ -111,8 +111,8 @@ def handle_text_message(event):
                     for result in results:
                         text += str(result)
                         text += u'ID: {id}\n'.format(id=str(result[kwdict_col.id]))
-                        text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
-                        text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
+                        #text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
+                        #text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # DELETE keyword
