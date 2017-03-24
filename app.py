@@ -89,8 +89,9 @@ def handle_text_message(event):
         split_count = {'S': 3, 'A': 4, 'D': 3, 'Q': 3, 'C': 2, 'I': 3, 'T': 2}
 
         if head == 'JC':
-            params = split(oth, '  ', split_count[oth[0]] - 2)
+            params = split(oth, '  ', split_count[oth[0]] - 1)
             cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(3)]
+            # Tested
             # SQL Command
             if cmd == 'S':
                 results = db.sql_cmd(param1)
@@ -101,7 +102,8 @@ def handle_text_message(event):
                         text = str(result) + '\n'
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # Tested - ADD keyword
+            # Tested
+            # ADD keyword
             elif cmd == 'A':
                 text = 'Please go to 1v1 chat to add keyword pair.'
 
