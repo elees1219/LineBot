@@ -124,7 +124,7 @@ def handle_text_message(event):
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]DELETE keyword
-            # --------------Display Keyword already deleted.--------------
+            # --------------Display 'Keyword already deleted.'--------------
             elif cmd == 'D':
                 text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                 results = db.delete_keyword(param1)
@@ -155,9 +155,9 @@ def handle_text_message(event):
 
                 if results is not None:
                     text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
-                    text += str(results)
                     
                     for result in results:
+                        break
                         text += u'ID: {id} - {kw} {delete}\n'.format(
                             kw=result[kwdict_col.keyword], 
                             delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '',
