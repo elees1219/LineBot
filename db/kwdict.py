@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-16 -*-
 
 import os
 
 import urlparse
 import psycopg2
 
-from enum import Enum
+import collections
 
 class kw_dict_mgr(object):
 
-    # Make user easy to input like -JELLYFISH  A  Keyword  Reply- (using double space to separate)
-    # Add keyword analysis
 
     def __init__(self, scheme, db_url):
         urlparse.uses_netloc.append(scheme)
@@ -34,15 +32,15 @@ class kw_dict_mgr(object):
 
     def insert_keyword(self, keyword, reply, creator_id):
         cmd = 'INSERT INTO keyword_dict(keyword, reply, creator) \
-               VALUES(\'{kw}\', \'{rep}\', \'{cid}\') RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id).encode('utf-8')
+               VALUES(\'{kw}\', \'{rep}\', \'{cid}\') RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
         result = self.sql_cmd(cmd, keyword, reply)[0]
         return result
 
 
     def get_reply(self, keyword):
         kw = keyword
-        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE;'.format(kw=keyword).encode('utf-8')
-        cmd_update = 'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\''.format(kw=keyword).encode('utf-8')
+        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE;'.format(kw=keyword)
+        cmd_update = 'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_update)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
@@ -53,7 +51,7 @@ class kw_dict_mgr(object):
 
     def get_info(self, keyword):
         kw = keyword
-        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword).encode('utf-8')
+        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
             return result
@@ -62,7 +60,7 @@ class kw_dict_mgr(object):
 
 
     def delete_keyword(self, keyword):
-        cmd = 'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' RETURNING *;'.format(kw=keyword).encode('utf-8')
+        cmd = 'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' RETURNING *;'.format(kw=keyword)
         result = self.sql_cmd(cmd, keyword)
         if len(result) > 0:
             return result
@@ -111,10 +109,6 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-class kwdict_col(Enum):
-    id = 0
-    keyword = 1
-    reply = 2
-    creator = 3
-    deleted = 4
-    used_time = 5
+_col_tuple = collections.namedtuple('kwdict_col',
+                                    ['id', 'keyword', 'reply', 'creator', 'deleted', 'used_time'])
+kwdict_col = _col_tuple('id', 'keyword', 'reply', 'creator', 'deleted', 'used_time')
