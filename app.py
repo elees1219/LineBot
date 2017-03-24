@@ -144,14 +144,14 @@ def handle_text_message(event):
                 if results is not None:
                     text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
                     for result in results:
-                        pass
-                        text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
+                        text += str(result)
+                        # text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]CREATE Dictionary
             elif cmd == 'C':
                 api.reply_message(rep, TextSendMessage(text=str(db.create_kwdict())))
-            # [N]get INFO of keyword
+            # [P]get INFO of keyword
             elif cmd == 'I':
                 results = db.get_info(param1)
 
