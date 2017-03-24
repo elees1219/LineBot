@@ -4,6 +4,7 @@ import errno
 import os
 import sys
 import tempfile
+import traceback
 
 # Database import
 from db import kw_dict_mgr, kwdict_col
@@ -135,6 +136,8 @@ def handle_text_message(event):
         if kw is not None:
             api.reply_message(rep, TextSendMessage(text='ARP: ' + str(kw)))
         return
+    except Exception:
+        api.reply_message(rep, TextSendMessage(text=traceback.print_exc())
 
     return
 
