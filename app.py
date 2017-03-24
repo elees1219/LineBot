@@ -142,7 +142,7 @@ def handle_text_message(event):
                 results = db.search_keyword(param1)
 
                 if results is not None:
-                    text = 'Keyword found. Listed below.\n'
+                    text = 'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
                     for result in results:
                         text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
 
@@ -158,7 +158,7 @@ def handle_text_message(event):
                     text = 'Specified keyword: {kw} not exists.'.format(kw=param1)
                     api.reply_message(rep, TextSendMessage(text=text))
                 else:
-                    text = None
+                    text = ''
                     for result in results:
                         text += 'ID: {id}\n'.format(id=result[kwdict_col.id])
                         text += 'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
@@ -183,6 +183,9 @@ def handle_text_message(event):
         api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
 
     return
+
+    # MD5 generator
+    # calculator
 
     if text == 'profile':
         if isinstance(event.source, SourceUser):
