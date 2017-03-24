@@ -33,7 +33,7 @@ class kw_dict_mgr(object):
     def insert_keyword(self, keyword, reply, creator_id):
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator) \
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\') RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
-        result = self.sql_cmd(cmd, keyword, reply)[0]
+        result = self.sql_cmd(cmd, keyword, reply)
         return result
 
 
