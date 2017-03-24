@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import errno
 import os
@@ -118,6 +118,8 @@ def handle_text_message(event):
                         prof_name = api.get_profile([kwdict_col.creator])
                         text += 'Created by {name}.\n'.format(name=prof_name)
                     api.reply_message(rep, TextSendMessage(text=text))
+            elif cmd == 'T':
+                api.reply_message(rep, TextSendMessage(text=str(db.get_tables())))
         else:
             pass
     except ValueError:
