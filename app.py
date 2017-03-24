@@ -136,10 +136,15 @@ def handle_text_message(event):
                         text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # [N]QUERY keyword
+            # [P]QUERY keyword
             elif cmd == 'Q':
                 text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
-                results = db.search_keyword(param1)
+                try:
+                    results = db.search_keyword(param1)
+                except ValueError:
+                    paramQ = split(param1, '  ', 2)
+                    param1, param2 = [paramQ.pop(0) for i in range(2)]
+                    results = db.search_keyword(param1, param2)
 
                 if results is not None:
                     text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
