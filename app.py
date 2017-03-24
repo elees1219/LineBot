@@ -123,15 +123,14 @@ def handle_text_message(event):
         else:
             pass
     except ValueError:
-        pass
+        kw = db.get_reply(text)
+        if kw is not None:
+            api.reply_message(rep, TextSendMessage(text='ARP: ' + kw[kwdict_col.reply]))
+        return
     except Exception as ex:
         api.reply_message(rep, TextSendMessage(text='Error Args:\n' + '\n'.join(ex.args) + '\nMsg:\n' + ex.message))
 
-    kw = db.get_reply(text)
-    if kw is not None:
-        api.reply_message(rep, TextSendMessage(text=kw[kwdict_col.reply]))
     return
-
 
     if text == 'profile':
         if isinstance(event.source, SourceUser):
