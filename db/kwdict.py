@@ -17,13 +17,13 @@ class kw_dict_mgr(object):
 
 
     def get_tables(self):
-        cmd = 'SELECT * FROM pg_catalog.pg_tables'
+        cmd = u'SELECT * FROM pg_catalog.pg_tables'
         result = self.sql_cmd(cmd)
         return result
 
 
     def create_kwdict(self):
-        cmd = 'CREATE TABLE keyword_dict( \
+        cmd = u'CREATE TABLE keyword_dict( \
                     id SERIAL, keyword TEXT PRIMARY KEY, reply TEXT, \
                     creator TEXT NOT NULL, deleted BOOLEAN DEFAULT FALSE, used_time INTEGER NOT NULL) RETURNING *;'
         result = self.sql_cmd(cmd)
@@ -31,7 +31,7 @@ class kw_dict_mgr(object):
 
 
     def insert_keyword(self, keyword, reply, creator_id):
-        cmd = 'INSERT INTO keyword_dict(keyword, reply, creator) \
+        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator) \
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\') RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
         result = self.sql_cmd(cmd, keyword, reply)[0]
         return result
@@ -39,8 +39,8 @@ class kw_dict_mgr(object):
 
     def get_reply(self, keyword):
         kw = keyword
-        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE;'.format(kw=keyword)
-        cmd_update = 'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\''.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE;'.format(kw=keyword)
+        cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_update)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
@@ -51,7 +51,7 @@ class kw_dict_mgr(object):
 
     def get_info(self, keyword):
         kw = keyword
-        cmd = 'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
             return result
@@ -60,7 +60,7 @@ class kw_dict_mgr(object):
 
 
     def delete_keyword(self, keyword):
-        cmd = 'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' RETURNING *;'.format(kw=keyword)
+        cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' RETURNING *;'.format(kw=keyword)
         result = self.sql_cmd(cmd, keyword)
         if len(result) > 0:
             return result
