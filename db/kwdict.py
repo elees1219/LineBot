@@ -91,10 +91,10 @@ class kw_dict_mgr(object):
             result = self.cur.fetchall()
         except psycopg2.Error as ex:
             self._close_connection()
-            return [arg for args in ex.args]
+            return [args for args in ex.args]
         except Exception as ex:
             self._close_connection()
-            return [arg for args in ex.args]
+            return [args for args in ex.args]
         
         self._close_connection()
         return result
