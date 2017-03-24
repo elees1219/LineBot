@@ -91,8 +91,12 @@ def handle_text_message(event):
         if head == 'JC':
             params = split(oth, '  ', split_count[oth[0]] - 1)
             cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(3)]
-            # Tested
-            # SQL Command
+
+            # N = Not Tested
+            # T = Testing
+            # P = Pass
+
+            # [P]SQL Command
             if cmd == 'S':
                 results = db.sql_cmd(param1)
 
@@ -102,8 +106,7 @@ def handle_text_message(event):
                         text = str(result) + '\n'
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # Tested
-            # ADD keyword
+            # [T]ADD keyword
             elif cmd == 'A':
                 text = 'Please go to 1v1 chat to add keyword pair.'
 
@@ -117,7 +120,7 @@ def handle_text_message(event):
                         text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # DELETE keyword
+            # [N]DELETE keyword
             elif cmd == 'D':
                 text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                 results = db.delete_keyword(param1)
@@ -130,7 +133,7 @@ def handle_text_message(event):
                         text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # QUERY keyword
+            # [N]QUERY keyword
             elif cmd == 'Q':
                 text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
                 results = db.search_keyword(param1)
@@ -141,10 +144,10 @@ def handle_text_message(event):
                         text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # CREATE Dictionary
+            # [P]CREATE Dictionary
             elif cmd == 'C':
-                api.reply_message(rep, TextSendMessage(text=db.create_kwdict()))
-            # get INFO of keyword
+                api.reply_message(rep, TextSendMessage(text=str(db.create_kwdict())))
+            # [N]get INFO of keyword
             elif cmd == 'I':
                 results = db.get_info(param1)
 
@@ -162,7 +165,7 @@ def handle_text_message(event):
                         prof_name = api.get_profile([kwdict_col.creator])
                         text += 'Created by {name}.\n'.format(name=prof_name)
                     api.reply_message(rep, TextSendMessage(text=text))
-            # get TABLES list
+            # [T]get TABLES list
             elif cmd == 'T':
                 api.reply_message(rep, TextSendMessage(text=str(db.get_tables())))
         else:
