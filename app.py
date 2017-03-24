@@ -99,7 +99,7 @@ def handle_text_message(event):
 
             # [P]SQL Command
             if cmd == 'S':
-                if md5.new(param2).hexdigest() == '37f9105623c89106783932dffac1ce11':
+                if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == '37f9105623c89106783932dffac1ce11':
                     results = db.sql_cmd(param1)
                     if results is not None:
                         text = 'SQL command result: \n'
@@ -144,7 +144,8 @@ def handle_text_message(event):
                 if results is not None:
                     text = 'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
                     for result in results:
-                        text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
+                        pass
+                        # text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]CREATE Dictionary
@@ -165,8 +166,7 @@ def handle_text_message(event):
                         text += 'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
                         text += 'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
                         profile = api.get_profile(event.source.user_id)
-                        prof_name = api.get_profile([kwdict_col.creator])
-                        text += 'Created by {name}.\n'.format(name=prof_name)
+                        text += 'Created by {name}.\n'.format(name=profile.display_name)
                     api.reply_message(rep, TextSendMessage(text=text))
         else:
             pass
