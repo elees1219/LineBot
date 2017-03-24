@@ -90,8 +90,10 @@ def handle_text_message(event):
         param2 = text
 
         if head == 'JC':
+            # SQL Command
             if cmd == 'S':
                 api.reply_message(rep, TextSendMessage(text=db.sql_cmd(param1)))
+            # ADD keyword
             elif cmd == 'A':
                 text = 'Please go to 1v1 chat to add keyword pair.'
 
@@ -100,16 +102,39 @@ def handle_text_message(event):
                     result = db.insert_keyword(param1, param2, uid)
                     text = len(result)
                     text += str(result)
-                    text += u'Pair Added.'
-                    text += u'ID: {id}'.format(id=result[kwdict_col.id])
-                    text += u'Keyword: {kw}'.format(kw=result[kwdict_col.keyword])
-                    text += u'Reply: {rep}'.format(rep=result[kwdict_col.reply])
+                    text += u'Pair Added.\n'
+                    text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                    text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
+            # DELETE keyword
             elif cmd == 'D':
-                api.reply_message(rep, TextSendMessage(text=db.delete_keyword(param1)))
+                text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
+                results = db.delete_keyword(param1)
+
+                if results is not None:
+                    for result in results:
+                        text = 'Pair below DELETED.\n'
+                        text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                        text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                        text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+
+                api.reply_message(rep, TextSendMessage(text=text))
+            elif cmd == 'Q':
+                text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
+                results = db.search_keyword(param1)
+
+                if results is not None:
+                    text = 'Keyword found. Listed below.\n'
+                    for result in results:
+                        text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
+
+                api.reply_message(rep, TextSendMessage(text=text))
+            # CREATE Dictionary
             elif cmd == 'C':
                 api.reply_message(rep, TextSendMessage(text=db.create_kwdict()))
+            # get INFO of keyword
             elif cmd == 'I':
                 results = db.get_info(param1)
 
@@ -127,6 +152,7 @@ def handle_text_message(event):
                         prof_name = api.get_profile([kwdict_col.creator])
                         text += 'Created by {name}.\n'.format(name=prof_name)
                     api.reply_message(rep, TextSendMessage(text=text))
+            # get TABLES list
             elif cmd == 'T':
                 api.reply_message(rep, TextSendMessage(text=str(db.get_tables())))
         else:
@@ -137,7 +163,7 @@ def handle_text_message(event):
             api.reply_message(rep, TextSendMessage(text='ARP: ' + str(kw)))
         return
     except Exception:
-        api.reply_message(rep, TextSendMessage(text=traceback.print_exc())
+        api.reply_message(rep, TextSendMessage(text=traceback.print_exc()))
 
     return
 

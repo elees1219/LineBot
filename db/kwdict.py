@@ -49,6 +49,16 @@ class kw_dict_mgr(object):
             return None
 
 
+    def search_keyword(self, keyword):
+        kw = keyword
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%{kw}%\';'.format(kw=keyword)
+        result = self.sql_cmd(cmd, kw)
+        if len(result) > 0:
+            return result
+        else:
+            return None
+
+
     def get_info(self, keyword):
         kw = keyword
         cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword)
