@@ -92,7 +92,14 @@ def handle_text_message(event):
         if head == 'JC':
             # SQL Command
             if cmd == 'S':
-                api.reply_message(rep, TextSendMessage(text=db.sql_cmd(param1)))
+                results = db.sql_cmd(param1)
+
+                if results is not None:
+                    text = 'SQL command result: \n'
+                    for result in results:
+                        text = str(result) + '\n'
+
+                api.reply_message(rep, TextSendMessage(text=text))
             # ADD keyword
             elif cmd == 'A':
                 text = 'Please go to 1v1 chat to add keyword pair.'
@@ -102,9 +109,9 @@ def handle_text_message(event):
                     result = db.insert_keyword(param1, param2, uid)
                     text = str(result)
                     text += u'Pair Added.\n'
-                    #text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                    #text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                    #text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                    text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                    text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # DELETE keyword
@@ -120,6 +127,7 @@ def handle_text_message(event):
                         text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
+            # QUERY keyword
             elif cmd == 'Q':
                 text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
                 results = db.search_keyword(param1)
