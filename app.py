@@ -143,10 +143,9 @@ def handle_text_message(event):
 
                 if results is not None:
                     text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
-                    text = str(results)
                     for result in results:
-                        text += str(result)
-                        # text += u'{kw} {del}\n'.format(kw=result[kwdict_col.keyword], del=(Deleted) if result[kwdict_col.deleted] == True else '')
+                        text += u'{kw} {delete}\n'.format(
+                            kw=result[kwdict_col.keyword], delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '')
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]CREATE Dictionary
