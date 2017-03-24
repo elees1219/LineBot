@@ -119,8 +119,8 @@ def handle_text_message(event):
                     text = u'Pair Added. Total: {len}\n'.format(len=len(results))
                     for result in results:
                         text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                        text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
-                        text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
+                        text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                        text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]DELETE keyword
@@ -145,7 +145,7 @@ def handle_text_message(event):
                     text = 'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
                     for result in results:
                         pass
-                        # text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
+                        text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]CREATE Dictionary
@@ -170,17 +170,20 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
         else:
             pass
-    except ValueError:
-        pass
+    except ValueError as ex:
+        res = db.get_reply(text)
+        if res is not None:
+            result = res[0]
+            api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
+        else:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            text = 'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
+            api.reply_message(rep, TextSendMessage(text=text))
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = 'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
         api.reply_message(rep, TextSendMessage(text=text))
 
-    res = db.get_reply(text)
-    if res is not None:
-        result = res[0]
-        api.reply_message(rep, TextSendMessage(text=str(result[kwdict_col.reply])))
 
     return
 
