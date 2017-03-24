@@ -99,7 +99,7 @@ def handle_text_message(event):
 
                 if isinstance(event.source, SourceUser):
                     uid = event.source.user_id
-                    result = db.insert_keyword(param1, param2, uid)[0]
+                    result = db.insert_keyword(param1, param2, uid)
                     text = str(len(result))
                     text += str(result)
                     text += u'Pair Added.\n'
