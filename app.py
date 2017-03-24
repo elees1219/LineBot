@@ -146,7 +146,7 @@ def handle_text_message(event):
                     text = str(results)
                     for result in results:
                         text += str(result)
-                        # text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
+                        # text += u'{kw} {del}\n'.format(kw=result[kwdict_col.keyword], del=(Deleted) if result[kwdict_col.deleted] == True else '')
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]CREATE Dictionary
