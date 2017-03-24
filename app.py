@@ -107,12 +107,12 @@ def handle_text_message(event):
                 if isinstance(event.source, SourceUser):
                     uid = event.source.user_id
                     results = db.insert_keyword(param1, param2, uid)
-                    text = u'Pair Added.\n'
-                    text += str(len(results))
-                    #for result in results:
-                    #    text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                    #    text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                    #    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                    text = u'Pair Added. Total: {len}\n'.format(len=len(results))
+                    for result in results:
+                        text += '111'
+                        #text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                        #text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                        #text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # DELETE keyword
