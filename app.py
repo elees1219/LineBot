@@ -124,6 +124,7 @@ def handle_text_message(event):
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]DELETE keyword
+            # --------------Display Keyword already deleted.--------------
             elif cmd == 'D':
                 text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                 results = db.delete_keyword(param1)
@@ -137,6 +138,7 @@ def handle_text_message(event):
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]QUERY keyword
+            # --------------Waiting for test in kwdict.py to debug, result not print--------------
             elif cmd == 'Q':
                 text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
                 try:
@@ -153,9 +155,13 @@ def handle_text_message(event):
 
                 if results is not None:
                     text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
+                    text += str(results)
+                    
                     for result in results:
-                        text += u'{kw} {delete}\n'.format(
-                            kw=result[kwdict_col.keyword], delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '')
+                        text += u'ID: {id} - {kw} {delete}\n'.format(
+                            kw=result[kwdict_col.keyword], 
+                            delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '',
+                            id=result[kwdict_col.id])
 
                 api.reply_message(rep, TextSendMessage(text=text))
             # [P]CREATE Dictionary

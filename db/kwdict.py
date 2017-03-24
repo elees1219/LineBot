@@ -18,7 +18,7 @@ class kw_dict_mgr(object):
 
     def create_kwdict(self):
         cmd = u'CREATE TABLE keyword_dict( \
-                    id SERIAL, keyword TEXT PRIMARY KEY, reply TEXT, \
+                    id SERIAL, keyword TEXT, reply TEXT, \
                     creator TEXT NOT NULL, deleted BOOLEAN DEFAULT FALSE, used_time INTEGER NOT NULL);'
         result = self.sql_cmd(cmd)
         return result
@@ -33,7 +33,7 @@ class kw_dict_mgr(object):
 
     def get_reply(self, keyword):
         kw = keyword
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE;'.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE ORDER BY id DESC;'.format(kw=keyword)
         cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_update)
         result = self.sql_cmd(cmd, kw)
@@ -52,6 +52,8 @@ class kw_dict_mgr(object):
         else:
             return None
 
+
+    # --------------Test to Prevent SQL INJECTION--------------
 
     def search_keyword(self, startIndex, endIndex):
         cmd = u'SELECT * FROM keyword_dict WHERE id >= {si} AND id <= {ei};'.format(si=startIndex, ei=endIndex)
