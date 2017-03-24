@@ -97,7 +97,9 @@ def handle_text_message(event):
                 if isinstance(event.source, SourceUser):
                     uid = event.source.user_id
                     result = db.insert_keyword(param1, param2, uid)
-                    text = u'Pair Added.'
+                    text = str(uid)
+                    text = str(result)
+                    text += u'Pair Added.'
                     text += u'ID: {id}'.format(id=result[kwdict_col.id])
                     text += u'Keyword: {kw}'.format(kw=result[kwdict_col.keyword])
                     text += u'Reply: {rep}'.format(rep=result[kwdict_col.reply])
