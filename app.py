@@ -143,6 +143,7 @@ def handle_text_message(event):
 
                 if results is not None:
                     text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
+                    text = str(results)
                     for result in results:
                         text += str(result)
                         # text += u'{kw}\n'.format(kw=result[kwdict_col.keyword])
