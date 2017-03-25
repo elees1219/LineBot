@@ -103,8 +103,7 @@ def handle_text_message(event):
                     results = db.sql_cmd(param1)
                     if results is not None:
                         text = u'SQL command result({len}): \n'.format(len=len(results))
-                        for result in results:
-                            text += str(result) + '\n'
+                        text += str(results) + '\n'
                 else:
                     text = 'This is a restricted function.'
 
