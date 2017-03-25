@@ -90,9 +90,14 @@ def handle_text_message(event):
             split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3}
 
             if head == 'JC':
-                params = split(oth, splitter, split_count[oth[0]] - 1)
-                cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
-
+                try:
+                    params = split(oth, splitter, split_count[oth[0]] - 1)
+                    cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
+                except ValueError:
+                    text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
+                    api.reply_message(rep, TextSendMessage(text=text))
+                    return
+                
                 # SQL Command
                 if cmd == 'S':
                     if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
@@ -144,7 +149,9 @@ def handle_text_message(event):
                             text = 'Pair below DELETED.\n'
                             text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                            text += u'Reply: {rep}\n\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                            profile = api.get_profile(result[kwdict_col.creator])
+                            text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword(sys)
