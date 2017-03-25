@@ -187,15 +187,13 @@ def handle_text_message(event):
 
                     if results is not None:
                         text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
-                        text += str(results)
                         
                         for result in results:
-                            break
-                            text += u'ID: {id} - {kw} {od} {delete} {adm}\n'.format(
+                            text += u'ID: {id} - {kw} {od}{delete}{adm}\n'.format(
                                 kw=result[kwdict_col.keyword].decode('utf8'),
-                                od='(Overrided)' if bool(result[kwdict_col.override]) == True else '',
-                                delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '',
-                                adm='(Admin)' if bool(result[kwdict_col.admin]) == True else '',
+                                od='(ORD)' if bool(result[kwdict_col.override]) == True else '',
+                                delete='(DEL)' if bool(result[kwdict_col.deleted]) == True else '',
+                                adm='(ADM)' if bool(result[kwdict_col.admin]) == True else '',
                                 id=result[kwdict_col.id])
 
                     api.reply_message(rep, TextSendMessage(text=text))
