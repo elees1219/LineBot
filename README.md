@@ -58,8 +58,8 @@ ID: 174
 Keyword: 水母
 Reply: 大水母
 ```
-> Keyword 代表 關鍵字
-> Reply 代表 回覆
+> - Keyword 代表 關鍵字
+> - Reply 代表 回覆
 ## D
 使用頻道
 
@@ -80,9 +80,9 @@ Keyword: 水母
 Reply: 大水母
 This pair is created by 狼兒專屬水母醬 - D-78.
 ```
-> Keyword 代表 關鍵字
-> Reply 代表 回覆
-> Created by 代表 由...製作
+> - Keyword 代表 關鍵字
+> - Reply 代表 回覆
+> - Created by 代表 由...製作
 ## Q
 使用頻道
 
@@ -111,10 +111,10 @@ ID: 52 - 烤水母
 ID: 46 - 水母 (OVR)(DEL)
 ID: 59 - 炸水母
 ```
-> 上方會顯示索引結果數量，`Total: n.` 代表索引到n個結果。
-> (OVR)全名為OVERRIDE，亦即被覆蓋，偵測到對應關鍵字時**並不會**使用該回覆組的回覆。
-> (DEL)全名為DELETED，亦即已刪除，偵測到對應關鍵字時**並不會**使用該回覆組的回覆。
-> (TOP)全名為TOP PAIR，亦即置頂指令，需要使用高權限指令才可以[新增](#m)或[刪除](#r)，此字組不會被一般自組覆蓋(OVERRIDE)，只會被同級字組覆蓋。
+> - 上方會顯示索引結果數量，`Total: n.` 代表索引到n個結果。
+> - (OVR)全名為OVERRIDE，亦即被覆蓋，偵測到對應關鍵字時**並不會**使用該回覆組的回覆。
+> - (DEL)全名為DELETED，亦即已刪除，偵測到對應關鍵字時**並不會**使用該回覆組的回覆。
+> - (TOP)全名為TOP PAIR，亦即置頂指令，需要使用高權限指令才可以[新增](#m)或[刪除](#r)，此字組不會被一般自組覆蓋(OVERRIDE)，只會被同級字組覆蓋。
 ## I
 使用頻道
 
@@ -150,12 +150,12 @@ Has been called 0 time(s).
 Created by 狼兒專屬水母醬 - D-78.
 ```
 
-> Keyword 代表 關鍵字
-> Reply 代表 回覆
-> Override 代表 覆蓋，True為真(已覆蓋)；False為假(未覆蓋)
-> Admin Pair 代表 高級字組，True為是；False為否
-> Has been called n time(s). 代表 已經使用該字組回覆n次。當字組被覆蓋或刪除以後，便會停止計數。
-> Created by 代表 由...製作
+> - Keyword 代表 關鍵字
+> - Reply 代表 回覆
+> - Override 代表 覆蓋，True為真(已覆蓋)；False為假(未覆蓋)
+> - Admin Pair 代表 高級字組，True為是；False為否
+> - Has been called n time(s). 代表 已經使用該字組回覆n次。當字組被覆蓋或刪除以後，便會停止計數。
+> - Created by 代表 由...製作
 ## K
 使用頻道
 
@@ -222,13 +222,13 @@ Command 'Q' Called 1 Time(s).
 Command 'R' Called 0 Time(s).
 Command 'S' Called 0 Time(s).
 ```
-> Boot up Time 代表 開機時間，該時間為國際標準時間(UTC)，港澳台區使用者請自行+8小時(UTC+8)。
-> Count of Keyword Pair 代表 目前資料庫總收錄字組數量
-> Count of Reply 代表 目前已使用字組回覆的字次數
-> Most Creative User 代表 目前製作最多關鍵字的使用者
-> Most Popular Keyword 代表 目前回覆次數最多的字組
-> Most Unpopular Keyword 代表 目前最冷門的字
-> System command called time (including failed) 代表 目前已經呼叫系統指令的次數(包含呼叫失敗)
+> - Boot up Time 代表 開機時間，該時間為國際標準時間(UTC)，港澳台區使用者請自行+8小時(UTC+8)。
+> - Count of Keyword Pair 代表 目前資料庫總收錄字組數量
+> - Count of Reply 代表 目前已使用字組回覆的字次數
+> - Most Creative User 代表 目前製作最多關鍵字的使用者
+> - Most Popular Keyword 代表 目前回覆次數最多的字組
+> - Most Unpopular Keyword 代表 目前最冷門的字
+> - System command called time (including failed) 代表 目前已經呼叫系統指令的次數(包含呼叫失敗)
 ## H
 使用頻道
 
