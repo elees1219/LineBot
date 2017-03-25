@@ -113,11 +113,24 @@ class kw_dict_mgr(object):
         else:
             return None
 
+    def user_sort_by_created_pair(self):
+        cmd = u'SELECT creator, COUNT(creator) FROM keyword_dict GROUP BY creator ORDER BY COUNT(creator) DESC;'
+        result = self.sql_cmd(cmd)
+        if len(result) > 0:
+            return result
+        else:
+            return None
+
 
 
 
     def row_count(self):
         cmd = u'SELECT COUNT(id) FROM keyword_dict;'
+        result = self.sql_cmd(cmd)
+        return int(result[0][0])
+
+    def used_time_sum(self):
+        cmd = u'SELECT SUM(used_time) FROM keyword_dict;'
         result = self.sql_cmd(cmd)
         return int(result[0][0])
 
