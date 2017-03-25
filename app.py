@@ -212,16 +212,16 @@ def handle_text_message(event):
                             text += u'Created by {name}.\n'.format(name=profile.display_name.decode('utf8'))
                         api.reply_message(rep, TextSendMessage(text=text))
         except KeyError as ex:
-            text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message.decode('utf8'))
+            text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
             api.reply_message(rep, TextSendMessage(text=text))
         except exceptions.LineBotApiError as ex:
-            text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code.decode('utf8'))
+            text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
             for err in ex.error.details:
-                text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property.decode('utf8'), msg=err.message.decode('utf8'))
+                text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property, msg=err.message)
             api.reply_message(rep, TextSendMessage(text=text))
         except Exception as exc:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message.decode('utf8'))
+            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
             api.reply_message(rep, TextSendMessage(text=text))
     else:
         res = db.get_reply(text)
