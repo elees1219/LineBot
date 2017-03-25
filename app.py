@@ -149,12 +149,13 @@ def handle_text_message(event):
                     else:
                         results = None
                         text = 'Maximum selecting range by ID is 15.'
-                except ValueError:
+                except TypeError:
                     results = db.search_keyword(param1)
                     
 
                 if results is not None:
                     text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
+                    text += str(results)
                     
                     for result in results:
                         
