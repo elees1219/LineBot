@@ -189,8 +189,7 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
                 elif cmd == 'C':
-                    api.reply_message(rep, TextSendMessage(text='C'))
-                    # api.reply_message(rep, TextSendMessage(text=db.create_kwdict()))
+                    api.reply_message(rep, TextSendMessage(text=db.create_kwdict()))
                 # INFO of keyword
                 elif cmd == 'I':
                     results = db.get_info(param1)
