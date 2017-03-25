@@ -9,7 +9,7 @@ import hashlib
 import datetime
 
 # Database import
-from db import group_ban, kw_dict_mgr
+from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
 from flask import Flask, request, abort
 
