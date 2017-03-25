@@ -228,7 +228,7 @@ def handle_text_message(event):
                 # RANKING
                 elif cmd == 'K':
                     try:
-                        results = db.order_by_usedtime(int(param1))
+                        results = db.order_by_usedtime_desc(int(param1))
                         text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
                     except ValueError:
                         text = u'Invalid parameter. The parameter 1 of \'K\' can be number only.'
