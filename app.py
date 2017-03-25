@@ -176,7 +176,7 @@ def handle_text_message(event):
                     if len(param1.split(splitter)) > 1:
                         paramQ = split(param1, splitter, 2)
                         param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
-                        if int(param2) - int(param1) <= 15:
+                        if int(param2) - int(param1) < 15:
                             results = db.search_keyword_index(param1, param2)
                         else:
                             results = None
