@@ -189,9 +189,7 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
                 elif cmd == 'C':
-                    text = 'Successfully created the table.'
-                    db.create_kwdict()
-                    api.reply_message(rep, TextSendMessage(text=text))
+                    api.reply_message(rep, TextSendMessage(text=db.create_kwdict()))
                 # INFO of keyword
                 elif cmd == 'I':
                     results = db.get_info(param1)
