@@ -100,7 +100,7 @@ def handle_text_message(event):
                         if results is not None:
                             text = u'SQL command result({len}): \n'.format(len=len(results))
                             for result in results:
-                                text += u'{result}\n'.format(result=result.decode('utf8'))
+                                text += u'{result}\n'.format(result=result)
                                 
                     else:
                         text = 'This is a restricted function.'
@@ -108,7 +108,7 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # ADD keyword
                 elif cmd == 'A':
-                    text = 'Please go to 1v1 chat to add keyword pair.'
+                    text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
 
                     if isinstance(event.source, SourceUser):
                         uid = event.source.user_id
