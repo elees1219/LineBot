@@ -115,7 +115,7 @@ def handle_text_message(event):
                         results = db.insert_keyword(param1, param2, uid)
                         text = u'Pair Added. Total: {len}\n'.format(len=len(results))
                         for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                             text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
@@ -129,9 +129,9 @@ def handle_text_message(event):
                         results = db.insert_keyword_sys(param1, param2, uid)
                         text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
                         for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword
@@ -142,7 +142,7 @@ def handle_text_message(event):
                     if results is not None:
                         for result in results:
                             text = 'Pair below DELETED.\n'
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                             text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
@@ -158,7 +158,7 @@ def handle_text_message(event):
                         if results is not None:
                             for result in results:
                                 text = 'System Pair below DELETED.\n'
-                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                                 text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                                 text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
@@ -203,10 +203,10 @@ def handle_text_message(event):
                     else:
                         text = ''
                         for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                             text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                            text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time].decode('utf8'))
+                            text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
                             profile = api.get_profile(result[kwdict_col.creator].decode('utf8'))
                             text += u'Created by {name}.\n'.format(name=profile.display_name.decode('utf8'))
                         api.reply_message(rep, TextSendMessage(text=text))
