@@ -30,6 +30,7 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 admin = '37f9105623c89106783932dffac1ce11'
+moderator = '9875f9d57494258b7666fb719745a7e8'
 boot_up = datetime.datetime.now()
 rec = {'JC_called': 0}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 'C': 0, 'I': 0, 'K': 0, 'P': 0}
@@ -256,15 +257,17 @@ def handle_text_message(event):
                     text += u'Count of Keyword Pair: {ct}\n'.format(ct=db.row_count())
                     text += u'Count of Reply: {crep}\n'.format(crep=db.used_time_sum())
                     user_list_top = db.user_sort_by_created_pair()[0]
-                    text += u'Most Creative User: {name} ({num} Pairs\n'.format(name=api.get_profile(user_list_top[0]).display_name,
+                    text += u'Most Creative User:\n{name} ({num} Pairs)\n'.format(name=api.get_profile(user_list_top[0]).display_name,
                                                                                num=user_list_top[1])
                     all = db.order_by_usedtime_all()
                     first = all[0]
-                    text += u'Most Popular Keyword: {kw} ({c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
-                                                                                c=first[kwdict_col.used_time])
+                    text += u'Most Popular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
+                                                                                c=first[kwdict_col.used_time],
+                                                                                id=first[kwdict_col.id])
                     last = all[-1]
-                    text += u'Most Unpopular Keyword: {kw} ({c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
-                                                                                c=last[kwdict_col.used_time])
+                    text += u'Most Unpopular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
+                                                                                c=last[kwdict_col.used_time],
+                                                                                id=first[kwdict_col.id])
                     text += u'System command called time (including failed): {t}\n'.format(t= rec['JC_called'])
                     for cmd, time in cmd_called_time.iteritems():
                         text += u'Command \'{c}\' Called {t} Time(s).\n'.format(c=cmd, t=time)
