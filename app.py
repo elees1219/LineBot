@@ -254,7 +254,7 @@ def handle_text_message(event):
                 elif cmd == 'P':
                     text = 'Boot up time: {bt}\n'.format(bt=boot_up)
                     text += 'Count of keyword pair: {ct}\n\n'.format(ct=db.row_count())
-                    text += 'System called time(including failed): {t}\n'.format(t=JC_called_time)
+                    text += 'System called time(including failed): {t}\n'.format(t= rec['JC_called_time'])
                     for cmd, time in cmd_called_time.iteritems():
                         text += 'Command \'{c}\' called {t} time(s).\n'.format(c=cmd, t=time)
 
