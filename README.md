@@ -1,7 +1,8 @@
 # 使用說明
 
 JC  (指令)  [參數1]  [參數2]  [參數3]...
-> 每一個字組之間間隔2個空格
+> - 每一個字組之間間隔2個空格
+> - [錯誤訊息](#error)
 
 ### 權限分級
 
@@ -300,3 +301,27 @@ JC  SHA  水母
 建立關鍵字表格，無參數，平時不使用。
 ## G
 (尚未完成))
+
+# Error
+
+> 發生錯誤時，請先檢查所列錯誤，若檢查完畢後仍然沒有得到解決，請將紀錄截圖以後[傳到這裡](http://line.me/ti/p/~chris80124)
+
+參數短缺，請檢察指令及其相關使用方法。
+```
+Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.
+```
+
+無法在非聊天頻道使用指令，請使用chat輸入指令。(指令`A`限定)
+```
+Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.
+```
+
+不合法的指令{cmd}，請查閱使用說明。
+```
+Invalid Command: {cmd}. Please recheck the user manual.
+```
+
+API錯誤，通常由內容不合法造成。通常觸發原因非使用問題，若發生此問題請將對話記錄截下，[傳到這裡](http://line.me/ti/p/~chris80124)
+```
+Line Bot Api Error. Status code: {sc}
+```
