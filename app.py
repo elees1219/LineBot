@@ -141,7 +141,7 @@ def handle_text_message(event):
             # --------------Waiting for test in kwdict.py to debug, result not print--------------
             elif cmd == 'Q':
                 text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
-                try:
+                if len(param1.split('  ')) > 1:
                     paramQ = split(param1, '  ', 2)
                     param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
                     if int(param2) - int(param1) <= 15:
@@ -149,7 +149,7 @@ def handle_text_message(event):
                     else:
                         results = None
                         text = 'Maximum selecting range by ID is 15.'
-                except TypeError:
+                else:
                     results = db.search_keyword(param1)
                     
 
