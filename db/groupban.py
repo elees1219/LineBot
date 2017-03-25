@@ -17,13 +17,13 @@ class group_ban(object):
         self.administrator = os.getenv('ADMIN', None)
         self.group_admin = os.getenv('G_ADMIN', None)
         self.group_mod = os.getenv('G_MOD', None)
-        if administrator is None:
+        if self.administrator is None:
             print('The SHA224 of ADMIN not defined. Program will be terminated.')
             sys.exit(1)
-        if group_admin is None:
+        if self.group_admin is None:
             print('The SHA224 of G_ADMIN not defined. Program will be terminated.')
             sys.exit(1)
-        if group_mod is None:
+        if self.group_mod is None:
             print('The SHA224 of G_MOD not defined. Program will be terminated.')
             sys.exit(1)
 
