@@ -1,4 +1,4 @@
-# encoding: utf-8
+# coding: utf-8
 
 import errno
 import os
@@ -96,11 +96,11 @@ def handle_text_message(event):
                 # SQL Command
                 if cmd == 'S':
                     if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
-                        results = db.sql_cmd(param1)
+                        results = db.sql_cmd(param1.decode('utf8'))
                         if results is not None:
                             text = u'SQL command result({len}): \n'.format(len=len(results))
                             for result in results:
-                                text += u'{result}\n'.format(result=result)
+                                text += u'{result}\n'.format(result=result.decode('utf8'))
                                 
                     else:
                         text = 'This is a restricted function.'
@@ -115,9 +115,9 @@ def handle_text_message(event):
                         results = db.insert_keyword(param1, param2, uid)
                         text = u'Pair Added. Total: {len}\n'.format(len=len(results))
                         for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
-                            text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # ADD keyword(sys)
@@ -129,22 +129,22 @@ def handle_text_message(event):
                         results = db.insert_keyword_sys(param1, param2, uid)
                         text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
                         for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword
                 elif cmd == 'D':
-                    text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
+                    text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1.decode('utf8'))
                     results = db.delete_keyword(param1)
 
                     if results is not None:
                         for result in results:
                             text = 'Pair below DELETED.\n'
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword(sys)
@@ -152,15 +152,15 @@ def handle_text_message(event):
                     text = 'Restricted Function.'
 
                     if isinstance(event.source, SourceUser) and md5.new(param3).hexdigest() == admin:
-                        text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
+                        text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1.decode('utf8'))
                         results = db.delete_keyword_sys(param1)
 
                         if results is not None:
                             for result in results:
                                 text = 'System Pair below DELETED.\n'
-                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                                text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                                text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # QUERY keyword
@@ -198,35 +198,35 @@ def handle_text_message(event):
                     results = db.get_info(param1)
 
                     if results is None:
-                        text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
+                        text = u'Specified keyword: {kw} not exists.'.format(kw=param1.decode('utf8'))
                         api.reply_message(rep, TextSendMessage(text=text))
                     else:
                         text = ''
                         for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
-                            text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
-                            profile = api.get_profile(event.source.user_id)
-                            text += u'Created by {name}.\n'.format(name=profile.display_name)
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id].decode('utf8'))
+                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                            text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time].decode('utf8'))
+                            profile = api.get_profile(result[kwdict_col.creator].decode('utf8'))
+                            text += u'Created by {name}.\n'.format(name=profile.display_name.decode('utf8'))
                         api.reply_message(rep, TextSendMessage(text=text))
         except KeyError as ex:
-            text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
+            text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message.decode('utf8'))
             api.reply_message(rep, TextSendMessage(text=text))
         except exceptions.LineBotApiError as ex:
-            text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
+            text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code.decode('utf8'))
             for err in ex.error.details:
-                text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property, msg=err.message)
+                text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property.decode('utf8'), msg=err.message.decode('utf8'))
             api.reply_message(rep, TextSendMessage(text=text))
         except Exception as exc:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
+            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.messageresult[kwdict_col.used_time].decode('utf8'))
             api.reply_message(rep, TextSendMessage(text=text))
-    else:   
+    else:
         res = db.get_reply(text)
         if res is not None:
             result = res[0]
-            api.reply_message(rep, TextSendMessage(text=result[kwdict_col.reply]))
+            api.reply_message(rep, TextSendMessage(text=result[kwdict_col.reply].decode('utf8')))
 
     return
 
