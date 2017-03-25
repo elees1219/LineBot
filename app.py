@@ -252,21 +252,21 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # SPECIAL record
                 elif cmd == 'P':
-                    text = 'Boot up Time: {bt} (UTC)\n'.format(bt=boot_up)
-                    text += 'Count of Keyword Pair: {ct}\n'.format(ct=db.row_count())
-                    text += 'Count of Reply: {crep}\n'.format(crep=db.used_time_sum())
+                    text = u'Boot up Time: {bt} (UTC)\n'.format(bt=boot_up)
+                    text += u'Count of Keyword Pair: {ct}\n'.format(ct=db.row_count())
+                    text += u'Count of Reply: {crep}\n'.format(crep=db.used_time_sum())
                     user_list_top = db.user_sort_by_created_pair()[0]
-                    text += 'Most Creative User: {name} ({num} Pairs\n'.format(name=api.get_profile(user_list_top[0]).display_name,
+                    text += u'Most Creative User: {name} ({num} Pairs\n'.format(name=api.get_profile(user_list_top[0]).display_name,
                                                                                num=user_list_top[1])
                     first = db.order_by_usedtime(int(param1))[0]
-                    text += 'Most Popular Keyword: {kw} ({c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
+                    text += u'Most Popular Keyword: {kw} ({c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
                                                                                 c=first[kwdict_col.used_time])
                     last = db.order_by_usedtime(int(param1))[-1]
-                    text += 'Most Unpopular Keyword: {kw} ({c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
+                    text += u'Most Unpopular Keyword: {kw} ({c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
                                                                                 c=last[kwdict_col.used_time])
-                    text += 'System command called time (including failed): {t}\n'.format(t= rec['JC_called'])
+                    text += u'System command called time (including failed): {t}\n'.format(t= rec['JC_called'])
                     for cmd, time in cmd_called_time.iteritems():
-                        text += 'Command \'{c}\' Called {t} Time(s).\n'.format(c=cmd, t=time)
+                        text += u'Command \'{c}\' Called {t} Time(s).\n'.format(c=cmd, t=time)
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # STICKER
