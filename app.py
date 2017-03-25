@@ -229,16 +229,17 @@ def handle_text_message(event):
                 elif cmd == 'K':
                     try:
                         results = db.order_by_usedtime(int(param1))
-                        text = u'KEYWORD CALLING RANKING (Top {rk}'.format(rk=param1)
+                        text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
                     except ValueError:
                         text = u'Invalid parameter. The parameter 1 of \'K\' can be number only.'
 
                     rank = 0
                     for result in results:
                         rank += 1
-                        text += u'No.{rk} - {kw} (ID: {id})\n'.format(rk=rank, 
+                        text += u'No.{rk} - {kw} (ID: {id}, {ct} times.)\n'.format(rk=rank, 
                                                                   kw=result[kwdict_col.keyword].decode('utf8'), 
-                                                                  id=result[kwdict_col.id])
+                                                                  id=result[kwdict_col.id],
+                                                                  ct=result[kwdict_col.used_time])
                     
                     api.reply_message(rep, TextSendMessage(text=text))
                 # SPECIAL record
