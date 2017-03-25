@@ -105,7 +105,7 @@ def handle_text_message(event):
                         text = u'SQL command result({len}): \n'.format(len=len(results))
                         for result in results:
                             #text += str(results) + '\n'
-                            
+                            pass
                 else:
                     text = 'This is a restricted function.'
 
