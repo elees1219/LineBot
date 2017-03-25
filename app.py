@@ -43,7 +43,7 @@ if group_mod is None:
     sys.exit(1)
 boot_up = datetime.datetime.now()
 rec = {'JC_called': 0}
-cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'H': 2, 'SHA': 0}
+cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'H': 0, 'SHA': 0}
 
 # Database initializing
 kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
@@ -111,8 +111,9 @@ def handle_text_message(event):
                 try:
                     params = split(oth, splitter, split_count[oth[0]] - 1)
                     cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
-                except ValueError:
-                    text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
+                except ValueError as err:
+                    text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
+                    text += err.message
                     api.reply_message(rep, TextSendMessage(text=text))
                     return
 
@@ -306,28 +307,28 @@ def handle_text_message(event):
                     # =============== UNDONE ===============
 
 
-                        insuff_p = 'Insufficient permission to use this function.'
-                        illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
-                        uid = event.source.user_id
+                    insuff_p = 'Insufficient permission to use this function.'
+                    illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
+                    uid = event.source.user_id
 
-                        if hashlib.sha224(param1).hexdigest() == administrator:
-                            perm = 3
-                        elif hashlib.sha224(param1).hexdigest() == group_admin:
-                            perm = 2
-                        elif hashlib.sha224(param1).hexdigest() == group_mod:
-                            perm = 1
-                        else:
-                            perm = 0
+                    if hashlib.sha224(param1).hexdigest() == administrator:
+                        perm = 3
+                    elif hashlib.sha224(param1).hexdigest() == group_admin:
+                        perm = 2
+                    elif hashlib.sha224(param1).hexdigest() == group_mod:
+                        perm = 1
+                    else:
+                        perm = 0
 
-                        if perm < 1:
-                            text = insuff_p
-                        elif isinstance(event.source, SourceUser):
+                    if perm < 1:
+                        text = insuff_p
+                    elif isinstance(event.source, SourceUser):
 
-                            if perm >= 3 and param2 == 'C':
-                                text = 'Group ban table created successfully.' if gb.create_ban() else 'Group ban table created failed.'
+                        if perm >= 3 and param2 == 'C':
+                            text = 'Group ban table created successfully.' if gb.create_ban() else 'Group ban table created failed.'
 
-                        else:
-                            text = illegal_type
+                    else:
+                        text = illegal_type
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # get CHAT id
