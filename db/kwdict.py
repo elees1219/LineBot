@@ -18,8 +18,8 @@ class kw_dict_mgr(object):
 
     def create_kwdict(self):
         cmd = u'CREATE TABLE keyword_dict( \
-                    id SERIAL, keyword TEXT, reply TEXT, \
-                    creator TEXT NOT NULL, deleted BOOLEAN DEFAULT FALSE, used_time INTEGER NOT NULL);'
+                    id SERIAL, keyword VARCHAR(500), reply VARCHAR(500), \
+                    creator VARCHAR(33) NOT NULL, deleted BOOLEAN NOT NULL DEFAULT FALSE, used_time INTEGER NOT NULL);'
         result = self.sql_cmd(cmd)
         return result
 
@@ -27,6 +27,8 @@ class kw_dict_mgr(object):
     def insert_keyword(self, keyword, reply, creator_id):
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time) \
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
+        cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
+        self.sql_cmd(cmd_override)
         result = self.sql_cmd(cmd, keyword, reply)
         return result
 
