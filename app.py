@@ -185,9 +185,9 @@ def handle_text_message(event):
             for err in ex.error.details:
                 text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property, msg=err.message)
             api.reply_message(rep, TextSendMessage(text=text))
-        except Exception as ex:
+        except Exception as exc:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
+            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
             api.reply_message(rep, TextSendMessage(text=text))
     
     res = db.get_reply(text)
