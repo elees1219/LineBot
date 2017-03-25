@@ -158,7 +158,7 @@ def handle_text_message(event):
                     text += str(results)
                     
                     for result in results:
-                        
+                        break
                         text += u'ID: {id} - {kw} {delete}\n'.format(
                             kw=result[kwdict_col.keyword], 
                             delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '',
