@@ -90,7 +90,7 @@ class kw_dict_mgr(object):
 
 
     def delete_keyword(self, keyword):
-        cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = FALSE RETURNING *;'.format(kw=keyword)
+        cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = FALSE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
         result = self.sql_cmd(cmd, keyword)
         if len(result) > 0:
             return result
@@ -99,7 +99,7 @@ class kw_dict_mgr(object):
 
 
     def delete_keyword_sys(self, keyword):
-        cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = TRUE RETURNING *;'.format(kw=keyword)
+        cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = TRUE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
         result = self.sql_cmd(cmd, keyword)
         if len(result) > 0:
             return result

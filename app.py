@@ -184,8 +184,9 @@ def handle_text_message(event):
                         
                         for result in results:
                             break
-                            text += u'ID: {id} - {kw} {delete}\n'.format(
-                                kw=result[kwdict_col.keyword], 
+                            text += u'ID: {id} - {kw} {od} {delete} \n'.format(
+                                kw=result[kwdict_col.keyword],
+                                od='(Overrided)' if bool(result[kwdict_col.override]) == True else '',
                                 delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '',
                                 id=result[kwdict_col.id])
 
