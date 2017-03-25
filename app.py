@@ -191,9 +191,9 @@ def handle_text_message(event):
                         for result in results:
                             text += u'ID: {id} - {kw} {od}{delete}{adm}\n'.format(
                                 kw=result[kwdict_col.keyword].decode('utf8'),
-                                od='(ORD)' if bool(result[kwdict_col.override]) == True else '',
+                                od='(OVR)' if bool(result[kwdict_col.override]) == True else '',
                                 delete='(DEL)' if bool(result[kwdict_col.deleted]) == True else '',
-                                adm='(ADM)' if bool(result[kwdict_col.admin]) == True else '',
+                                adm='(TOP)' if bool(result[kwdict_col.admin]) == True else '',
                                 id=result[kwdict_col.id])
 
                     api.reply_message(rep, TextSendMessage(text=text))
