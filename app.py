@@ -207,8 +207,10 @@ def handle_text_message(event):
                             text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                             text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                            text += u'Overrided: {od}\n'.format(od=result[kwdict_col.override])
+                            text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
                             text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
-                            profile = api.get_profile(result[kwdict_col.creator].decode('utf8'))
+                            profile = api.get_profile(result[kwdict_col.creator])
                             text += u'Created by {name}.\n'.format(name=profile.display_name.decode('utf8'))
                         api.reply_message(rep, TextSendMessage(text=text))
         except KeyError as ex:
