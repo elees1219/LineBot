@@ -91,7 +91,7 @@ def handle_text_message(event):
 
             if head == 'JC':
                 params = split(oth, splitter, split_count[oth[0]] - 1)
-                cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(3)]
+                cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
 
                 # SQL Command
                 if cmd == 'S':
