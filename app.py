@@ -193,7 +193,7 @@ def handle_text_message(event):
         res = db.get_reply(text)
         if res is not None:
             result = res[0]
-            api.reply_message(rep, TextSendMessage(text=str(result)))
+            api.reply_message(rep, TextSendMessage(text=result[kwdict_col.reply]))
 
     return
 
