@@ -259,8 +259,9 @@ def handle_text_message(event):
                                                                       kw=result[kwdict_col.keyword].decode('utf8'), 
                                                                       id=result[kwdict_col.id],
                                                                       ct=result[kwdict_col.used_time])
-                    except ValueError:
-                        text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.'
+                    except ValueError as err:
+                        text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
+                        text += u'Error message: {msg}'.format(msg=err.message)
                     
                     api.reply_message(rep, TextSendMessage(text=text))
                 # SPECIAL record
