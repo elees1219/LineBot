@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
 
 import errno
 import os
@@ -114,9 +114,9 @@ def handle_text_message(event):
                         results = db.insert_keyword(param1, param2, uid)
                         text = u'Pair Added. Total: {len}\n'.format(len=len(results))
                         for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                            text += unicode('ID: {id}\n'.format(id=result[kwdict_col.id]))
+                            text += unicode(u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword]))
+                            text += unicode(u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply]))
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword
@@ -181,7 +181,7 @@ def handle_text_message(event):
                         api.reply_message(rep, TextSendMessage(text=text))
 
         except exceptions.LineBotApiError as ex:
-            text = u'Line Bot Api Error\n\n'
+            text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
             for err in ex.error.details:
                 text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property, msg=err.message)
             api.reply_message(rep, TextSendMessage(text=text))
