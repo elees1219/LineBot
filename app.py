@@ -203,7 +203,7 @@ def handle_text_message(event):
                 # INFO of keyword
                 elif cmd == 'I':
                     text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
-                    if param1 == param2:
+                    if len(param1.split('  ')) > 1 and param1 == param2:
                         paramQ = split(param1, splitter, 2)
                         param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
                         results = db.get_info_id(param1)   
@@ -228,7 +228,7 @@ def handle_text_message(event):
                 # RANKING
                 elif cmd == 'K':
                     try:
-                        results = db.order_by_usedtime_desc(int(param1))
+                        results = db.order_by_usedtime(int(param1))
                         text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
                     except ValueError:
                         text = u'Invalid parameter. The parameter 1 of \'K\' can be number only.'

@@ -98,7 +98,7 @@ class kw_dict_mgr(object):
             return None
 
 
-    def order_by_usedtime_desc(self, count):
+    def order_by_usedtime(self, count):
         cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT {ct};'.format(ct=count)
         result = self.sql_cmd(cmd)
         if len(result) > 0:
