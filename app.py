@@ -102,7 +102,7 @@ def handle_text_message(event):
                 if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == '37f9105623c89106783932dffac1ce11':
                     results = db.sql_cmd(param1)
                     if results is not None:
-                        text = u'SQL command result({len}): \n'.format(len(results))
+                        text = u'SQL command result({len}): \n'.format(len=len(results))
                         for result in results:
                             text += str(result) + '\n'
                 else:
