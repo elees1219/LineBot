@@ -122,9 +122,9 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # ADD keyword(sys)
                 elif cmd == 'M':
-                    text = 'Please go to 1v1 chat to add keyword pair.'
+                    text = 'Restricted Function.'
 
-                    if isinstance(event.source, SourceUser):
+                    if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
                         uid = event.source.user_id
                         results = db.insert_keyword_sys(param1, param2, uid)
                         text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
@@ -147,17 +147,20 @@ def handle_text_message(event):
                             text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                     api.reply_message(rep, TextSendMessage(text=text))
-                # DELETE keyword
+                # DELETE keyword(sys)
                 elif cmd == 'R':
-                    text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-                    results = db.delete_keyword_sys(param1)
+                    text = 'Restricted Function.'
 
-                    if results is not None:
-                        for result in results:
-                            text = 'System Pair below DELETED.\n'
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                    if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
+                        text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
+                        results = db.delete_keyword_sys(param1)
+
+                        if results is not None:
+                            for result in results:
+                                text = 'System Pair below DELETED.\n'
+                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                                text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # QUERY keyword
