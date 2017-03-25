@@ -96,7 +96,7 @@ def handle_text_message(event):
                 # SQL Command
                 if cmd == 'S':
                     if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
-                        results = db.sql_cmd(param1.decode('utf8'))
+                        results = db.sql_cmd(param1)
                         if results is not None:
                             text = u'SQL command result({len}): \n'.format(len=len(results))
                             for result in results:
@@ -136,7 +136,7 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword
                 elif cmd == 'D':
-                    text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1.decode('utf8'))
+                    text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                     results = db.delete_keyword(param1)
 
                     if results is not None:
@@ -152,7 +152,7 @@ def handle_text_message(event):
                     text = 'Restricted Function.'
 
                     if isinstance(event.source, SourceUser) and md5.new(param3).hexdigest() == admin:
-                        text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1.decode('utf8'))
+                        text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                         results = db.delete_keyword_sys(param1)
 
                         if results is not None:
@@ -185,7 +185,7 @@ def handle_text_message(event):
                         for result in results:
                             break
                             text += u'ID: {id} - {kw} {od} {delete} {adm}\n'.format(
-                                kw=result[kwdict_col.keyword],
+                                kw=result[kwdict_col.keyword].decode('utf8'),
                                 od='(Overrided)' if bool(result[kwdict_col.override]) == True else '',
                                 delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '',
                                 adm='(Admin)' if bool(result[kwdict_col.admin]) == True else '',
@@ -200,7 +200,7 @@ def handle_text_message(event):
                     results = db.get_info(param1)
 
                     if results is None:
-                        text = u'Specified keyword: {kw} not exists.'.format(kw=param1.decode('utf8'))
+                        text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
                         api.reply_message(rep, TextSendMessage(text=text))
                     else:
                         text = ''
@@ -212,7 +212,7 @@ def handle_text_message(event):
                             text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
                             text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
                             profile = api.get_profile(result[kwdict_col.creator])
-                            text += u'Created by {name}.\n'.format(name=profile.display_name.decode('utf8'))
+                            text += u'Created by {name}.\n'.format(name=profile.display_name)
                         api.reply_message(rep, TextSendMessage(text=text))
         except KeyError as ex:
             text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
