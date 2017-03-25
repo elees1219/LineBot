@@ -145,7 +145,7 @@ def handle_text_message(event):
                     paramQ = split(param1, '  ', 2)
                     param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
                     if int(param2) - int(param1) <= 15:
-                        results = db.search_keyword(int(param1), int(param2))
+                        results = db.search_keyword_index(param1, param2)
                     else:
                         results = None
                         text = 'Maximum selecting range by ID is 15.'
