@@ -251,16 +251,16 @@ def handle_text_message(event):
                     try:
                         results = kwd.order_by_usedtime(int(param1))
                         text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
-                    except ValueError:
-                        text = u'Invalid parameter. The parameter 1 of \'K\' can be number only.'
+                        rank = 0
 
-                    rank = 0
-                    for result in results:
-                        rank += 1
-                        text += u'No.{rk} - {kw} (ID: {id}, {ct} times.)\n'.format(rk=rank, 
-                                                                  kw=result[kwdict_col.keyword].decode('utf8'), 
-                                                                  id=result[kwdict_col.id],
-                                                                  ct=result[kwdict_col.used_time])
+                        for result in results:
+                            rank += 1
+                            text += u'No.{rk} - {kw} (ID: {id}, {ct} times.)\n'.format(rk=rank, 
+                                                                      kw=result[kwdict_col.keyword].decode('utf8'), 
+                                                                      id=result[kwdict_col.id],
+                                                                      ct=result[kwdict_col.used_time])
+                    except ValueError:
+                        text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.'
                     
                     api.reply_message(rep, TextSendMessage(text=text))
                 # SPECIAL record
@@ -333,14 +333,17 @@ def handle_text_message(event):
                 elif cmd == 'H':
                     if isinstance(event.source, SourceUser):
                         text = event.source.user_id
+                        type = 'Type: User'
                     elif isinstance(event.source, SourceGroup):
                         text = event.source.group_id
+                        type = 'Type: Group'
                     elif isinstance(event.source, SourceRoom):
                         text = event.source.room_id
+                        type = 'Type: Room'
                     else:
                         text = 'Unknown chatting type.'
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                    api.reply_message(rep, [TextSendMessage(text=type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
                     api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1).hexdigest()))
