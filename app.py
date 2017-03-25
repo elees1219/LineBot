@@ -130,8 +130,8 @@ def handle_text_message(event):
                         text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
                         for result in results:
                             text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
-                            text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
+                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword
