@@ -189,7 +189,7 @@ def handle_text_message(event):
     except ValueError as ex:
         pass
     except linebot.exceptions.LineBotApiError as ex:
-        text = ex.details[].message
+        text = ex.details[0].message
         api.reply_message(rep, TextSendMessage(text=text))
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
