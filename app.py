@@ -189,11 +189,11 @@ def handle_text_message(event):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
             api.reply_message(rep, TextSendMessage(text=text))
-    
-    res = db.get_reply(text)
-    if res is not None:
-        result = res[0]
-        api.reply_message(rep, TextSendMessage(text=str(result)))
+    else:   
+        res = db.get_reply(text)
+        if res is not None:
+            result = res[0]
+            api.reply_message(rep, TextSendMessage(text=str(result)))
 
     return
 
