@@ -258,6 +258,7 @@ def handle_text_message(event):
                     for cmd, time in cmd_called_time.iteritems():
                         text += 'Command \'{c}\' called {t} time(s).\n'.format(c=cmd, t=time)
 
+                    api.reply_message(rep, TextSendMessage(text=text))
                 # STICKER
                 elif cmd == 'T':
                     pass
