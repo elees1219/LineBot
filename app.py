@@ -84,7 +84,7 @@ def handle_text_message(event):
     text = event.message.text
     splitter = '  '
 
-    if len(text.split(splitter)) > 2:
+    if len(text.split(splitter)) > 1 and text.startswith('JC'):
         try:
             head, oth = split(text, splitter, 2)
             split_count = {'S': 4, 'A': 4, 'D': 3, 'Q': 3, 'C': 2, 'I': 3, 'T': 2, 'M': 5}
