@@ -187,10 +187,12 @@ def handle_text_message(event):
                                 id=result[kwdict_col.id])
 
                     api.reply_message(rep, TextSendMessage(text=text))
-                # [P]CREATE Dictionary
+                # CREATE kw_dict
                 elif cmd == 'C':
-                    api.reply_message(rep, TextSendMessage(text=str(db.create_kwdict())))
-                # [P]get INFO of keyword
+                    text = 'Successfully created the table.'
+                    db.create_kwdict()
+                    api.reply_message(rep, TextSendMessage(text=text))
+                # INFO of keyword
                 elif cmd == 'I':
                     results = db.get_info(param1)
 
