@@ -109,7 +109,7 @@ def handle_text_message(event):
                 rec['JC_called'] += 1
 
                 try:
-                    params = split(oth, splitter, split_count[oth[0]] - 1)
+                    params = split(oth, splitter, split_count[oth.split(splitter)[0]] - 1)
                     cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
                 except ValueError as err:
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
@@ -310,7 +310,6 @@ def handle_text_message(event):
 
                     insuff_p = 'Insufficient permission to use this function.'
                     illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
-                    uid = event.source.user_id
 
                     if hashlib.sha224(param1).hexdigest() == administrator:
                         perm = 3
@@ -324,7 +323,7 @@ def handle_text_message(event):
                     if perm < 1:
                         text = insuff_p
                     elif isinstance(event.source, SourceUser):
-
+                        uid = event.source.user_id
                         if perm >= 3 and param2 == 'C':
                             text = 'Group ban table created successfully.' if gb.create_ban() else 'Group ban table created failed.'
 
