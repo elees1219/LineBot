@@ -178,5 +178,5 @@ _col_list = ['groupId', 'silence',
              'moderator1', 'moderator1_sha', 
              'moderator2', 'moderator3_sha', 
              'moderator3', 'moderator3_sha']
-_col_tuple = collections.namedtuple('kwdict_col', _col_list)
+_col_tuple = collections.namedtuple('gb_col', _col_list)
 gb_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
