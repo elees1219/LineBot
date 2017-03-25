@@ -53,6 +53,8 @@ class kw_dict_mgr(object):
             return None
 
 
+    # --------------Test to Prevent SQL INJECTION--------------
+
     def search_keyword_index(self, startIndex, endIndex):
         cmd = u'SELECT * FROM keyword_dict WHERE id >= {si} AND id <= {ei};'.format(si=startIndex, ei=endIndex)
         result = self.sql_cmd(cmd)
