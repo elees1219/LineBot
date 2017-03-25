@@ -15,9 +15,7 @@ from flask import Flask, request, abort
 from linebot import (
     LineBotApi, WebhookHandler
 )
-from linebot.exceptions import (
-    InvalidSignatureError
-)
+import linebot.exceptions
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
     SourceUser, SourceGroup, SourceRoom,
@@ -74,7 +72,7 @@ def callback():
     # handle webhook body
     try:
         handler.handle(body, signature)
-    except InvalidSignatureError:
+    except linebot.exceptions.InvalidSignatureError:
         abort(400)
 
     return 'OK'
@@ -93,23 +91,20 @@ def handle_text_message(event):
             params = split(oth, '  ', split_count[oth[0]] - 1)
             cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(3)]
 
-            # N = Not Tested
-            # T = Testing
-            # P = Pass
-
-            # [P]SQL Command
+            # SQL Command
             if cmd == 'S':
                 if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == '37f9105623c89106783932dffac1ce11':
                     results = db.sql_cmd(param1)
                     if results is not None:
-                        text = 'SQL command result: \n'
+                        text = u'SQL command result({len}): \n'.format(len=len(results))
                         for result in results:
-                            text = str(result) + '\n'
+                            text += u'{result}\n'.format(result=result)
+                            
                 else:
                     text = 'This is a restricted function.'
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # [P]ADD keyword
+            # ADD keyword
             elif cmd == 'A':
                 text = 'Please go to 1v1 chat to add keyword pair.'
 
@@ -123,8 +118,7 @@ def handle_text_message(event):
                         text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # [P]DELETE keyword
-            # --------------Display 'Keyword already deleted.'--------------
+            # DELETE keyword
             elif cmd == 'D':
                 text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                 results = db.delete_keyword(param1)
@@ -137,24 +131,24 @@ def handle_text_message(event):
                         text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
 
                 api.reply_message(rep, TextSendMessage(text=text))
-            # [P]QUERY keyword
-            # --------------Waiting for test in kwdict.py to debug, result not print--------------
+            # QUERY keyword
             elif cmd == 'Q':
                 text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
-                try:
+                if len(param1.split('  ')) > 1:
                     paramQ = split(param1, '  ', 2)
                     param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
                     if int(param2) - int(param1) <= 15:
-                        results = db.search_keyword(param1, param2)
+                        results = db.search_keyword_index(param1, param2)
                     else:
                         results = None
                         text = 'Maximum selecting range by ID is 15.'
-                except ValueError:
-                    results = db.search_keyword(param1)
+                else:
+                    results = db.search_keyword(keyword=param1)
                     
 
                 if results is not None:
                     text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
+                    text += str(results)
                     
                     for result in results:
                         break
@@ -188,6 +182,9 @@ def handle_text_message(event):
             pass
     except ValueError as ex:
         pass
+    except linebot.exceptions.LineBotApiError as ex:
+        text = str(ex.details[0])
+        api.reply_message(rep, TextSendMessage(text=text))
     except Exception as ex:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
