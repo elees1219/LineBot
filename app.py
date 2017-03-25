@@ -179,7 +179,9 @@ def handle_text_message(event):
                             profile = api.get_profile(event.source.user_id)
                             text += u'Created by {name}.\n'.format(name=profile.display_name)
                         api.reply_message(rep, TextSendMessage(text=text))
-
+        except KeyError as ex:
+            text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
+            api.reply_message(rep, TextSendMessage(text=text))
         except exceptions.LineBotApiError as ex:
             text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
             for err in ex.error.details:
