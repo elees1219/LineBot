@@ -31,7 +31,7 @@ from linebot.models import (
 app = Flask(__name__)
 admin = '37f9105623c89106783932dffac1ce11'
 boot_up = datetime.datetime.now()
-JC_called_time = 0
+rec = {'JC_called_time': 0}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 'C': 0, 'I': 0, 'K': 0, 'P': 0}
 
 # Database initializing
@@ -94,7 +94,7 @@ def handle_text_message(event):
             split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3, 'K': 3, 'P': 2}
 
             if head == 'JC':
-                JC_called_time += 1
+                rec[JC_called_time] += 1
                 cmd_called_time[cmd] += 1
 
                 try:
