@@ -158,7 +158,7 @@ def handle_text_message(event):
                 elif cmd == 'R':
                     text = 'Restricted Function.'
 
-                    if isinstance(event.source, SourceUser) and md5.new(param3).hexdigest() == admin:
+                    if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
                         text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                         results = db.delete_keyword_sys(param1)
 
