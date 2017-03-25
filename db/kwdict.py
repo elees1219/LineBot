@@ -9,7 +9,6 @@ import collections
 
 class kw_dict_mgr(object):
 
-
     def __init__(self, scheme, db_url):
         urlparse.uses_netloc.append(scheme)
         self.url = urlparse.urlparse(db_url)
@@ -29,7 +28,6 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd)
         return result
 
-
     def insert_keyword(self, keyword, reply, creator_id):
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin) \
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, FALSE) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
@@ -38,7 +36,6 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd, keyword, reply)
         return result
 
-
     def insert_keyword_sys(self, keyword, reply, creator_id):
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin) \
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, TRUE) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
@@ -46,7 +43,6 @@ class kw_dict_mgr(object):
         self.sql_cmd(cmd_override)
         result = self.sql_cmd(cmd, keyword, reply)
         return result
-
 
     def get_reply(self, keyword):
         kw = keyword
@@ -59,7 +55,6 @@ class kw_dict_mgr(object):
         else:
             return None
 
-
     def search_keyword(self, keyword):
         kw = keyword
         cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%%{kw}%%\';'.format(kw=keyword)
@@ -69,7 +64,6 @@ class kw_dict_mgr(object):
         else:
             return None
 
-
     def search_keyword_index(self, startIndex, endIndex):
         cmd = u'SELECT * FROM keyword_dict WHERE id >= {si} AND id <= {ei} ORDER BY id ASC;'.format(si=startIndex, ei=endIndex)
         result = self.sql_cmd(cmd)
@@ -77,7 +71,6 @@ class kw_dict_mgr(object):
             return result
         else:
             return None
-
 
     def get_info(self, keyword):
         kw = keyword
@@ -88,7 +81,6 @@ class kw_dict_mgr(object):
         else:
             return None
 
-
     def get_info_id(self, id):
         cmd = u'SELECT * FROM keyword_dict WHERE id = \'{id}\';'.format(id=id)
         result = self.sql_cmd(cmd, id)
@@ -96,7 +88,6 @@ class kw_dict_mgr(object):
             return result
         else:
             return None
-
 
     def order_by_usedtime(self, count):
         cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT {ct};'.format(ct=count)
@@ -106,7 +97,6 @@ class kw_dict_mgr(object):
         else:
             return None
 
-
     def delete_keyword(self, keyword):
         cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = FALSE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
         result = self.sql_cmd(cmd, keyword)
@@ -114,7 +104,6 @@ class kw_dict_mgr(object):
             return result
         else:
             return None
-
 
     def delete_keyword_sys(self, keyword):
         cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = TRUE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
@@ -127,9 +116,14 @@ class kw_dict_mgr(object):
 
 
 
+    def row_count(self):
+        cmd = u'SELECT COUNT(id) FROM keyword_dict;'
+        result = self.sql_cmd(cmd)
+        return int(result[0][0])
+
+
     def sql_cmd(self, cmd):
         return sql_cmd(cmd, None)
-
 
     def sql_cmd(self, cmd, *args):
         self._set_connection()
@@ -153,7 +147,6 @@ class kw_dict_mgr(object):
         self.conn.commit()
         self.cur.close()
         self.conn.close()
-        
 
     def _set_connection(self):
         self.conn = psycopg2.connect(

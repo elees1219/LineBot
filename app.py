@@ -6,6 +6,7 @@ import sys
 import tempfile
 import traceback
 import md5
+import datetime
 
 # Database import
 from db import kw_dict_mgr, kwdict_col
@@ -29,6 +30,9 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 admin = '37f9105623c89106783932dffac1ce11'
+boot_up = datetime.datetime.now()
+JC_called_time = 0
+cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 'C': 0, 'I': 0, 'K': 0}
 
 # Database initializing
 db = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
@@ -90,6 +94,9 @@ def handle_text_message(event):
             split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3, 'K': 3}
 
             if head == 'JC':
+                JC_called_time += 1
+                cmd_called_time[cmd] += 1
+
                 try:
                     params = split(oth, splitter, split_count[oth[0]] - 1)
                     cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
@@ -244,10 +251,17 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # SPECIAL record
                 elif cmd == 'P':
-                    pass
+                    text = 'Boot up time: {bt}\n'.format(bt=boot_up)
+                    text += 'Count of keyword pair: {ct}\n\n'.format(ct=db.row_count())
+                    text += 'System called time(including failed): {t}\n'.format(t=JC_called_time)
+                    for cmd, time in cmd_called_time.iteritems():
+                        text += 'Command \'{c}\' called {t} time(s).\n'.format(c=cmd, t=time)
+
                 # STICKER
                 elif cmd == 'T':
                     pass
+                else:
+                    cmd_called_time[cmd] -= 1
         except KeyError as ex:
             text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
             api.reply_message(rep, TextSendMessage(text=text))
