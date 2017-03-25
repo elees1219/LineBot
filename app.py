@@ -95,7 +95,6 @@ def handle_text_message(event):
 
             if head == 'JC':
                 rec['JC_called_time'] += 1
-                cmd_called_time[cmd] += 1
 
                 try:
                     params = split(oth, splitter, split_count[oth[0]] - 1)
@@ -104,6 +103,8 @@ def handle_text_message(event):
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
                     api.reply_message(rep, TextSendMessage(text=text))
                     return
+
+                cmd_called_time[cmd] += 1
                 
                 # SQL Command
                 if cmd == 'S':
