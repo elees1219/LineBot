@@ -50,7 +50,7 @@ class kw_dict_mgr(object):
 
     def get_reply(self, keyword):
         kw = keyword
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE ORDER BY admin ASC, id DESC;'.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE ORDER BY admin DESC, id DESC;'.format(kw=keyword)
         cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_update)
         result = self.sql_cmd(cmd, kw)
