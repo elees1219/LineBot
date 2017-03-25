@@ -89,6 +89,15 @@ class kw_dict_mgr(object):
             return None
 
 
+    def get_info_id(self, id):
+        cmd = u'SELECT * FROM keyword_dict WHERE id = \'{id}\';'.format(id=id)
+        result = self.sql_cmd(cmd, id)
+        if len(result) > 0:
+            return result
+        else:
+            return None
+
+
     def delete_keyword(self, keyword):
         cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = FALSE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
         result = self.sql_cmd(cmd, keyword)

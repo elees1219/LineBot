@@ -182,7 +182,7 @@ def handle_text_message(event):
                             results = None
                             text = 'Maximum selecting range by ID is 15.'
                     else:
-                        results = db.search_keyword(keyword=param1)
+                        results = db.search_keyword(param1)
                         
 
                     if results is not None:
@@ -202,7 +202,13 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=db.create_kwdict()))
                 # INFO of keyword
                 elif cmd == 'I':
-                    results = db.get_info(param1)
+                    text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
+                    if param1 == param2:
+                        paramQ = split(param1, splitter, 2)
+                        param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
+                        results = db.get_info_id(param1)   
+                    else:
+                        results = db.get_info(param1)
 
                     if results is None:
                         text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
