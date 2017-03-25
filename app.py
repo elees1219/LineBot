@@ -13,9 +13,8 @@ from db import kw_dict_mgr, kwdict_col
 from flask import Flask, request, abort
 
 from linebot import (
-    LineBotApi, WebhookHandler
+    LineBotApi, WebhookHandler, exceptions
 )
-import linebot.exceptions
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
     SourceUser, SourceGroup, SourceRoom,
@@ -72,7 +71,7 @@ def callback():
     # handle webhook body
     try:
         handler.handle(body, signature)
-    except linebot.exceptions.InvalidSignatureError:
+    except exceptions.InvalidSignatureError:
         abort(400)
 
     return 'OK'
@@ -82,113 +81,114 @@ def callback():
 def handle_text_message(event):
     rep = event.reply_token
     text = event.message.text
+    splitter = '  '
 
-    try:
-        head, oth = split(text, '  ', 2)
-        split_count = {'S': 4, 'A': 4, 'D': 3, 'Q': 3, 'C': 2, 'I': 3, 'T': 2}
+    if len(text.split(splitter)) > 2:
+        try:
+            head, oth = split(text, splitter, 2)
+            split_count = {'S': 4, 'A': 4, 'D': 3, 'Q': 3, 'C': 2, 'I': 3, 'T': 2}
 
-        if head == 'JC':
-            params = split(oth, '  ', split_count[oth[0]] - 1)
-            cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(3)]
+            if head == 'JC':
+                params = split(oth, splitter, split_count[oth[0]] - 1)
+                cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(3)]
 
-            # SQL Command
-            if cmd == 'S':
-                if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == '37f9105623c89106783932dffac1ce11':
-                    results = db.sql_cmd(param1)
-                    if results is not None:
-                        text = u'SQL command result({len}): \n'.format(len=len(results))
-                        for result in results:
-                            text += u'{result}\n'.format(result=result)
-                            
-                else:
-                    text = 'This is a restricted function.'
-
-                api.reply_message(rep, TextSendMessage(text=text))
-            # ADD keyword
-            elif cmd == 'A':
-                text = 'Please go to 1v1 chat to add keyword pair.'
-
-                if isinstance(event.source, SourceUser):
-                    uid = event.source.user_id
-                    results = db.insert_keyword(param1, param2, uid)
-                    text = u'Pair Added. Total: {len}\n'.format(len=len(results))
-                    for result in results:
-                        text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                        text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                        text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
-
-                api.reply_message(rep, TextSendMessage(text=text))
-            # DELETE keyword
-            elif cmd == 'D':
-                text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-                results = db.delete_keyword(param1)
-
-                if results is not None:
-                    for result in results:
-                        text = 'Pair below DELETED.\n'
-                        text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                        text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                        text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
-
-                api.reply_message(rep, TextSendMessage(text=text))
-            # QUERY keyword
-            elif cmd == 'Q':
-                text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
-                if len(param1.split('  ')) > 1:
-                    paramQ = split(param1, '  ', 2)
-                    param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
-                    if int(param2) - int(param1) <= 15:
-                        results = db.search_keyword_index(param1, param2)
+                # SQL Command
+                if cmd == 'S':
+                    if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == '37f9105623c89106783932dffac1ce11':
+                        results = db.sql_cmd(param1)
+                        if results is not None:
+                            text = u'SQL command result({len}): \n'.format(len=len(results))
+                            for result in results:
+                                text += u'{result}\n'.format(result=result)
+                                
                     else:
-                        results = None
-                        text = 'Maximum selecting range by ID is 15.'
-                else:
-                    results = db.search_keyword(keyword=param1)
-                    
+                        text = 'This is a restricted function.'
 
-                if results is not None:
-                    text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
-                    text += str(results)
-                    
-                    for result in results:
-                        break
-                        text += u'ID: {id} - {kw} {delete}\n'.format(
-                            kw=result[kwdict_col.keyword], 
-                            delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '',
-                            id=result[kwdict_col.id])
-
-                api.reply_message(rep, TextSendMessage(text=text))
-            # [P]CREATE Dictionary
-            elif cmd == 'C':
-                api.reply_message(rep, TextSendMessage(text=str(db.create_kwdict())))
-            # [P]get INFO of keyword
-            elif cmd == 'I':
-                results = db.get_info(param1)
-
-                if results is None:
-                    text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
                     api.reply_message(rep, TextSendMessage(text=text))
-                else:
-                    text = ''
-                    for result in results:
-                        text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                        text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
-                        text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
-                        text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
-                        profile = api.get_profile(event.source.user_id)
-                        text += u'Created by {name}.\n'.format(name=profile.display_name)
+                # ADD keyword
+                elif cmd == 'A':
+                    text = 'Please go to 1v1 chat to add keyword pair.'
+
+                    if isinstance(event.source, SourceUser):
+                        uid = event.source.user_id
+                        results = db.insert_keyword(param1, param2, uid)
+                        text = u'Pair Added. Total: {len}\n'.format(len=len(results))
+                        for result in results:
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+
                     api.reply_message(rep, TextSendMessage(text=text))
-        else:
-            pass
-    except ValueError as ex:
-        pass
-    except linebot.exceptions.LineBotApiError as ex:
-        text = str(ex.details[0])
-        api.reply_message(rep, TextSendMessage(text=text))
-    except Exception as ex:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
-        api.reply_message(rep, TextSendMessage(text=text))
+                # DELETE keyword
+                elif cmd == 'D':
+                    text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
+                    results = db.delete_keyword(param1)
+
+                    if results is not None:
+                        for result in results:
+                            text = 'Pair below DELETED.\n'
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+
+                    api.reply_message(rep, TextSendMessage(text=text))
+                # QUERY keyword
+                elif cmd == 'Q':
+                    text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
+                    if len(param1.split(splitter)) > 1:
+                        paramQ = split(param1, splitter, 2)
+                        param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
+                        if int(param2) - int(param1) <= 15:
+                            results = db.search_keyword_index(param1, param2)
+                        else:
+                            results = None
+                            text = 'Maximum selecting range by ID is 15.'
+                    else:
+                        results = db.search_keyword(keyword=param1)
+                        
+
+                    if results is not None:
+                        text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
+                        text += str(results)
+                        
+                        for result in results:
+                            break
+                            text += u'ID: {id} - {kw} {delete}\n'.format(
+                                kw=result[kwdict_col.keyword], 
+                                delete='(Deleted)' if bool(result[kwdict_col.deleted]) == True else '',
+                                id=result[kwdict_col.id])
+
+                    api.reply_message(rep, TextSendMessage(text=text))
+                # [P]CREATE Dictionary
+                elif cmd == 'C':
+                    api.reply_message(rep, TextSendMessage(text=str(db.create_kwdict())))
+                # [P]get INFO of keyword
+                elif cmd == 'I':
+                    results = db.get_info(param1)
+
+                    if results is None:
+                        text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
+                        api.reply_message(rep, TextSendMessage(text=text))
+                    else:
+                        text = ''
+                        for result in results:
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+                            text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
+                            profile = api.get_profile(event.source.user_id)
+                            text += u'Created by {name}.\n'.format(name=profile.display_name)
+                        api.reply_message(rep, TextSendMessage(text=text))
+
+        except exceptions.LineBotApiError as ex:
+            text = u'Line Bot Api Error\n\n'
+            for err in ex.error.details:
+                text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property, msg=err.message)
+            api.reply_message(rep, TextSendMessage(text=text))
+        except Exception as ex:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=ex.message)
+            api.reply_message(rep, TextSendMessage(text=text))
     
     res = db.get_reply(text)
     if res is not None:
