@@ -98,6 +98,15 @@ class kw_dict_mgr(object):
             return None
 
 
+    def order_by_usedtime(self, count):
+        cmd = u'SELECT * FROM keyword_dict ORDER BY used_time LIMIT {ct};'.format(ct=count)
+        result = self.sql_cmd(cmd)
+        if len(result) > 0:
+            return result
+        else:
+            return None
+
+
     def delete_keyword(self, keyword):
         cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = FALSE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
         result = self.sql_cmd(cmd, keyword)

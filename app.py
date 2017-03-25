@@ -87,7 +87,7 @@ def handle_text_message(event):
     if len(text.split(splitter)) > 1 and text.startswith('JC'):
         try:
             head, oth = split(text, splitter, 2)
-            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3}
+            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3, 'K': 3}
 
             if head == 'JC':
                 try:
@@ -219,12 +219,34 @@ def handle_text_message(event):
                             text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                             text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                            text += u'Overrided: {od}\n'.format(od=result[kwdict_col.override])
+                            text += u'Override: {od}\n'.format(od=result[kwdict_col.override])
                             text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
                             text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
                             profile = api.get_profile(result[kwdict_col.creator])
                             text += u'Created by {name}.\n'.format(name=profile.display_name)
                         api.reply_message(rep, TextSendMessage(text=text))
+                # RANKING
+                elif cmd == 'K':
+                    try:
+                        results = db.order_by_usedtime(int(param1))
+                        text = 'KEYWORD CALLING RANKING (Top {rk}'.format(rk=param1)
+                    except ValueError:
+                        text = 'Invalid parameter. The parameter 1 of \'K\' can be number only.'
+
+                    rank = 0
+                    for result in results:
+                        rank += 1
+                        text += 'No.{rk} - {kw} (ID: {id})\n'.format(rk=rank, 
+                                                                  kw=result[kwdict_col.keyword].decode('utf8'), 
+                                                                  id=result[kwdict_col.id])
+                    
+                    api.reply_message(rep, TextSendMessage(text=text))
+                # SPECIAL record
+                elif cmd == 'P':
+                    pass
+                # STICKER
+                elif cmd == 'T':
+                    pass
         except KeyError as ex:
             text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
             api.reply_message(rep, TextSendMessage(text=text))
