@@ -28,6 +28,7 @@ from linebot.models import (
 
 # Main initializing
 app = Flask(__name__)
+admin = '37f9105623c89106783932dffac1ce11'
 
 # Database initializing
 db = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
@@ -86,15 +87,15 @@ def handle_text_message(event):
     if len(text.split(splitter)) > 2:
         try:
             head, oth = split(text, splitter, 2)
-            split_count = {'S': 4, 'A': 4, 'D': 3, 'Q': 3, 'C': 2, 'I': 3, 'T': 2}
+            split_count = {'S': 4, 'A': 4, 'D': 3, 'Q': 3, 'C': 2, 'I': 3, 'T': 2, 'M': 5}
 
             if head == 'JC':
                 params = split(oth, splitter, split_count[oth[0]] - 1)
-                cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(3)]
+                cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(3)]
 
                 # SQL Command
                 if cmd == 'S':
-                    if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == '37f9105623c89106783932dffac1ce11':
+                    if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
                         results = db.sql_cmd(param1)
                         if results is not None:
                             text = u'SQL command result({len}): \n'.format(len=len(results))
@@ -119,6 +120,20 @@ def handle_text_message(event):
                             text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
 
                     api.reply_message(rep, TextSendMessage(text=text))
+                # ADD keyword(sys)
+                elif cmd == 'M':
+                    text = 'Please go to 1v1 chat to add keyword pair.'
+
+                    if isinstance(event.source, SourceUser):
+                        uid = event.source.user_id
+                        results = db.insert_keyword_sys(param1, param2, uid)
+                        text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
+                        for result in results:
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                            text += u'Keyword: {kw}\n'.format(kw=str(result[kwdict_col.keyword]))
+                            text += u'Reply: {rep}\n'.format(rep=str(result[kwdict_col.reply]))
+
+                    api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword
                 elif cmd == 'D':
                     text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
@@ -127,6 +142,19 @@ def handle_text_message(event):
                     if results is not None:
                         for result in results:
                             text = 'Pair below DELETED.\n'
+                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
+                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
+
+                    api.reply_message(rep, TextSendMessage(text=text))
+                # DELETE keyword
+                elif cmd == 'R':
+                    text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
+                    results = db.delete_keyword_sys(param1)
+
+                    if results is not None:
+                        for result in results:
+                            text = 'System Pair below DELETED.\n'
                             text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                             text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword])
                             text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply])
