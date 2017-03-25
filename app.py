@@ -258,10 +258,11 @@ def handle_text_message(event):
                     user_list_top = db.user_sort_by_created_pair()[0]
                     text += u'Most Creative User: {name} ({num} Pairs\n'.format(name=api.get_profile(user_list_top[0]).display_name,
                                                                                num=user_list_top[1])
-                    first = db.order_by_usedtime(int(param1))[0]
+                    all = db.order_by_usedtime_all()
+                    first = all[0]
                     text += u'Most Popular Keyword: {kw} ({c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
                                                                                 c=first[kwdict_col.used_time])
-                    last = db.order_by_usedtime(int(param1))[-1]
+                    last = all[-1]
                     text += u'Most Unpopular Keyword: {kw} ({c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
                                                                                 c=last[kwdict_col.used_time])
                     text += u'System command called time (including failed): {t}\n'.format(t= rec['JC_called'])
