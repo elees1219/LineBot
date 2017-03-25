@@ -15,6 +15,29 @@ class kw_dict_mgr(object):
         self._set_connection()
 
 
+
+
+    def sql_cmd(self, cmd):
+        return sql_cmd(cmd, None)
+
+    def sql_cmd(self, cmd, *args):
+        self._set_connection()
+        try:
+            self.cur.execute(cmd, args)
+            result = self.cur.fetchall()
+        except psycopg2.Error as ex:
+            self._close_connection()
+            return [[args for args in ex.args], []]
+        except Exception as ex:
+            self._close_connection()
+            return [[args for args in ex.args], []]
+        
+        self._close_connection()
+        return result
+
+
+
+
     def create_kwdict(self):
         cmd = u'CREATE TABLE keyword_dict( \
                     id SERIAL, \
@@ -26,7 +49,7 @@ class kw_dict_mgr(object):
                     used_time INTEGER NOT NULL, \
                     creator VARCHAR(33) NOT NULL);'
         result = self.sql_cmd(cmd)
-        return result
+        return True if len(result) <= 1 else False
 
     def insert_keyword(self, keyword, reply, creator_id):
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin) \
@@ -141,25 +164,6 @@ class kw_dict_mgr(object):
         cmd = u'SELECT SUM(used_time) FROM keyword_dict;'
         result = self.sql_cmd(cmd)
         return int(result[0][0])
-
-
-    def sql_cmd(self, cmd):
-        return sql_cmd(cmd, None)
-
-    def sql_cmd(self, cmd, *args):
-        self._set_connection()
-        try:
-            self.cur.execute(cmd, args)
-            result = self.cur.fetchall()
-        except psycopg2.Error as ex:
-            self._close_connection()
-            return [[args for args in ex.args]]
-        except Exception as ex:
-            self._close_connection()
-            return [[args for args in ex.args]]
-        
-        self._close_connection()
-        return result
 
 
 

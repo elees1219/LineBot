@@ -5,11 +5,11 @@ import os
 import sys
 import tempfile
 import traceback
-import md5
+import hashlib 
 import datetime
 
 # Database import
-from db import kw_dict_mgr, kwdict_col
+from db import group_ban, kw_dict_mgr
 
 from flask import Flask, request, abort
 
@@ -29,14 +29,25 @@ from linebot.models import (
 
 # Main initializing
 app = Flask(__name__)
-admin = '37f9105623c89106783932dffac1ce11'
-moderator = '9875f9d57494258b7666fb719745a7e8'
+administrator = os.getenv('ADMIN', None)
+group_admin = os.getenv('G_ADMIN', None)
+group_mod = os.getenv('G_MOD', None)
+if administrator is None:
+    print('The SHA224 of ADMIN not defined. Program will be terminated.')
+    sys.exit(1)
+if group_admin is None:
+    print('The SHA224 of G_ADMIN not defined. Program will be terminated.')
+    sys.exit(1)
+if group_mod is None:
+    print('The SHA224 of G_MOD not defined. Program will be terminated.')
+    sys.exit(1)
 boot_up = datetime.datetime.now()
 rec = {'JC_called': 0}
-cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 'C': 0, 'I': 0, 'K': 0, 'P': 0}
+cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'H': 2, 'SHA': 0}
 
 # Database initializing
-db = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
+kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
+gb = group_ban("postgres", os.environ["DATABASE_URL"])
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -92,7 +103,7 @@ def handle_text_message(event):
     if len(text.split(splitter)) > 1 and text.startswith('JC'):
         try:
             head, oth = split(text, splitter, 2)
-            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3, 'K': 3, 'P': 2}
+            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'H': 2, 'SHA': 3}
 
             if head == 'JC':
                 rec['JC_called'] += 1
@@ -109,8 +120,8 @@ def handle_text_message(event):
                 
                 # SQL Command
                 if cmd == 'S':
-                    if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
-                        results = db.sql_cmd(param1)
+                    if isinstance(event.source, SourceUser) and hashlib.sha224(param2).hexdigest() == administrator:
+                        results = kwd.sql_cmd(param1)
                         if results is not None:
                             text = u'SQL command result({len}): \n'.format(len=len(results))
                             for result in results:
@@ -126,7 +137,7 @@ def handle_text_message(event):
 
                     if isinstance(event.source, SourceUser):
                         uid = event.source.user_id
-                        results = db.insert_keyword(param1, param2, uid)
+                        results = kwd.insert_keyword(param1, param2, uid)
                         text = u'Pair Added. Total: {len}\n'.format(len=len(results))
                         for result in results:
                             text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
@@ -138,9 +149,9 @@ def handle_text_message(event):
                 elif cmd == 'M':
                     text = 'Restricted Function.'
 
-                    if isinstance(event.source, SourceUser) and md5.new(param3).hexdigest() == admin:
+                    if isinstance(event.source, SourceUser) and hashlib.sha224(param3).hexdigest() == administrator:
                         uid = event.source.user_id
-                        results = db.insert_keyword_sys(param1, param2, uid)
+                        results = kwd.insert_keyword_sys(param1, param2, uid)
                         text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
                         for result in results:
                             text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
@@ -151,7 +162,7 @@ def handle_text_message(event):
                 # DELETE keyword
                 elif cmd == 'D':
                     text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-                    results = db.delete_keyword(param1)
+                    results = kwd.delete_keyword(param1)
 
                     if results is not None:
                         for result in results:
@@ -167,9 +178,9 @@ def handle_text_message(event):
                 elif cmd == 'R':
                     text = 'Restricted Function.'
 
-                    if isinstance(event.source, SourceUser) and md5.new(param2).hexdigest() == admin:
+                    if isinstance(event.source, SourceUser) and hashlib.sha224(param3).hexdigest() == administrator:
                         text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-                        results = db.delete_keyword_sys(param1)
+                        results = kwd.delete_keyword_sys(param1)
 
                         if results is not None:
                             for result in results:
@@ -186,12 +197,12 @@ def handle_text_message(event):
                         paramQ = split(param1, splitter, 2)
                         param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
                         if int(param2) - int(param1) < 15:
-                            results = db.search_keyword_index(param1, param2)
+                            results = kwd.search_keyword_index(param1, param2)
                         else:
                             results = None
                             text = 'Maximum selecting range by ID is 15.'
                     else:
-                        results = db.search_keyword(param1)
+                        results = kwd.search_keyword(param1)
                         
 
                     if results is not None:
@@ -208,16 +219,17 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
                 elif cmd == 'C':
-                    api.reply_message(rep, TextSendMessage(text=db.create_kwdict()))
+                    api.reply_message(rep, TextSendMessage(
+                        text='Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'))
                 # INFO of keyword
                 elif cmd == 'I':
                     text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
                     if len(param1.split(splitter)) > 1:
                         paramQ = split(param1, splitter, 2)
                         param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
-                        results = db.get_info_id(param1)   
+                        results = kwd.get_info_id(param1)   
                     else:
-                        results = db.get_info(param1)
+                        results = kwd.get_info(param1)
 
                     if results is None:
                         text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
@@ -237,7 +249,7 @@ def handle_text_message(event):
                 # RANKING
                 elif cmd == 'K':
                     try:
-                        results = db.order_by_usedtime(int(param1))
+                        results = kwd.order_by_usedtime(int(param1))
                         text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
                     except ValueError:
                         text = u'Invalid parameter. The parameter 1 of \'K\' can be number only.'
@@ -254,12 +266,12 @@ def handle_text_message(event):
                 # SPECIAL record
                 elif cmd == 'P':
                     text = u'Boot up Time: {bt} (UTC)\n'.format(bt=boot_up)
-                    text += u'Count of Keyword Pair: {ct}\n'.format(ct=db.row_count())
-                    text += u'Count of Reply: {crep}\n'.format(crep=db.used_time_sum())
-                    user_list_top = db.user_sort_by_created_pair()[0]
+                    text += u'Count of Keyword Pair: {ct}\n'.format(ct=kwd.row_count())
+                    text += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
+                    user_list_top = kwd.user_sort_by_created_pair()[0]
                     text += u'Most Creative User:\n{name} ({num} Pairs)\n'.format(name=api.get_profile(user_list_top[0]).display_name,
                                                                                num=user_list_top[1])
-                    all = db.order_by_usedtime_all()
+                    all = kwd.order_by_usedtime_all()
                     first = all[0]
                     text += u'Most Popular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
                                                                                 c=first[kwdict_col.used_time],
@@ -267,15 +279,71 @@ def handle_text_message(event):
                     last = all[-1]
                     text += u'Most Unpopular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
                                                                                 c=last[kwdict_col.used_time],
-                                                                                id=first[kwdict_col.id])
+                                                                                id=last[kwdict_col.id])
                     text += u'System command called time (including failed): {t}\n'.format(t= rec['JC_called'])
                     for cmd, time in cmd_called_time.iteritems():
                         text += u'Command \'{c}\' Called {t} Time(s).\n'.format(c=cmd, t=time)
 
                     api.reply_message(rep, TextSendMessage(text=text))
-                # STICKER
-                elif cmd == 'T':
-                    pass
+                # GORUP ban
+                elif cmd == 'G':
+                    if param1 is None and isinstance(event.source, SourceGroup):
+                        # is_silence
+                        group_detail = gb.is_silence(event.source.group_id)
+                        if group_detail is not None:
+                            text = u'Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
+                            text += u'Silence: {sl}\n'.format(sl=group_detail[gb_col.silence])
+                            text += u'Admin: {name}\n'.format(name=api.get_profile(group_detail[gb_col.admin]))
+                        else:
+                            text = u'Group ID: {id}\n'.format(id=event.source.group_id)
+                            text += u'Silence: False'
+                    else:
+                        text = 'Temporarily Unavailable for \'G\' Function.'
+                        return
+
+
+                    # =============== UNDONE ===============
+
+
+                        insuff_p = 'Insufficient permission to use this function.'
+                        illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
+                        uid = event.source.user_id
+
+                        if hashlib.sha224(param1).hexdigest() == administrator:
+                            perm = 3
+                        elif hashlib.sha224(param1).hexdigest() == group_admin:
+                            perm = 2
+                        elif hashlib.sha224(param1).hexdigest() == group_mod:
+                            perm = 1
+                        else:
+                            perm = 0
+
+                        if perm < 1:
+                            text = insuff_p
+                        elif isinstance(event.source, SourceUser):
+
+                            if perm >= 3 and param2 == 'C':
+                                text = 'Group ban table created successfully.' if gb.create_ban() else 'Group ban table created failed.'
+
+                        else:
+                            text = illegal_type
+
+                    api.reply_message(rep, TextSendMessage(text=text))
+                # get CHAT id
+                elif cmd == 'H':
+                    if isinstance(event.source, SourceUser):
+                        text = event.source.user_id
+                    elif isinstance(event.source, SourceGroup):
+                        text = event.source.group_id
+                    elif isinstance(event.source, SourceRoom):
+                        text = event.source.room_id
+                    else:
+                        text = 'Unknown chatting type.'
+
+                    api.reply_message(rep, TextSendMessage(text=text))
+                # SHA224 generator
+                elif cmd == 'SHA':
+                    api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1).hexdigest()))
                 else:
                     cmd_called_time[cmd] -= 1
         except KeyError as ex:
@@ -291,7 +359,7 @@ def handle_text_message(event):
             text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
             api.reply_message(rep, TextSendMessage(text=text))
     else:
-        res = db.get_reply(text)
+        res = kwd.get_reply(text)
         if res is not None:
             result = res[0]
             api.reply_message(rep, TextSendMessage(text=result[kwdict_col.reply].decode('utf8')))
@@ -446,16 +514,13 @@ def handle_unfollow():
 
 @handler.add(JoinEvent)
 def handle_join(event):
+    gb.new_data(event.source.groupId, 'Ud5a2b5bb5eca86342d3ed75d1d606e2c', 'RaenonX', 'RaenonX')
     api.reply_message(
         event.reply_token,
         TextSendMessage(text='Welcome to use the shadow of JELLYFISH!\n\n' + 
-                             '======================================\n'+
-                             'USAGE: \n'+
-                             '\'ADD|(Keyword)|(Reply)\' to add new word pair.\n' + 
-                             '\'DEL|(Keyword)|\' to delete the specified word pair.\n' + 
-                             '======================================\n'+
-                             'Other function such as locking specified user\'s keyword, or gaming... etc. ' + 
-                             'has not yet developed. The only function is to reply something with keyword sent.\n' + 
+                             '======================================\n' +
+                             'USAGE: type in \'使用說明-JC\'' +
+                             '======================================\n' +
                              'To contact the developer, use the URL below http://line.me/ti/p/~chris80124 \n\n' + 
                              'HAVE A FUNNY EXPERIENCE USING THIS BOT!'))
 
