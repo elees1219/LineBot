@@ -387,8 +387,7 @@ def handle_text_message(event):
                                     text += 'GID: {gid}'.format(gid=param3)
                             else:
                                 text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-
-                        if perm >= 2 and param_count == 6:
+                        elif perm >= 2 and param_count == 6 and not executed:
                             cmd_dict = {'SA': gb.change_admin, 
                                         'SM1': gb.set_mod1,
                                         'SM2': gb.set_mod2,
@@ -419,8 +418,7 @@ def handle_text_message(event):
                                     text = '{pos} changing process failed.'
                             except KeyError as Ex:
                                 text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-
-                        if perm >= 3 and param_count >= 2:
+                        elif perm >= 3 and param_count >= 2:
                             if param2 == 'C' and param_count == 2:
                                 if gb.create_ban():
                                     text = 'Group Ban table successfully created.'
