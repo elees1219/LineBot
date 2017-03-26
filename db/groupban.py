@@ -15,18 +15,6 @@ class group_ban(object):
         self.url = urlparse.urlparse(db_url)
         self._set_connection()
         self.id_length = 33
-        self.administrator = os.getenv('ADMIN', None)
-        self.group_admin = os.getenv('G_ADMIN', None)
-        self.group_mod = os.getenv('G_MOD', None)
-        if self.administrator is None:
-            print('The SHA224 of ADMIN not defined. Program will be terminated.')
-            sys.exit(1)
-        if self.group_admin is None:
-            print('The SHA224 of G_ADMIN not defined. Program will be terminated.')
-            sys.exit(1)
-        if self.group_mod is None:
-            print('The SHA224 of G_MOD not defined. Program will be terminated.')
-            sys.exit(1)
 
 
 
@@ -67,18 +55,16 @@ class group_ban(object):
         result = self.sql_cmd(cmd)
         return True if len(result) <= 1 else False
 
-    def new_data(self, groupId, adminUID, global_admin_key, key_for_admin):
+    def new_data(self, groupId, adminUID, key_for_admin):
         if len(adminUID) != self.id_length or len(groupId) != self.id_length:
             return False
-        if global_admin_key == self.administrator:
+        else:
             cmd = u'INSERT INTO group_ban(groupId, silence, admin, admin_sha) VALUES(\'groupId\', FALSE, \'{adm}\', \'{key}\')'.format(
                 id=groupId, 
                 adm=admin,
                 key=hashlib.sha224(key_for_admin).hexdigest())
             self.sql_cmd(cmd)
             return True
-        else:
-            return False
 
     def is_silence(self, groupId):
         cmd = u'SELECT silence FROM group_ban WHERE groupId = \'{id}\''.format(id=groupId)
