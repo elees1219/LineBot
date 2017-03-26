@@ -312,24 +312,76 @@ def handle_text_message(event):
                             text = u'Group ID: {id}\n'.format(id=event.source.group_id)
                             text += u'Silence: False'
                     else:
+                        max_param_count = 6
+                        params = split(param1, splitter, max_param_count)
+                        param1, param2, param3, param4, param5, param6 = [params.pop(0) if len(params) > 0 else None for i in range(max_param_count)]
+                        public_key = param1
+
                         insuff_p = 'Insufficient permission to use this function.'
                         illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
 
-                        if hashlib.sha224(param1).hexdigest() == administrator:
+                        if hashlib.sha224(public_key).hexdigest() == administrator:
                             perm = 3
-                        elif hashlib.sha224(param1).hexdigest() == group_admin:
+                        elif hashlib.sha224(public_key).hexdigest() == group_admin:
                             perm = 2
-                        elif hashlib.sha224(param1).hexdigest() == group_mod:
+                        elif hashlib.sha224(public_key).hexdigest() == group_mod:
                             perm = 1
                         else:
                             perm = 0
 
-                        if perm < 1:
-                            text = insuff_p
-                        elif isinstance(event.source, SourceUser):
+                        if isinstance(event.source, SourceUser):
                             uid = event.source.user_id
-                            if perm >= 3 and param2 == 'C':
-                                text = 'Group ban table created successfully.' if gb.create_ban() else 'Group ban table created failed.'
+                            if perm >= 3:
+                                if param2 == 'C':
+                                    if gb.create_ban():
+                                        text = 'Group Ban table creating failed.'
+                                    else:
+                                        text = 'Group Ban table successfully created.'
+                                else:
+                                    if gb.new_data(param2, uid, param1, param3):
+                                        text = 'Group data registered. You\re admin now.'
+                                    else:
+                                        text = 'Group data register failed.'
+                            elif perm >= 2:
+                                cmd_dict = {'SA': gb.change_admin, 
+                                            'SM1': gb.set_mod1,
+                                            'SM2': gb.set_mod2,
+                                            'SM3': gb.set_mod3}
+
+                                gid = param3
+                                uid = param4
+                                pkey = param5
+                                npkey = param6
+
+                                try:
+                                    if cmd_dict[param2](gid, uid, pkey, npkey):
+                                        text = u'Group administrator has been changed.\n'
+                                        text += u'Group ID: {gid}\n\n'.format(gid=gid)
+                                        text += u'New Admin User ID: {uid}\n'.format(uid=uid)
+                                        text += u'New Admin User Name: {unm}\n\n'.format(unm=api.get_profile(uid).display_name.decode('utf-8'))
+                                        text += u'New Admin Key: {npkey}\n'.format(npkey=npkey)
+                                        text += u'Please protect your key well!'
+                                    else :
+                                        text = 'Administrator changing process failed.'
+                                except KeyError as Ex:
+                                    text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
+                            elif perm >= 1:
+                                cmd_dict = {'ST': True, 'SF': False}
+                                status_silence = {True: 'enabled', False: 'disabled'}
+
+                                if param2 in cmd_dict:
+                                    settarget = cmd[param2]
+
+                                    if gb.set_silence(param3, str(settarget) , param4):
+                                        text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
+                                        text += 'GID: {gid}'.format(gid=gid)
+                                    else:
+                                        text = 'Group auto reply setting not changed.\n\n'
+                                        text += 'GID: {gid}'.format(gid=gid)
+                                else:
+                                    text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
+                            else:
+                                text = insuff_p
 
                         else:
                             text = illegal_type
