@@ -238,10 +238,10 @@ def handle_text_message(event):
                         api.reply_message(rep, TextSendMessage(text=text))
                     else:
                         if len(results) > 3:
-                            text = 'Because the limitation of searching reached, data will be only display in basic. \
-                                To get more information, please input the ID of keyword.'
+                            text = 'Because the limitation of searching has reached, data will be only display in basic. \
+                                To get more information, please input the ID of keyword.\n\n'
                             for result in results:
-                                text += u'ID: {id} - {kw}→{rep} ({ct}\n'.format(
+                                text += u'ID: {id} - {kw}→{rep} ({ct})\n'.format(
                                     id=result[kwdict_col.id],
                                     kw=result[kwdict_col.keyword].decode('utf8'),
                                     rep=result[kwdict_col.reply].decode('utf8'),
