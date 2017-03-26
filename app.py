@@ -387,7 +387,7 @@ def handle_text_message(event):
                                     text += 'GID: {gid}'.format(gid=param3)
                             else:
                                 text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                        elif perm >= 2 and param_count == 6 and not executed:
+                        elif perm >= 2 and param_count == 6:
                             cmd_dict = {'SA': gb.change_admin, 
                                         'SM1': gb.set_mod1,
                                         'SM2': gb.set_mod2,
