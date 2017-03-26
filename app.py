@@ -332,6 +332,7 @@ def handle_text_message(event):
                 elif cmd == 'GA':
                     max_param_count = 6
                     params = split(param1, splitter, max_param_count)
+                    print params
                     param1, param2, param3, param4, param5, param6 = [params.pop(0) if len(params) > 0 else None for i in range(max_param_count)]
                     public_key = param1
 
