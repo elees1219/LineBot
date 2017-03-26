@@ -88,7 +88,7 @@ class group_ban(object):
                                                     moderator2_sha = \'{key}\' OR \
                                                     moderator3_sha = \'{key}\''.format(key=key)
         results = self.sql_cmd(cmd_check)
-        if len(results) > 1:
+        if len(results) >= 1:
             cmd = u'UPDATE group_ban SET silence = {set} WHERE groupId = \'{id}\''.format(id=groupId, set=set)
             self.sql_cmd(cmd)
             return True
@@ -101,7 +101,7 @@ class group_ban(object):
         cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\''.format(key=key)
         results = self.sql_cmd(cmd_check)
 
-        if len(results) > 1:
+        if len(results) >= 1:
             cmd = u'UPDATE group_ban SET admin = \'{adm}\', admin_sha = \'{sha}\' WHERE groupId = \'{id}\''.format(
                 id=groupId, 
                 adm=newAdminUID,
@@ -117,7 +117,7 @@ class group_ban(object):
         cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator1_sha = \'{key}\''.format(key=key)
         results = self.sql_cmd(cmd_check)
         
-        if len(results) > 1:
+        if len(results) >= 1:
             cmd = u'UPDATE group_ban SET moderator1 = \'{mod}\', moderator1_sha = \'{nk}\' WHERE groupId = \'{id}\''.format(
                 id=groupId, 
                 mod=newModUID,
@@ -133,7 +133,7 @@ class group_ban(object):
         cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator2_sha = \'{key}\''.format(key=key)
         results = self.sql_cmd(cmd_check)
         
-        if len(results) > 1:
+        if len(results) >= 1:
             cmd = u'UPDATE group_ban SET moderator2 = \'{mod}\', moderator2_sha = \'{nk}\' WHERE groupId = \'{id}\''.format(
                 id=groupId, 
                 mod=newModUID,
@@ -149,7 +149,7 @@ class group_ban(object):
         cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator3_sha = \'{key}\''.format(key=key)
         results = self.sql_cmd(cmd_check)
         
-        if len(results) > 1:
+        if len(results) >= 1:
             cmd = u'UPDATE group_ban SET moderator3 = \'{mod}\', moderator3_sha = \'{nk}\' WHERE groupId = \'{id}\''.format(
                 id=groupId, 
                 mod=newModUID,
