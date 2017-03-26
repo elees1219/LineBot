@@ -467,7 +467,7 @@ def handle_text_message(event):
                 if group is not None and group[gb_col.silence]:
                     api.reply_message(rep, TextSendMessage(text=reply))
             else:
-                api.reply_message(rep, TextSendMessage(text=reply)))
+                api.reply_message(rep, TextSendMessage(text=reply))
 
 
     return
