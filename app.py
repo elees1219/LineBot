@@ -179,6 +179,7 @@ def handle_text_message(event):
                         param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(2)]
                         if param1 != 'ID':
                             text = 'Incorrect 1st parameter to delete keyword pair. To use this function, 1st parameter needs to be \'ID\'.'
+                            results = None
                         else:
                             results = kwd.delete_keyword_id(param2)   
                     else:
@@ -249,6 +250,7 @@ def handle_text_message(event):
                         param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(2)]
                         if param1 != 'ID':
                             text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
+                            results = None
                         else:
                             results = kwd.get_info_id(param2)   
                     else:
