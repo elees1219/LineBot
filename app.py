@@ -289,10 +289,10 @@ def handle_text_message(event):
                     text += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
                     text += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
                     user_list_top = kwd.user_sort_by_created_pair()[0]
-                    text += u'Most Creative User:\n{name} ({num} Pairs - {pct:.2f})\n'.format(
+                    text += u'Most Creative User:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
                         name=api.get_profile(user_list_top[0]).display_name,
                         num=user_list_top[1],
-                        pct=user_list_top[1]/float(kwpct))
+                        pct=user_list_top[1] / float(kwpct) * 100)
                     all = kwd.order_by_usedtime_all()
                     first = all[0]
                     text += u'Most Popular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
