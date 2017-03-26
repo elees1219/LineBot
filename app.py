@@ -114,7 +114,7 @@ def handle_text_message(event):
                 rec['JC_called'] += 1
 
                 try:
-                    params = split(oth, splitter, split_count[oth.split(splitter)[0]])
+                    params = split(text, splitter, split_count[oth.split(splitter)[0]])
 
                     print params
 
