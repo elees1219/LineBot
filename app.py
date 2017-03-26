@@ -234,7 +234,7 @@ def handle_text_message(event):
                         results = kwd.get_info(param1)
 
                     if results is None:
-                        text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
+                        text = u'Specified keyword: {kw} not exist.'.format(kw=param1)
                         api.reply_message(rep, TextSendMessage(text=text))
                     else:
                         if len(results) > 3:
@@ -312,34 +312,27 @@ def handle_text_message(event):
                             text = u'Group ID: {id}\n'.format(id=event.source.group_id)
                             text += u'Silence: False'
                     else:
-                        text = 'Temporarily Unavailable for \'G\' Function.'
-                        return
+                        insuff_p = 'Insufficient permission to use this function.'
+                        illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
 
+                        if hashlib.sha224(param1).hexdigest() == administrator:
+                            perm = 3
+                        elif hashlib.sha224(param1).hexdigest() == group_admin:
+                            perm = 2
+                        elif hashlib.sha224(param1).hexdigest() == group_mod:
+                            perm = 1
+                        else:
+                            perm = 0
 
-                    # =============== UNDONE ===============
+                        if perm < 1:
+                            text = insuff_p
+                        elif isinstance(event.source, SourceUser):
+                            uid = event.source.user_id
+                            if perm >= 3 and param2 == 'C':
+                                text = 'Group ban table created successfully.' if gb.create_ban() else 'Group ban table created failed.'
 
-
-                    insuff_p = 'Insufficient permission to use this function.'
-                    illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
-
-                    if hashlib.sha224(param1).hexdigest() == administrator:
-                        perm = 3
-                    elif hashlib.sha224(param1).hexdigest() == group_admin:
-                        perm = 2
-                    elif hashlib.sha224(param1).hexdigest() == group_mod:
-                        perm = 1
-                    else:
-                        perm = 0
-
-                    if perm < 1:
-                        text = insuff_p
-                    elif isinstance(event.source, SourceUser):
-                        uid = event.source.user_id
-                        if perm >= 3 and param2 == 'C':
-                            text = 'Group ban table created successfully.' if gb.create_ban() else 'Group ban table created failed.'
-
-                    else:
-                        text = illegal_type
+                        else:
+                            text = illegal_type
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # get CHAT id
