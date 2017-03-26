@@ -378,7 +378,7 @@ def handle_text_message(event):
                             status_silence = {True: 'enabled', False: 'disabled'}
 
                             if param2 in cmd_dict:
-                                settarget = cmd[param2]
+                                settarget = cmd_dict[param2]
 
                                 if gb.set_silence(param3, str(settarget) , param4):
                                     text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
