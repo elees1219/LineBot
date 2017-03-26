@@ -43,7 +43,9 @@ if group_mod is None:
     sys.exit(1)
 boot_up = datetime.datetime.now()
 rec = {'JC_called': 0}
-cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'H': 0, 'SHA': 0}
+cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
+                   'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
+                   'H': 0, 'SHA': 0}
 
 # Database initializing
 kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
@@ -103,7 +105,9 @@ def handle_text_message(event):
     if len(text.split(splitter)) > 1 and text.startswith('JC'):
         try:
             head, oth = split(text, splitter, 2)
-            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3 , 'H': 2, 'SHA': 3}
+            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 
+                           'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3 , 
+                           'H': 2, 'SHA': 3}
 
             if head == 'JC':
                 rec['JC_called'] += 1
