@@ -632,14 +632,14 @@ def handle_beacon(event):
 def split(text, splitter, size):
     list = []
   
-    for i in range(size - 1):
+    for i in range(size):
         if splitter not in text:
             list.append(text)
             break
         list.append(text[0:text.index(splitter)])
         text = text[text.index(splitter)+len(splitter):]
   
-    while len(list) != size:
+    while len(list) < size:
         list.append(None)
     
     return list
