@@ -635,7 +635,7 @@ def split(text, splitter, size):
     for i in range(size - 1):
         if splitter not in text:
             list.append(text)
-        break
+            break
         list.append(text[0:text.index(splitter)])
         text = text[text.index(splitter)+len(splitter):]
   
