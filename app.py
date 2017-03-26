@@ -347,11 +347,11 @@ def handle_text_message(event):
                 elif cmd == 'GA':
                     max_param_count = 6
                     paramI = split(param1, splitter, max_param_count)
+                    param_count = len(paramI)
                     param1, param2, param3, param4, param5, param6 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(max_param_count)]
                     public_key = param1
-                    param_count = len(paramI)
 
-                    print param_count
+                    print param1, param2, param3, param4, param5, param6
 
                     error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
                     illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
