@@ -322,12 +322,16 @@ def handle_text_message(event):
 
                         if hashlib.sha224(public_key).hexdigest() == administrator:
                             perm = 3
+                            pert = 'Permission: Bot Administrator'
                         elif hashlib.sha224(public_key).hexdigest() == group_admin:
                             perm = 2
+                            pert = 'Permission: Group Admin'
                         elif hashlib.sha224(public_key).hexdigest() == group_mod:
                             perm = 1
+                            pert = 'Permission: Group Moderator'
                         else:
                             perm = 0
+                            pert = 'Permission: User'
 
                         if isinstance(event.source, SourceUser):
                             uid = event.source.user_id
@@ -386,7 +390,7 @@ def handle_text_message(event):
                         else:
                             text = illegal_type
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                    api.reply_message(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
                 # get CHAT id
                 elif cmd == 'H':
                     if isinstance(event.source, SourceUser):
