@@ -86,7 +86,7 @@ class group_ban(object):
         cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR \
                                                     moderator1_sha = \'{key}\' OR \
                                                     moderator2_sha = \'{key}\' OR \
-                                                    moderator3_sha = \'{key}\''.format(key=key)
+                                                    moderator3_sha = \'{key}\''.format(key=hashlib.sha224(key).hexdigest())
         results = self.sql_cmd(cmd_check)
         if len(results) >= 1:
             cmd = u'UPDATE group_ban SET silence = {set} WHERE groupId = \'{id}\''.format(id=groupId, set=set)
@@ -98,7 +98,7 @@ class group_ban(object):
     def change_admin(self, groupId, newAdminUID, key, newkey):
         if len(newAdminUID) != self.id_length or len(groupId) != self.id_length:
             return False
-        cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\''.format(key=key)
+        cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\''.format(key=hashlib.sha224(key).hexdigest())
         results = self.sql_cmd(cmd_check)
 
         if len(results) >= 1:
@@ -114,7 +114,8 @@ class group_ban(object):
     def set_mod1(self, groupId, newModUID, key, newkey):
         if len(groupId) != self.id_length or len(newModUID) != self.id_length:
             return False
-        cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator1_sha = \'{key}\''.format(key=key)
+        cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator1_sha = \'{key}\''.format(
+            key=hashlib.sha224(key).hexdigest())
         results = self.sql_cmd(cmd_check)
         
         if len(results) >= 1:
@@ -130,7 +131,8 @@ class group_ban(object):
     def set_mod2(self, groupId, newModUID, key, newkey):
         if len(groupId) != self.id_length or len(newModUID) != self.id_length:
             return False
-        cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator2_sha = \'{key}\''.format(key=key)
+        cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator2_sha = \'{key}\''.format(
+            key=hashlib.sha224(key).hexdigest())
         results = self.sql_cmd(cmd_check)
         
         if len(results) >= 1:
@@ -146,7 +148,8 @@ class group_ban(object):
     def set_mod3(self, groupId, newModUID, key, newkey):
         if len(groupId) != self.id_length or len(newModUID) != self.id_length:
             return False
-        cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator3_sha = \'{key}\''.format(key=key)
+        cmd_check = u'SELECT * FROM group_ban WHERE admin_sha = \'{key}\' OR moderator3_sha = \'{key}\''.format(
+            key=hashlib.sha224(key).hexdigest())
         results = self.sql_cmd(cmd_check)
         
         if len(results) >= 1:
