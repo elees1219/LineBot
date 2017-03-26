@@ -118,8 +118,6 @@ def handle_text_message(event):
 
                 if prm_count != len(params) - params.count(None):
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
-                    for arg in err.args:
-                        text += arg + '\n'
                     api.reply_message(rep, TextSendMessage(text=text))
                     return
 
@@ -381,10 +379,10 @@ def handle_text_message(event):
 
                                 if gb.set_silence(param3, str(settarget) , param4):
                                     text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
-                                    text += 'GID: {gid}'.format(gid=gid)
+                                    text += 'GID: {gid}'.format(gid=param3)
                                 else:
                                     text = 'Group auto reply setting not changed.\n\n'
-                                    text += 'GID: {gid}'.format(gid=gid)
+                                    text += 'GID: {gid}'.format(gid=param3)
                             else:
                                 text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
 
@@ -446,7 +444,7 @@ def handle_text_message(event):
                     api.reply_message(rep, [TextSendMessage(text=type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
-                    api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1).hexdigest()))
+                    api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1.decode('utf-8')).hexdigest()))
                 else:
                     cmd_called_time[cmd] -= 1
         except exceptions.LineBotApiError as ex:
