@@ -116,9 +116,7 @@ def handle_text_message(event):
                 try:
                     params = split(text, splitter, split_count[oth.split(splitter)[0]])
 
-                    print params
-
-                    cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
+                    head, cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
                 except ValueError as err:
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
                     for arg in err.args:
