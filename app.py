@@ -113,16 +113,19 @@ def handle_text_message(event):
             if head == 'JC':
                 rec['JC_called'] += 1
 
-                try:
-                    params = split(text, splitter, split_count[oth.split(splitter)[0]])
-                    head, cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
-                except ValueError as err:
+                prm_count = split_count[oth.split(splitter)[0]]
+                params = split(text, splitter, prm_count)
+
+                if prm_count != len(params) - params.count(None):
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
                     for arg in err.args:
                         text += arg + '\n'
                     api.reply_message(rep, TextSendMessage(text=text))
                     return
-                except KeyError as err:
+
+                head, cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
+
+                if cmd not in split_count:
                     text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
                     api.reply_message(rep, TextSendMessage(text=text))
                     return
