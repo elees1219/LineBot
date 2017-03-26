@@ -97,7 +97,7 @@ class kw_dict_mgr(object):
 
     def get_info(self, keyword):
         kw = keyword
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' ORDER BY id DESC;'.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' OR reply = \'{kw}\' ORDER BY id DESC;'.format(kw=keyword)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
             return result
