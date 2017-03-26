@@ -29,7 +29,11 @@ class group_ban(object):
             result = self.cur.fetchall()
         except psycopg2.Error as ex:
             self._close_connection()
-            return [[args for args in ex.args], []]
+            return [['pgcode: {pgc}\npgerror: {pge}\ncursor: {cur}\ndiag: {dia}'.format(
+                pgc=ex.pgcode, 
+                pge=ex.pgerror, 
+                cur=ex.cursor, 
+                dia=ex.diag)], []]
         except Exception as ex:
             self._close_connection()
             return [[args for args in ex.args], []]
@@ -59,7 +63,7 @@ class group_ban(object):
         if len(adminUID) != self.id_length or len(groupId) != self.id_length:
             return False
         else:
-            cmd = u'INSERT INTO group_ban(groupId, silence, admin, admin_sha) VALUES(\'groupId\', FALSE, \'{adm}\', \'{key}\')'.format(
+            cmd = u'INSERT INTO group_ban(groupId, silence, admin, admin_sha) VALUES(\'{groupId}\', FALSE, \'{adm}\', \'{key}\')'.format(
                 id=groupId, 
                 adm=adminUID,
                 key=hashlib.sha224(key_for_admin).hexdigest())
