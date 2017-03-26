@@ -132,7 +132,7 @@ def handle_text_message(event):
                 
                 # SQL Command
                 if cmd == 'S':
-                    if isinstance(event.source, SourceUser) and hashlib.sha224(param2).hexdigest() == administrator:
+                    if isinstance(event.source, SourceUser) and permission_level(param2) >= 3:
                         results = kwd.sql_cmd(param1)
                         if results is not None:
                             text = u'SQL command result({len}): \n'.format(len=len(results))
@@ -161,7 +161,7 @@ def handle_text_message(event):
                 elif cmd == 'M':
                     text = 'Restricted Function.'
 
-                    if isinstance(event.source, SourceUser) and hashlib.sha224(param3).hexdigest() == administrator:
+                    if isinstance(event.source, SourceUser) and permission_level(param3) >= 2:
                         uid = event.source.user_id
                         results = kwd.insert_keyword_sys(param1, param2, uid)
                         text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
@@ -201,7 +201,7 @@ def handle_text_message(event):
                 elif cmd == 'R':
                     text = 'Restricted Function.'
 
-                    if isinstance(event.source, SourceUser) and hashlib.sha224(param3).hexdigest() == administrator:
+                    if isinstance(event.source, SourceUser) and permission_level(param2) >= 2:
                         text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
                         results = kwd.delete_keyword_sys(param1)
 
@@ -243,8 +243,12 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
                 elif cmd == 'C':
-                    api.reply_message(rep, TextSendMessage(
-                        text='Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'))
+                    text = 'Access denied. Insufficient permission.'
+
+                    if permission_level(param2) >= 3:
+                        text = 'Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'
+
+                    api.reply_message(rep, TextSendMessage(text=text))
                 # INFO of keyword
                 elif cmd == 'I':
                     text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
@@ -355,18 +359,12 @@ def handle_text_message(event):
                     error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
                     illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
 
-                    if hashlib.sha224(public_key).hexdigest() == administrator:
-                        perm = 3
-                        pert = 'Permission: Bot Administrator'
-                    elif hashlib.sha224(public_key).hexdigest() == group_admin:
-                        perm = 2
-                        pert = 'Permission: Group Admin'
-                    elif hashlib.sha224(public_key).hexdigest() == group_mod:
-                        perm = 1
-                        pert = 'Permission: Group Moderator'
-                    else:
-                        perm = 0
-                        pert = 'Permission: User'
+                    perm = permission_level(public_key)
+                    pert_dict = {3: 'Permission: Bot Administrator',
+                                 2: 'Permission: Group Admin',
+                                 1: 'Permission: Group Moderator',
+                                 0: 'Permission: User'}
+                    pert = pert_dict[perm]
 
                     if isinstance(event.source, SourceUser):
                         text = error
@@ -674,6 +672,17 @@ def split(text, splitter, size):
         list.append(None)
     
     return list
+
+
+def permission_level(key):
+    if hashlib.sha224(key).hexdigest() == administrator:
+        return 3
+    elif hashlib.sha224(key).hexdigest() == group_admin:
+        return 2
+    elif hashlib.sha224(key).hexdigest() == group_mod:
+        return 1
+    else:
+        return 0
 
 
 if __name__ == "__main__":
