@@ -106,9 +106,6 @@ def handle_text_message(event):
         try:
             head, oth = split(text, splitter, 2)
 
-            print head
-            print oth
-
             split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3 , 
                            'H': 2, 'SHA': 3}
@@ -117,7 +114,7 @@ def handle_text_message(event):
                 rec['JC_called'] += 1
 
                 try:
-                    params = split(oth, splitter, split_count[oth.split(splitter)[0]] - 1)
+                    params = split(oth, splitter, split_count[oth.split(splitter)[0]])
                     cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
                 except ValueError as err:
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
@@ -548,7 +545,6 @@ def handle_sticker_message(event):
     )
 
 
-# Other Message Type
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
     return
