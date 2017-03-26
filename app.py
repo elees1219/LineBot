@@ -351,6 +351,8 @@ def handle_text_message(event):
                     public_key = param1
                     param_count = len(paramI)
 
+                    print param_count
+
                     error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
                     illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
 
