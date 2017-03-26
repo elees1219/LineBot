@@ -173,7 +173,16 @@ def handle_text_message(event):
                 # DELETE keyword
                 elif cmd == 'D':
                     text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-                    results = kwd.delete_keyword(param1)
+
+                    if len(param1.split(splitter)) > 1:
+                        paramD = split(param1, splitter, 2)
+                        param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(2)]
+                        if param1 != 'ID':
+                            text = 'Incorrect 1st parameter to delete keyword pair. To use this function, 1st parameter needs to be \'ID\'.'
+                        else:
+                            results = kwd.delete_keyword_id(param2)   
+                    else:
+                        results = kwd.delete_keyword(param1)
 
                     if results is not None:
                         for result in results:
@@ -236,21 +245,16 @@ def handle_text_message(event):
                 elif cmd == 'I':
                     text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
                     if len(param1.split(splitter)) > 1:
-                        paramQ = split(param1, splitter, 2)
-                        param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
+                        paramI = split(param1, splitter, 2)
+                        param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(2)]
                         if param1 != 'ID':
                             text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
-                            api.reply_message(rep, TextSendMessage(text=text))
-                            return
                         else:
                             results = kwd.get_info_id(param2)   
                     else:
                         results = kwd.get_info(param1)
 
-                    if results is None:
-                        text = u'Specified keyword: {kw} not exist.'.format(kw=param1)
-                        api.reply_message(rep, TextSendMessage(text=text))
-                    else:
+                    if results is not None:
                         if len(results) > 3:
                             text = 'Because the limit of the single search has reached, data will be display in basic form.\n'
                             text += 'To get more information, please input the ID of keyword.\n\n'
@@ -271,8 +275,8 @@ def handle_text_message(event):
                                 text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
                                 profile = api.get_profile(result[kwdict_col.creator])
                                 text += u'Created by {name}.\n'.format(name=profile.display_name)
-                        
-                        api.reply_message(rep, TextSendMessage(text=text))
+
+                    api.reply_message(rep, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
                     try:
