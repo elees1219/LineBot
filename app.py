@@ -175,8 +175,9 @@ def handle_text_message(event):
                     text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
 
                     if len(param1.split(splitter)) > 1:
-                        paramD = split(param1, splitter, 2)
-                        param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(2)]
+                        extra_prm_count = 2
+                        paramD = split(param1, splitter, extra_prm_count)
+                        param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(extra_prm_count)]
                         if param1 != 'ID':
                             text = 'Incorrect 1st parameter to delete keyword pair. To use this function, 1st parameter needs to be \'ID\'.'
                             results = None
@@ -215,8 +216,9 @@ def handle_text_message(event):
                 elif cmd == 'Q':
                     text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
                     if len(param1.split(splitter)) > 1:
-                        paramQ = split(param1, splitter, 2)
-                        param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
+                        extra_prm_count = 2
+                        paramQ = split(param1, splitter, extra_prm_count)
+                        param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(extra_prm_count)]
                         if int(param2) - int(param1) < 15:
                             results = kwd.search_keyword_index(param1, param2)
                         else:
@@ -246,8 +248,9 @@ def handle_text_message(event):
                 elif cmd == 'I':
                     text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
                     if len(param1.split(splitter)) > 1:
-                        paramI = split(param1, splitter, 2)
-                        param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(2)]
+                        extra_prm_count = 2
+                        paramI = split(param1, splitter, extra_prm_count)
+                        param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(extra_prm_count)]
                         if param1 != 'ID':
                             text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
                             results = None
@@ -272,6 +275,7 @@ def handle_text_message(event):
                                 text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                                 text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                                 text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                                text += u'Deleted: {de}\n'.format(de=result[kwdict_col.deleted])
                                 text += u'Override: {od}\n'.format(od=result[kwdict_col.override])
                                 text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
                                 text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
