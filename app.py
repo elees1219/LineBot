@@ -393,6 +393,10 @@ def handle_text_message(event):
                                         'SM1': gb.set_mod1,
                                         'SM2': gb.set_mod2,
                                         'SM3': gb.set_mod3}
+                            pos_dict = {'SA': 'Administrator',
+                                        'SM1': 'Moderator 1',
+                                        'SM2': 'Moderator 2',
+                                        'SM3': 'Moderator 3'}
 
                             gid = param3
                             uid = param4
@@ -401,14 +405,18 @@ def handle_text_message(event):
 
                             try:
                                 if cmd_dict[param2](gid, uid, pkey, npkey):
+                                    position = pos_dict[param2]
+
                                     text = u'Group administrator has been changed.\n'
                                     text += u'Group ID: {gid}\n\n'.format(gid=gid)
-                                    text += u'New Admin User ID: {uid}\n'.format(uid=uid)
-                                    text += u'New Admin User Name: {unm}\n\n'.format(unm=api.get_profile(uid).display_name.decode('utf-8'))
-                                    text += u'New Admin Key: {npkey}\n'.format(npkey=npkey)
+                                    text += u'New {pos} User ID: {uid}\n'.format(uid=uid, pos=position)
+                                    text += u'New {pos} User Name: {unm}\n\n'.format(
+                                        unm=api.get_profile(uid).display_name.decode('utf-8'),
+                                        pos=position)
+                                    text += u'New {pos} Key: {npkey}\n'.format(npkey=npkey, pos=position)
                                     text += u'Please protect your key well!'
                                 else:
-                                    text = 'Administrator changing process failed.'
+                                    text = '{pos} changing process failed.'
                             except KeyError as Ex:
                                 text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
 
@@ -420,7 +428,10 @@ def handle_text_message(event):
                                     text = 'Group Ban table creating failed.'
                             elif param_count == 4:
                                 if gb.new_data(param2, param3, param4):
-                                    text = 'Group data registered. You\'re admin now.'
+                                    text = u'Group data registered.\n'
+                                    text += u'Group ID: {gid}'.format(gid=param2)
+                                    text += u'Admin ID: {uid}'.format(uid=param3)
+                                    text += u'Admin Name: {name}'.format(gid=api.get_profile(param3).display_name.decode('utf-8'))
                                 else:
                                     text = 'Group data register failed.'
                     else:
@@ -473,7 +484,6 @@ def handle_text_message(event):
     return
 
     # MD5 generator
-    # calculator
 
     if text == 'profile':
         if isinstance(event.source, SourceUser):
