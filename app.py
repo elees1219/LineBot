@@ -220,14 +220,24 @@ def handle_text_message(event):
                         extra_prm_count = 2
                         paramQ = split(param1, splitter, extra_prm_count)
                         param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(extra_prm_count)]
-                        if int(param2) - int(param1) < 15:
-                            results = kwd.search_keyword_index(param1, param2)
-                        else:
+                        try:
+                            num1 = int(param2)
+                            num2 = int(param1)
+
+                            if num1 - num2 < 0:
+                                results = None
+                                text = '2nd parameter must bigger than 1st parameter.'
+                            elif num1 - num2 < 15:
+                                results = kwd.search_keyword_index(param1, param2)
+                            else:
+                                results = None
+                                text = 'Maximum selecting range by ID is 15.'
+                        except ValueError:
                             results = None
-                            text = 'Maximum selecting range by ID is 15.'
+                            text = 'Illegal parameter. 2nd parameter and 3rd parameter can be numbers only.'
+                        
                     else:
                         results = kwd.search_keyword(param1)
-                        
 
                     if results is not None:
                         text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
