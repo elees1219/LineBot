@@ -238,7 +238,12 @@ def handle_text_message(event):
                     if len(param1.split(splitter)) > 1:
                         paramQ = split(param1, splitter, 2)
                         param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(2)]
-                        results = kwd.get_info_id(param1)   
+                        if param1 != 'ID':
+                            text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
+                            api.reply_message(rep, TextSendMessage(text=text))
+                            return
+                        else:
+                            results = kwd.get_info_id(param2)   
                     else:
                         results = kwd.get_info(param1)
 
