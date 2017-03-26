@@ -61,7 +61,7 @@ class group_ban(object):
         else:
             cmd = u'INSERT INTO group_ban(groupId, silence, admin, admin_sha) VALUES(\'groupId\', FALSE, \'{adm}\', \'{key}\')'.format(
                 id=groupId, 
-                adm=admin,
+                adm=adminUID,
                 key=hashlib.sha224(key_for_admin).hexdigest())
             self.sql_cmd(cmd)
             return True
