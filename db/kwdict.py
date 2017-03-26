@@ -80,7 +80,7 @@ class kw_dict_mgr(object):
 
     def search_keyword(self, keyword):
         kw = keyword
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%%{kw}%%\' ORDER BY id DESC;'.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%%{kw}%%\' OR reply LIKE \'%%{kw}%%\' ORDER BY id DESC;'.format(kw=keyword)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
             return result
