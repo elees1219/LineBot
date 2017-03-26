@@ -334,7 +334,8 @@ def handle_text_message(event):
                         if group_detail is not None:
                             text = u'Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
                             text += u'Silence: {sl}\n'.format(sl=group_detail[gb_col.silence])
-                            text += u'Admin: {name}\n'.format(name=api.get_profile(group_detail[gb_col.admin]))
+                            text += u'Admin: {name}\n'.format(name=api.get_profile(group_detail[gb_col.admin]).display_name)
+                            text += u'Admin User ID: {name}'.format(name=api.get_profile(group_detail[gb_col.admin]).user_id)
                         else:
                             text = u'Group ID: {id}\n'.format(id=event.source.group_id)
                             text += u'Silence: False'
