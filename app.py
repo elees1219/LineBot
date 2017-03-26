@@ -444,7 +444,7 @@ def handle_text_message(event):
                     api.reply_message(rep, [TextSendMessage(text=type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
-                    api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1).hexdigest()))
+                    api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
                 else:
                     cmd_called_time[cmd] -= 1
         except exceptions.LineBotApiError as ex:
