@@ -115,7 +115,6 @@ def handle_text_message(event):
 
                 try:
                     params = split(text, splitter, split_count[oth.split(splitter)[0]])
-                    print params
                     head, cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
                 except ValueError as err:
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
@@ -332,7 +331,6 @@ def handle_text_message(event):
                 elif cmd == 'GA':
                     max_param_count = 6
                     params = split(param1, splitter, max_param_count)
-                    print params
                     param1, param2, param3, param4, param5, param6 = [params.pop(0) if len(params) > 0 else None for i in range(max_param_count)]
                     public_key = param1
 
@@ -405,7 +403,6 @@ def handle_text_message(event):
                                 text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
                         else:
                             text = insuff_p
-
                     else:
                         text = illegal_type
 
@@ -631,7 +628,7 @@ def split(text, splitter, size):
     list = []
   
     for i in range(size):
-        if splitter not in text:
+        if splitter not in text or i == size - 1:
             list.append(text)
             break
         list.append(text[0:text.index(splitter)])
