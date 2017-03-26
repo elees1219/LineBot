@@ -69,7 +69,7 @@ class group_ban(object):
     def is_silence(self, groupId):
         cmd = u'SELECT silence FROM group_ban WHERE groupId = \'{id}\''.format(id=groupId)
         result = self.sql_cmd(cmd)
-        if len(result) < 1:
+        if len(result) >= 1:
             return result[0]
         else:
             return None
