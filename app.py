@@ -375,7 +375,7 @@ def handle_text_message(event):
                                     text = 'Group Ban table creating failed.'
                             else:
                                 if gb.new_data(param2, uid, param3):
-                                    text = 'Group data registered. You\re admin now.'
+                                    text = 'Group data registered. You\'re admin now.'
                                 else:
                                     text = 'Group data register failed.'
                         elif perm >= 2:
