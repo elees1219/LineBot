@@ -368,12 +368,10 @@ def handle_text_message(event):
                         perm = 0
                         pert = 'Permission: User'
 
-                    print param_count
-                    print param1, param2, param3, param4, param5, param6
-                    print perm
-
                     if isinstance(event.source, SourceUser):
                         uid = event.source.user_id
+                        text = error
+
                         if perm >= 1 and param_count == 4:
                             cmd_dict = {'ST': True, 'SF': False}
                             status_silence = {True: 'enabled', False: 'disabled'}
@@ -425,8 +423,6 @@ def handle_text_message(event):
                                     text = 'Group data registered. You\'re admin now.'
                                 else:
                                     text = 'Group data register failed.'
-
-                        text = error
                     else:
                         text = illegal_type
 
