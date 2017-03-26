@@ -80,7 +80,7 @@ class kw_dict_mgr(object):
 
     def search_keyword(self, keyword):
         kw = keyword
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%%{kw}%%\';'.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%%{kw}%%\' ORDER BY id DESC;'.format(kw=keyword)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
             return result
@@ -88,7 +88,7 @@ class kw_dict_mgr(object):
             return None
 
     def search_keyword_index(self, startIndex, endIndex):
-        cmd = u'SELECT * FROM keyword_dict WHERE id >= {si} AND id <= {ei} ORDER BY id ASC;'.format(si=startIndex, ei=endIndex)
+        cmd = u'SELECT * FROM keyword_dict WHERE id >= {si} AND id <= {ei} ORDER BY id DESC;'.format(si=startIndex, ei=endIndex)
         result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
@@ -97,7 +97,7 @@ class kw_dict_mgr(object):
 
     def get_info(self, keyword):
         kw = keyword
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\';'.format(kw=keyword)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' ORDER BY id DESC;'.format(kw=keyword)
         result = self.sql_cmd(cmd, kw)
         if len(result) > 0:
             return result
@@ -105,7 +105,7 @@ class kw_dict_mgr(object):
             return None
 
     def get_info_id(self, id):
-        cmd = u'SELECT * FROM keyword_dict WHERE id = \'{id}\';'.format(id=id)
+        cmd = u'SELECT * FROM keyword_dict WHERE id = \'{id}\' ORDER BY id DESC;'.format(id=id)
         result = self.sql_cmd(cmd, id)
         if len(result) > 0:
             return result

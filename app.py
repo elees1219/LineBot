@@ -237,16 +237,27 @@ def handle_text_message(event):
                         text = u'Specified keyword: {kw} not exists.'.format(kw=param1)
                         api.reply_message(rep, TextSendMessage(text=text))
                     else:
-                        text = ''
-                        for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                            text += u'Override: {od}\n'.format(od=result[kwdict_col.override])
-                            text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
-                            text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
-                            profile = api.get_profile(result[kwdict_col.creator])
-                            text += u'Created by {name}.\n'.format(name=profile.display_name)
+                        if len(results) > 3:
+                            text = 'Because the limitation of searching reached, data will be only display in basic. \
+                                To get more information, please input the ID of keyword.'
+                            for result in results:
+                                text += u'ID: {id} - {kw}→{rep} ({ct}\n'.format(
+                                    id=result[kwdict_col.id],
+                                    kw=result[kwdict_col.keyword].decode('utf8'),
+                                    rep=result[kwdict_col.reply].decode('utf8'),
+                                    ct=result[kwdict_col.used_time])
+                        else:
+                            text = ''
+                            for result in results:
+                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                                text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                                text += u'Override: {od}\n'.format(od=result[kwdict_col.override])
+                                text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
+                                text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
+                                profile = api.get_profile(result[kwdict_col.creator])
+                                text += u'Created by {name}.\n'.format(name=profile.display_name)
+                        
                         api.reply_message(rep, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
