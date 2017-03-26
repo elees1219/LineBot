@@ -460,13 +460,14 @@ def handle_text_message(event):
         res = kwd.get_reply(text)
         if res is not None:
             result = res[0]
+            reply = result[kwdict_col.reply].decode('utf8')
             group = None
             if isinstance(event.source, SourceGroup):
                 group = gb.get_group_by_id(event.source.group_id)
                 if group is not None and group[gb_col.silence]:
-                    api.reply_message(rep, TextSendMessage(text=result[kwdict_col.reply].decode('utf8')))
+                    api.reply_message(rep, TextSendMessage(text=reply))
             else:
-                api.reply_message(rep, TextSendMessage(text=result[kwdict_col.reply].decode('utf8')))
+                api.reply_message(rep, TextSendMessage(text=reply)))
 
 
     return
