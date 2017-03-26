@@ -367,10 +367,6 @@ def handle_text_message(event):
                         perm = 0
                         pert = 'Permission: User'
 
-                    print param1, param2, param3, param4, param5, param6
-                    print param_count
-                    print perm
-
                     if isinstance(event.source, SourceUser):
                         uid = event.source.user_id
                         if perm >= 1 and param_count == 4:
