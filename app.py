@@ -103,7 +103,7 @@ def handle_text_message(event):
     if len(text.split(splitter)) > 1 and text.startswith('JC'):
         try:
             head, oth = split(text, splitter, 2)
-            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'H': 2, 'SHA': 3}
+            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3 , 'H': 2, 'SHA': 3}
 
             if head == 'JC':
                 rec['JC_called'] += 1
@@ -111,6 +111,10 @@ def handle_text_message(event):
                 try:
                     params = split(oth, splitter, split_count[oth.split(splitter)[0]] - 1)
                     cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
+                    if cmd not in split_count.keys:
+                        text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
+                        api.reply_message(rep, TextSendMessage(text=text))
+                        return
                 except ValueError as err:
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
                     for arg in err.args:
@@ -299,10 +303,9 @@ def handle_text_message(event):
                         text += u'Command \'{c}\' Called {t} Time(s).\n'.format(c=cmd, t=time)
 
                     api.reply_message(rep, TextSendMessage(text=text))
-                # GORUP ban
+                # GROUP ban basic
                 elif cmd == 'G':
-                    if param1 is None and isinstance(event.source, SourceGroup):
-                        # is_silence
+                    if isinstance(event.source, SourceGroup):
                         group_detail = gb.is_silence(event.source.group_id)
                         if group_detail is not None:
                             text = u'Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
@@ -312,83 +315,88 @@ def handle_text_message(event):
                             text = u'Group ID: {id}\n'.format(id=event.source.group_id)
                             text += u'Silence: False'
                     else:
-                        max_param_count = 6
-                        params = split(param1, splitter, max_param_count)
-                        param1, param2, param3, param4, param5, param6 = [params.pop(0) if len(params) > 0 else None for i in range(max_param_count)]
-                        public_key = param1
+                        text = 'This function can be only execute in GROUP.'
+                    
+                    api.reply_message(rep, TextSendMessage(text=text))
+                # GROUP ban advance
+                elif cmd == 'GA':
+                    max_param_count = 6
+                    params = split(param1, splitter, max_param_count)
+                    param1, param2, param3, param4, param5, param6 = [params.pop(0) if len(params) > 0 else None for i in range(max_param_count)]
+                    public_key = param1
 
-                        insuff_p = 'Insufficient permission to use this function.'
-                        illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
+                    insuff_p = 'Insufficient permission to use this function.'
+                    illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
 
-                        if hashlib.sha224(public_key).hexdigest() == administrator:
-                            perm = 3
-                            pert = 'Permission: Bot Administrator'
-                        elif hashlib.sha224(public_key).hexdigest() == group_admin:
-                            perm = 2
-                            pert = 'Permission: Group Admin'
-                        elif hashlib.sha224(public_key).hexdigest() == group_mod:
-                            perm = 1
-                            pert = 'Permission: Group Moderator'
-                        else:
-                            perm = 0
-                            pert = 'Permission: User'
+                    if hashlib.sha224(public_key).hexdigest() == administrator:
+                        perm = 3
+                        pert = 'Permission: Bot Administrator'
+                    elif hashlib.sha224(public_key).hexdigest() == group_admin:
+                        perm = 2
+                        pert = 'Permission: Group Admin'
+                    elif hashlib.sha224(public_key).hexdigest() == group_mod:
+                        perm = 1
+                        pert = 'Permission: Group Moderator'
+                    else:
+                        perm = 0
+                        pert = 'Permission: User'
 
-                        if isinstance(event.source, SourceUser):
-                            uid = event.source.user_id
-                            if perm >= 3:
-                                if param2 == 'C':
-                                    if gb.create_ban():
-                                        text = 'Group Ban table creating failed.'
-                                    else:
-                                        text = 'Group Ban table successfully created.'
+                    if isinstance(event.source, SourceUser):
+                        uid = event.source.user_id
+                        if perm >= 3:
+                            if param2 == 'C':
+                                if gb.create_ban():
+                                    text = 'Group Ban table creating failed.'
                                 else:
-                                    if gb.new_data(param2, uid, param1, param3):
-                                        text = 'Group data registered. You\re admin now.'
-                                    else:
-                                        text = 'Group data register failed.'
-                            elif perm >= 2:
-                                cmd_dict = {'SA': gb.change_admin, 
-                                            'SM1': gb.set_mod1,
-                                            'SM2': gb.set_mod2,
-                                            'SM3': gb.set_mod3}
-
-                                gid = param3
-                                uid = param4
-                                pkey = param5
-                                npkey = param6
-
-                                try:
-                                    if cmd_dict[param2](gid, uid, pkey, npkey):
-                                        text = u'Group administrator has been changed.\n'
-                                        text += u'Group ID: {gid}\n\n'.format(gid=gid)
-                                        text += u'New Admin User ID: {uid}\n'.format(uid=uid)
-                                        text += u'New Admin User Name: {unm}\n\n'.format(unm=api.get_profile(uid).display_name.decode('utf-8'))
-                                        text += u'New Admin Key: {npkey}\n'.format(npkey=npkey)
-                                        text += u'Please protect your key well!'
-                                    else :
-                                        text = 'Administrator changing process failed.'
-                                except KeyError as Ex:
-                                    text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                            elif perm >= 1:
-                                cmd_dict = {'ST': True, 'SF': False}
-                                status_silence = {True: 'enabled', False: 'disabled'}
-
-                                if param2 in cmd_dict:
-                                    settarget = cmd[param2]
-
-                                    if gb.set_silence(param3, str(settarget) , param4):
-                                        text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
-                                        text += 'GID: {gid}'.format(gid=gid)
-                                    else:
-                                        text = 'Group auto reply setting not changed.\n\n'
-                                        text += 'GID: {gid}'.format(gid=gid)
-                                else:
-                                    text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
+                                    text = 'Group Ban table successfully created.'
                             else:
-                                text = insuff_p
+                                if gb.new_data(param2, uid, param1, param3):
+                                    text = 'Group data registered. You\re admin now.'
+                                else:
+                                    text = 'Group data register failed.'
+                        elif perm >= 2:
+                            cmd_dict = {'SA': gb.change_admin, 
+                                        'SM1': gb.set_mod1,
+                                        'SM2': gb.set_mod2,
+                                        'SM3': gb.set_mod3}
 
+                            gid = param3
+                            uid = param4
+                            pkey = param5
+                            npkey = param6
+
+                            try:
+                                if cmd_dict[param2](gid, uid, pkey, npkey):
+                                    text = u'Group administrator has been changed.\n'
+                                    text += u'Group ID: {gid}\n\n'.format(gid=gid)
+                                    text += u'New Admin User ID: {uid}\n'.format(uid=uid)
+                                    text += u'New Admin User Name: {unm}\n\n'.format(unm=api.get_profile(uid).display_name.decode('utf-8'))
+                                    text += u'New Admin Key: {npkey}\n'.format(npkey=npkey)
+                                    text += u'Please protect your key well!'
+                                else :
+                                    text = 'Administrator changing process failed.'
+                            except KeyError as Ex:
+                                text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
+                        elif perm >= 1:
+                            cmd_dict = {'ST': True, 'SF': False}
+                            status_silence = {True: 'enabled', False: 'disabled'}
+
+                            if param2 in cmd_dict:
+                                settarget = cmd[param2]
+
+                                if gb.set_silence(param3, str(settarget) , param4):
+                                    text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
+                                    text += 'GID: {gid}'.format(gid=gid)
+                                else:
+                                    text = 'Group auto reply setting not changed.\n\n'
+                                    text += 'GID: {gid}'.format(gid=gid)
+                            else:
+                                text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
                         else:
-                            text = illegal_type
+                            text = insuff_p
+
+                    else:
+                        text = illegal_type
 
                     api.reply_message(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
                 # get CHAT id
@@ -411,9 +419,6 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1).hexdigest()))
                 else:
                     cmd_called_time[cmd] -= 1
-        except KeyError as ex:
-            text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
-            api.reply_message(rep, TextSendMessage(text=text))
         except exceptions.LineBotApiError as ex:
             text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
             for err in ex.error.details:
