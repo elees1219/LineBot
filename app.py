@@ -107,7 +107,7 @@ def handle_text_message(event):
             head, oth = split(text, splitter, 2)
 
             split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 
-                           'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3 , 
+                           'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3, 
                            'H': 2, 'SHA': 3}
 
             if head == 'JC':
@@ -115,7 +115,7 @@ def handle_text_message(event):
 
                 try:
                     params = split(text, splitter, split_count[oth.split(splitter)[0]])
-
+                    print params
                     head, cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
                 except ValueError as err:
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
