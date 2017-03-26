@@ -330,7 +330,7 @@ def handle_text_message(event):
                 # GROUP ban basic
                 elif cmd == 'G':
                     if isinstance(event.source, SourceGroup):
-                        group_detail = gb.is_silence(event.source.group_id)
+                        group_detail = gb.get_group_by_id(event.source.group_id)
                         if group_detail is not None:
                             text = u'Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
                             text += u'Silence: {sl}\n'.format(sl=group_detail[gb_col.silence])
