@@ -345,8 +345,8 @@ def handle_text_message(event):
                 # GROUP ban advance
                 elif cmd == 'GA':
                     max_param_count = 6
-                    params = split(param1, splitter, max_param_count)
-                    param1, param2, param3, param4, param5, param6 = [params.pop(0) if len(params) > 0 else None for i in range(max_param_count)]
+                    paramI = split(param1, splitter, max_param_count)
+                    param1, param2, param3, param4, param5, param6 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(max_param_count)]
                     public_key = param1
 
                     insuff_p = 'Insufficient permission to use this function.'
@@ -374,7 +374,7 @@ def handle_text_message(event):
                                 else:
                                     text = 'Group Ban table creating failed.'
                             else:
-                                print params
+                                print param1, param2, param3, param4, param5, param6
 
                                 if gb.new_data(param2, uid, param1, param3):
                                     text = 'Group data registered. You\re admin now.'
