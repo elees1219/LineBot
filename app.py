@@ -111,14 +111,14 @@ def handle_text_message(event):
                 try:
                     params = split(oth, splitter, split_count[oth.split(splitter)[0]] - 1)
                     cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(4)]
-                    if cmd not in split_count:
-                        text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
-                        api.reply_message(rep, TextSendMessage(text=text))
-                        return
                 except ValueError as err:
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
                     for arg in err.args:
                         text += arg + '\n'
+                    api.reply_message(rep, TextSendMessage(text=text))
+                    return
+                except KeyError as err:
+                    text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
                     api.reply_message(rep, TextSendMessage(text=text))
                     return
 
