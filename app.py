@@ -369,7 +369,6 @@ def handle_text_message(event):
                         pert = 'Permission: User'
 
                     if isinstance(event.source, SourceUser):
-                        uid = event.source.user_id
                         text = error
 
                         if perm >= 1 and param_count == 4:
@@ -418,20 +417,21 @@ def handle_text_message(event):
                                     text = '{pos} changing process failed.'
                             except KeyError as Ex:
                                 text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                        elif perm >= 3 and param_count >= 2:
+                        elif perm >= 3 and (param_count == 2 or param_count == 5):
                             if param2 == 'C' and param_count == 2:
                                 if gb.create_ban():
                                     text = 'Group Ban table successfully created.'
                                 else:
                                     text = 'Group Ban table creating failed.'
-                            elif param_count == 4:
-                                if gb.new_data(param2, param3, param4):
-                                    text = u'Group data registered.\n'
-                                    text += u'Group ID: {gid}'.format(gid=param2)
-                                    text += u'Admin ID: {uid}'.format(uid=param3)
-                                    text += u'Admin Name: {name}'.format(gid=api.get_profile(param3).display_name.decode('utf-8'))
-                                else:
-                                    text = 'Group data register failed.'
+                            elif param_count == 5:
+                                if param2 == 'N':
+                                    if gb.new_data(param3, param4, param5):
+                                        text = u'Group data registered.\n'
+                                        text += u'Group ID: {gid}'.format(gid=param2)
+                                        text += u'Admin ID: {uid}'.format(uid=param3)
+                                        text += u'Admin Name: {name}'.format(gid=api.get_profile(param3).display_name.decode('utf-8'))
+                                    else:
+                                        text = 'Group data register failed.'
                     else:
                         text = illegal_type
 
