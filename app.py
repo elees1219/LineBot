@@ -482,6 +482,8 @@ def handle_text_message(event):
             if isinstance(event.source, SourceGroup):
                 group = gb.get_group_by_id(event.source.group_id)
                 if group is not None and group[gb_col.silence]:
+                    pass
+                else:
                     api.reply_message(rep, TextSendMessage(text=reply))
             else:
                 api.reply_message(rep, TextSendMessage(text=reply))
