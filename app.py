@@ -380,8 +380,8 @@ def handle_text_message(event):
                         text = error
 
                         if perm >= 1 and param_count == 4:
-                            cmd_dict = {'ST': True, 'SF': False}
-                            status_silence = {True: 'enabled', False: 'disabled'}
+                            cmd_dict = {'SF': True, 'ST': False}
+                            status_silence = {True: 'disabled', False: 'enabled'}
 
                             if param2 in cmd_dict:
                                 settarget = cmd_dict[param2]
