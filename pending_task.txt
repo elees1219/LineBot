@@ -1,0 +1,12 @@
+# Bugs
+delete data from database when leave a group
+
+# Feature
+no auto reply when user blocked
+get the ranking of keyword using count
+reply with sticker / picture
+sticker id and package id analyzer
+temporarily file storage
+push message using command
+Monopoly(minigame) migrate from C# module
+auto reply with AI
