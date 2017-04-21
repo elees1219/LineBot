@@ -616,7 +616,7 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Android(png):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\{USER_NAME}\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
+             TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\\{USER_NAME\}\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id))]
         )
@@ -690,7 +690,7 @@ def handle_join(event):
         event.reply_token,
         TextSendMessage(text='Welcome to use the shadow of JELLYFISH!\n\n' + 
                              '======================================\n' +
-                             'USAGE: type in \'使用說明-JC\'' +
+                             'USAGE: type in \'使用說明-JC\' or \'JC\' +
                              '======================================\n' +
                              'To contact the developer, use the URL below http://line.me/ti/p/~chris80124 \n\n' + 
                              'HAVE A FUNNY EXPERIENCE USING THIS BOT!'))
