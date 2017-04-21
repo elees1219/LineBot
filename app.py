@@ -377,7 +377,7 @@ def handle_text_message(event):
                         first = kwd.most_used()
                         text += u'Most Popular Keyword ({t} Time(s)):\n'.format(t=first[0][kwdict_col.used_time])
                         for entry in first:
-                            text = '{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
+                            text += '{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
                                                                            c=entry[kwdict_col.used_time],
                                                                            id=entry[kwdict_col.id])
 
@@ -386,7 +386,7 @@ def handle_text_message(event):
                         last = kwd.least_used()
                         text += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_time])
                         for entry in last:
-                            text = '{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
+                            text += '{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
                                                                            c=entry[kwdict_col.used_time],
                                                                            id=entry[kwdict_col.id])
 
