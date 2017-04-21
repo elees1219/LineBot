@@ -784,9 +784,9 @@ def string_is_int(s):
         return False
 
 
-def api_reply(reply_token, messages):
+def api_reply(reply_token, msg):
     rec['Msg_Replied'] += 1
-    api.reply_message(reply_token, messages)
+    api.reply_message(reply_token, msg)
 
 
 
