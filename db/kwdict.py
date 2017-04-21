@@ -59,6 +59,14 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd, keyword, reply)
         return result
 
+    def insert_keyword_sticker(self, keyword, sticker_id, creator_id):
+        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker) \
+               VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, FALSE, TRUE) RETURNING *;'.format(kw=keyword, rep=sticker_id, cid=creator_id)
+        cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
+        self.sql_cmd(cmd_override)
+        result = self.sql_cmd(cmd, keyword, reply)
+        return result
+
     def insert_keyword_sys(self, keyword, reply, creator_id):
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin) \
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, TRUE) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
@@ -192,6 +200,6 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator']
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator', 'is_sticker']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
-kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7)
+kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8)

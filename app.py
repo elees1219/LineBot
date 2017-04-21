@@ -125,7 +125,7 @@ def handle_text_message(event):
         try:
             head, oth = split(text, splitter, 2)
 
-            split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 
+            split_count = {'S': 4, 'A': 5, 'M': 5, 'D': 3, 'R': 4, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3, 
                            'H': 2, 'SHA': 3, 'O': 3}
 
@@ -168,12 +168,29 @@ def handle_text_message(event):
 
                     if isinstance(event.source, SourceUser):
                         uid = event.source.user_id
-                        results = kwd.insert_keyword(param1, param2, uid)
-                        text = u'Pair Added. Total: {len}\n'.format(len=len(results))
-                        for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                        if param3 is None:
+                            results = kwd.insert_keyword(param1, param2, uid)
+                        else:
+                            if param2 == 'STK':
+                                if string_is_int(param3):
+                                    results = kwd.insert_keyword_sticker(param1, param3, uid)
+                                else:
+                                    results = None
+                                    text = 'Illegal 3rd parameter. The 3rd parameter can be integer only.'
+                            else:
+                                results = None
+                                text = 'Illegal 2nd parameter. If you want to add sticker reply, the 2nd parameter must be \'STK\'.'
+
+                        if results is not None:
+                            text = u'Pair Added. Total: {len}\n'.format(len=len(results))
+                            for result in results:
+                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                                if result[kwdict_col.is_sticker]:
+                                    text += u'Reply Sticker ID: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                                else:
+                                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # ADD keyword(sys)
@@ -230,6 +247,8 @@ def handle_text_message(event):
                                 text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                                 text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                                 text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                                profile = api.get_profile(result[kwdict_col.creator])
+                                text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 # QUERY keyword
@@ -523,18 +542,19 @@ def handle_text_message(event):
             text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
             api.reply_message(rep, TextSendMessage(text=text))
     else:
+        if isinstance(event.source, SourceGroup):
+            group = gb.get_group_by_id(event.source.group_id)
+            if group is not None and group[gb_col.silence]:
+                return
+
         res = kwd.get_reply(text)
         if res is not None:
             result = res[0]
-            reply = result[kwdict_col.reply].decode('utf8')
-            group = None
-            if isinstance(event.source, SourceGroup):
-                group = gb.get_group_by_id(event.source.group_id)
-                if group is not None and group[gb_col.silence]:
-                    pass
-                else:
-                    api.reply_message(rep, TextSendMessage(text=reply))
+            if result[kwdict_col.is_sticker]:
+                reply = sticker_png_url(result[kwdict_col.reply].decode('utf8'))
+                api.reply_message(rep, ImageMessage(originalContentUrl=reply))
             else:
+                reply = result[kwdict_col.reply].decode('utf8')
                 api.reply_message(rep, TextSendMessage(text=reply))
 
     return
@@ -592,9 +612,7 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Web(png):\nhttp://dl.stickershop.line.naver.jp/stickershop/v1/sticker/{stk_id}/android/sticker.png'.format(
-                pck_id=package_id, 
-                stk_id=sticker_id))]
+             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(sticker_png_url(sticker_id))]
         )
 
 
@@ -675,6 +693,9 @@ def handle_leave(event):
     gb.del_data(gid)
 
 
+# Encapsulated Functions
+
+
 def split(text, splitter, size):
     list = []
   
@@ -722,6 +743,18 @@ def introduction_template():
             ])
     template_message = TemplateSendMessage(
         alt_text='Group / Room joining introduction', template=buttons_template)
+
+
+def sticker_png_url(sticker_id):
+    return 'http://dl.stickershop.line.naver.jp/stickershop/v1/sticker/{stk_id}/android/sticker.png'.format(stk_id=sticker_id)
+
+
+def string_is_int(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 
 
