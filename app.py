@@ -539,40 +539,13 @@ def handle_text_message(event):
 
     return
 
-    if text == 'bye':
-        if isinstance(event.source, SourceGroup):
-            api.reply_message(
-                event.reply_token, TextMessage(text='Leaving group'))
-            api.leave_group(event.source.group_id)
-        elif isinstance(event.source, SourceRoom):
-            api.reply_message(
-                event.reply_token, TextMessage(text='Leaving room'))
-            api.leave_room(event.source.room_id)
-        else:
-            api.reply_message(
-                event.reply_token,
-                TextMessage(text="Bot can't leave from 1:1 chat"))
-    elif text == 'confirm':
+    if text == 'confirm':
         confirm_template = ConfirmTemplate(text='Do it?', actions=[
             MessageTemplateAction(label='Yes', text='Yes!'),
             MessageTemplateAction(label='No', text='No!'),
         ])
         template_message = TemplateSendMessage(
             alt_text='Confirm alt text', template=confirm_template)
-        api.reply_message(event.reply_token, template_message)
-    elif text == 'buttons':
-        buttons_template = ButtonsTemplate(
-            title='My buttons sample', text='Hello, my buttons', actions=[
-                URITemplateAction(
-                    label='Go to line.me', uri='https://line.me'),
-                PostbackTemplateAction(label='ping', data='ping'),
-                PostbackTemplateAction(
-                    label='ping with text', data='ping',
-                    text='ping'),
-                MessageTemplateAction(label='Translate Rice', text='米')
-            ])
-        template_message = TemplateSendMessage(
-            alt_text='Buttons alt text', template=buttons_template)
         api.reply_message(event.reply_token, template_message)
     elif text == 'carousel':
         carousel_template = CarouselTemplate(columns=[
@@ -617,6 +590,9 @@ def handle_sticker_message(event):
                 pck_id=package_id, 
                 stk_id=sticker_id)),
              TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\\{USER_NAME\}\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
+                pck_id=package_id, 
+                stk_id=sticker_id)),
+             TextSendMessage(text='Picture Location on Web(png):\nC:\\Users\\\{USER_NAME\}\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id))]
         )
@@ -686,16 +662,22 @@ def handle_unfollow():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    api.reply_message(
-        event.reply_token,
-        TextSendMessage(text='Welcome to use the shadow of JELLYFISH!\n\n' + 
-                             '======================================\n' +
-                             'USAGE: type in \'使用說明-JC\' or \'JC\' +
-                             '======================================\n' +
-                             'To contact the developer, use the URL below http://line.me/ti/p/~chris80124 \n\n' + 
-                             'HAVE A FUNNY EXPERIENCE USING THIS BOT!'))
+    buttons_template = ButtonsTemplate(
+            title='Introduction', text='Welcome to use the shadow of JELLYFISH!', 
+            actions=[
+                URITemplateAction(label=u'點此開啟使用說明', uri='https://github.com/RaenonX/LineBot/blob/master/README.md'),
+                URITemplateAction(label=u'點此導向開發者LINE帳號', uri='http://line.me/ti/p/~chris80124')
+            ])
+    template_message = TemplateSendMessage(
+        alt_text='Group / Room joining introduction', template=buttons_template)
+    api.reply_message(event.reply_token, template_message)
+
     if isinstance(event.source, SourceGroup):
         gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX')
+        api.reply_message(event.reply_token, TextMessage(text='Group data registered. Type in \'JC G\' to get more details.'))
+    if isinstance(event.source, SourceRoom):
+        gb.new_data(event.source.room_id, MAIN_UID, 'RaenonX')
+        api.reply_message(event.reply_token, TextMessage(text='Room data registered. Type in \'JC G\' to get more details.'))
 
 
 @handler.add(LeaveEvent)
