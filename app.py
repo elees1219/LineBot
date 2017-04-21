@@ -74,16 +74,11 @@ gb = group_ban("postgres", os.environ["DATABASE_URL"])
 # Oxford Dictionary Environment initializing
 oxford_id = os.getenv('OXFORD_ID', None)
 oxford_key = os.getenv('OXFORD_KEY', None)
+oxford_disabled = False
 if oxford_id is None:
-    try:
-        api.push_message(MAIN_UID, TextSendMessage(text='Oxford ID illegal.'))
-    except LineBotApiError as e:
-        print(e)
+    oxford_disabled = True
 if oxford_key is None:
-    try:
-        api.push_message(MAIN_UID, TextSendMessage(text='Oxford Key illegal.'))
-    except LineBotApiError as e:
-        print(e)
+    oxford_disabled = True
 language = 'en'
 oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/'
 
@@ -488,29 +483,32 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
                 # Look up vocabulary in Oxford Dictionary
                 elif cmd == 'O':
-                    j = oxford_json(param1)
-
-                    if type(j) is int:
-                        code = j
-
-                        text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
-                            status_code=code,
-                            explanation=httplib.responses[code])
+                    if oxford_disabled:
+                        text = 'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
                     else:
-                        text = 'Powered by Oxford Dictionary.\n\n'
+                        j = oxford_json(param1)
 
-                        lexents = j['results'][0]['lexicalEntries']
-                        for lexent in lexents:
-                            text += '{text} ({lexCat})\n'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
-                            
-                            sens = lexent['entries'][0]['senses']
-                            
-                            text += 'Definition: \n'
-                            for index, sen in enumerate(sens):
-                                for de in sen['definitions']:
-                                    text += '{count}. {de}\n'.format(count=index+1, de=de)
-                                    
-                            text += '\n'
+                        if type(j) is int:
+                            code = j
+
+                            text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
+                                status_code=code,
+                                explanation=httplib.responses[code])
+                        else:
+                            text = 'Powered by Oxford Dictionary.\n\n'
+
+                            lexents = j['results'][0]['lexicalEntries']
+                            for lexent in lexents:
+                                text += '{text} ({lexCat})\n'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
+                                
+                                sens = lexent['entries'][0]['senses']
+                                
+                                text += 'Definition: \n'
+                                for index, sen in enumerate(sens):
+                                    for de in sen['definitions']:
+                                        text += '{count}. {de}\n'.format(count=index+1, de=de)
+                                        
+                                text += '\n'
 
                     api.reply_message(rep, TextSendMessage(text=text))
                 else:
@@ -703,7 +701,6 @@ def handle_leave(event):
     gid = event.source.group_id
 
     gb.del_data(gid)
-    api.push_message(MAIN_UID, TextSendMessage(text='Group Left.\nGroup ID: {gid}'.format(gid=gid)))
 
 
 def split(text, splitter, size):
