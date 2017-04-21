@@ -474,17 +474,17 @@ def handle_text_message(event):
                 elif cmd == 'H':
                     if isinstance(event.source, SourceUser):
                         text = event.source.user_id
-                        type = 'Type: User'
+                        source_type = 'Type: User'
                     elif isinstance(event.source, SourceGroup):
                         text = event.source.group_id
-                        type = 'Type: Group'
+                        source_type = 'Type: Group'
                     elif isinstance(event.source, SourceRoom):
                         text = event.source.room_id
-                        type = 'Type: Room'
+                        source_type = 'Type: Room'
                     else:
                         text = 'Unknown chatting type.'
 
-                    api.reply_message(rep, [TextSendMessage(text=type), TextSendMessage(text=text)])
+                    api.reply_message(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
                     api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
