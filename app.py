@@ -36,7 +36,7 @@ from linebot.models import (
 
 # Main initializing
 app = Flask(__name__)
-boot_up = datetime.datetime.now()
+boot_up = datetime.now()
 rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
@@ -189,7 +189,7 @@ def handle_text_message(event):
                             for result in results:
                                 text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                                 text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                                if result[kwdict_col.is_sticker]:
+                                if result[kwdict_col.is_sticker_reply]:
                                     text += u'Reply Sticker ID: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
                                 else:
                                     text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
@@ -544,7 +544,7 @@ def handle_text_message(event):
             res = kwd.get_reply(text)
             if res is not None:
                 result = res[0]
-                if result[kwdict_col.is_sticker]:
+                if result[kwdict_col.is_sticker_reply]:
                     sticker_id = result[kwdict_col.reply]
                     stk_descp = 'Sticker ID: {stk_id}'.format(stk_id=sticker_id)
 

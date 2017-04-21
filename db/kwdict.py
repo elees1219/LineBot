@@ -61,7 +61,7 @@ class kw_dict_mgr(object):
         return result
 
     def insert_keyword_sticker(self, keyword, sticker_id, creator_id):
-        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker) \
+        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_reply) \
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, FALSE, TRUE) RETURNING *;'.format(kw=keyword, rep=sticker_id, cid=creator_id)
         cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_override)
