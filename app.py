@@ -537,6 +537,8 @@ def handle_text_message(event):
             else:
                 api.reply_message(rep, TextSendMessage(text=reply))
 
+    return
+
     if text == 'bye':
         if isinstance(event.source, SourceGroup):
             api.reply_message(
@@ -605,7 +607,6 @@ def handle_sticker_message(event):
     package_id = event.message.package_id
     sticker_id = event.message.sticker_id
 
-    return
     api.reply_message(
         event.reply_token,
         [TextSendMessage(text='Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
