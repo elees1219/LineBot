@@ -166,7 +166,7 @@ def handle_text_message(event):
                 elif cmd == 'A':
                     text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
 
-                    if isinstance(event.source, SourceUser):
+                    if True or isinstance(event.source, SourceUser):
                         uid = event.source.user_id
                         results = kwd.insert_keyword(param1, param2, uid)
                         text = u'Pair Added. Total: {len}\n'.format(len=len(results))
@@ -643,13 +643,9 @@ def handle_content_message(event):
         ])
 
 
-# Incomplete
 @handler.add(FollowEvent)
 def handle_follow(event):
-    return
-
-    api.reply_message(
-        event.reply_token, TextSendMessage(text='Got follow event'))
+    api.reply_message(event.reply_token, introduction_template())
 
 
 # Incomplete
@@ -662,15 +658,7 @@ def handle_unfollow():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    buttons_template = ButtonsTemplate(
-            title='Introduction', text='Welcome to use the shadow of JELLYFISH!', 
-            actions=[
-                URITemplateAction(label=u'點此開啟使用說明', uri='https://github.com/RaenonX/LineBot/blob/master/README.md'),
-                URITemplateAction(label=u'點此導向開發者LINE帳號', uri='http://line.me/ti/p/~chris80124')
-            ])
-    template_message = TemplateSendMessage(
-        alt_text='Group / Room joining introduction', template=buttons_template)
-    api.reply_message(event.reply_token, template_message)
+    api.reply_message(event.reply_token, introduction_template())
 
     if isinstance(event.source, SourceGroup):
         gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX')
@@ -723,6 +711,17 @@ def oxford_json(word):
         return status_code
     else:
         return r.json()
+
+
+def introduction_template():
+    buttons_template = ButtonsTemplate(
+            title='Introduction', text='Welcome to use the shadow of JELLYFISH!', 
+            actions=[
+                URITemplateAction(label=u'點此開啟使用說明', uri='https://github.com/RaenonX/LineBot/blob/master/README.md'),
+                URITemplateAction(label=u'點此導向開發者LINE帳號', uri='http://line.me/ti/p/~chris80124')
+            ])
+    template_message = TemplateSendMessage(
+        alt_text='Group / Room joining introduction', template=buttons_template)
 
 
 
