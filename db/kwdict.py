@@ -56,7 +56,7 @@ class kw_dict_mgr(object):
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, FALSE) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
         cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_override)
-        result = self.sql_cmd(cmd, keyword, reply)
+        result = self.sql_cmd(cmd)
         return result
 
     def insert_keyword_sticker(self, keyword, sticker_id, creator_id):
@@ -64,7 +64,7 @@ class kw_dict_mgr(object):
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, FALSE, TRUE) RETURNING *;'.format(kw=keyword, rep=sticker_id, cid=creator_id)
         cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_override)
-        result = self.sql_cmd(cmd, keyword, reply)
+        result = self.sql_cmd(cmd)
         return result
 
     def insert_keyword_sys(self, keyword, reply, creator_id):
@@ -72,24 +72,22 @@ class kw_dict_mgr(object):
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, TRUE) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
         cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_override)
-        result = self.sql_cmd(cmd, keyword, reply)
+        result = self.sql_cmd(cmd)
         return result
 
     def get_reply(self, keyword):
-        kw = keyword
         cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE ORDER BY admin DESC, id DESC;'.format(kw=keyword)
         cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\' AND override = FALSE'.format(kw=keyword)
         self.sql_cmd(cmd_update)
-        result = self.sql_cmd(cmd, kw)
+        result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
         else:
             return None
 
     def search_keyword(self, keyword):
-        kw = keyword
         cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%%{kw}%%\' OR reply LIKE \'%%{kw}%%\' ORDER BY id DESC;'.format(kw=keyword)
-        result = self.sql_cmd(cmd, kw)
+        result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
         else:
@@ -104,9 +102,8 @@ class kw_dict_mgr(object):
             return None
 
     def get_info(self, keyword):
-        kw = keyword
         cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' OR reply = \'{kw}\' ORDER BY id DESC;'.format(kw=keyword)
-        result = self.sql_cmd(cmd, kw)
+        result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
         else:
@@ -114,7 +111,7 @@ class kw_dict_mgr(object):
 
     def get_info_id(self, id):
         cmd = u'SELECT * FROM keyword_dict WHERE id = \'{id}\' ORDER BY id DESC;'.format(id=id)
-        result = self.sql_cmd(cmd, id)
+        result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
         else:
@@ -154,7 +151,7 @@ class kw_dict_mgr(object):
 
     def delete_keyword_sys(self, keyword):
         cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = TRUE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
-        result = self.sql_cmd(cmd, keyword)
+        result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
         else:
