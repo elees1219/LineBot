@@ -384,11 +384,18 @@ def handle_text_message(event):
                         text2 += '\n'
 
                         last = kwd.least_used()
+                        last_count = len(last)
+                        limit = 10
                         text2 += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_time])
                         for entry in last:
                             text2 += u'{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
                                                                            c=entry[kwdict_col.used_time],
                                                                            id=entry[kwdict_col.id])
+                            
+                            last_count -= 1
+                            if len(last) - last_count >= limit:
+                                text2 += '...({left} more)'.format(left=last_count)
+                                break
 
                         api_reply(rep, [TextSendMessage(text=text), TextMessage(text=text2)])
                 # GROUP ban basic
