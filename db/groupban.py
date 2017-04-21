@@ -74,7 +74,7 @@ class group_ban(object):
         if len(groupId) != self.id_length:
             return False
         else:
-            cmd = u'DELETE FROM group_ban WHERE groupId = {gid}'.format(
+            cmd = u'DELETE FROM group_ban WHERE groupid = \'{gid}\''.format(
                 gid=groupId)
             self.sql_cmd(cmd)
             return True
