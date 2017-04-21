@@ -746,7 +746,7 @@ def introduction_template():
 
 
 def sticker_png_url(sticker_id):
-    return 'http://dl.stickershop.line.naver.jp/stickershop/v1/sticker/{stk_id}/android/sticker.png'.format(stk_id=sticker_id)
+    return 'https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/12689191/android/sticker.png'.format(stk_id=sticker_id)
 
 
 def string_is_int(s):
