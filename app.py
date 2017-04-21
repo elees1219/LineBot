@@ -365,7 +365,7 @@ def handle_text_message(event):
                         text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
                         text += u'Message Replied: {repl}\n'.format(repl=rec['Msg_Replied'])
                         text += u'System command called count (including failed): {t}\n{info}\n'.format(t=rec['JC_called'], info=cmd_called_time)
-                        text = u'\nData Collected all time'
+                        text += u'\nData Collected all the time\n'
                         text += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
                         text += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
