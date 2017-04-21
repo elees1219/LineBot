@@ -492,6 +492,8 @@ def handle_text_message(event):
                 elif cmd == 'O':
                     j = oxford_json(param1)
 
+                    print type(oxford_json)
+
                     if type(oxford_json) is int:
                         code = oxford_json
 
@@ -499,7 +501,7 @@ def handle_text_message(event):
                             status_code=code,
                             explanation=httplib.responses[code])
                     else:
-                        text = 'Powered by Oxford Dictionary.\n'
+                        text = 'Powered by Oxford Dictionary.\n\n'
 
                         lexents = j['results'][0]['lexicalEntries']
                         for lexent in lexents:
