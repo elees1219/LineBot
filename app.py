@@ -16,7 +16,7 @@ import requests
 import json
 
 # Database import
-from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
+from db import kw_dict_mgr, group_ban, user_mute, kwdict_col, gb_col, um_col
 
 from flask import Flask, request, abort
 
@@ -70,6 +70,7 @@ handler = WebhookHandler(channel_secret)
 # Database initializing
 kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
 gb = group_ban("postgres", os.environ["DATABASE_URL"])
+um = user_mute("postgres", os.environ["DATABASE_URL"])
 
 # Oxford Dictionary Environment initializing
 oxford_id = os.getenv('OXFORD_ID', None)
@@ -500,7 +501,7 @@ def handle_text_message(event):
                 # SHA224 generator
                 elif cmd == 'SHA':
                     api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
-                # Look up vocabulary in Oxford Dictionary
+                # Look up vocabulary in OXFORD Dictionary
                 elif cmd == 'O':
                         if oxford_disabled:
                             text = 'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
@@ -607,11 +608,6 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
-    package_id = event.message.package_id
-    sticker_id = event.message.sticker_id
-    api.reply_message(event.reply_token, StickerSendMessage(package_id=package_id, sticker_id=sticker_id))
-    return
-
     if isinstance(event.source, SourceUser):
         package_id = event.message.package_id
         sticker_id = event.message.sticker_id
