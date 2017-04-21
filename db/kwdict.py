@@ -127,8 +127,16 @@ class kw_dict_mgr(object):
         else:
             return None
 
-    def order_by_usedtime_all(self):
-        cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC;'
+    def most_used(self):
+        cmd = u'SELECT * FROM keyword_dict WHERE used_time = MAX(used_time) AND override = FALSE ORDER BY id ASC;'
+        result = self.sql_cmd(cmd)
+        if len(result) > 0:
+            return result
+        else:
+            return None
+
+    def least_used(self):
+        cmd = u'SELECT * FROM keyword_dict WHERE used_time = MIN(used_time) AND override = FALSE ORDER BY id ASC;'
         result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
