@@ -453,8 +453,11 @@ JC  O  jellyfish
 
 (無結果)
 ```
-(Reserved)
+Dictionary look up process returned status code: 404 (Not Found).
 ```
+> - **404**是HTTP代碼。
+> - **Not Found**是HTTP代碼的解說。
+> - [詳細HTTP代碼說明請點此(英文)](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
 
 (有結果)
 ```
