@@ -492,9 +492,7 @@ def handle_text_message(event):
                 elif cmd == 'O':
                     j = oxford_json(param1)
 
-                    print type(j)
-
-                    if j is int:
+                    if type(j) is int:
                         code = oxford_json
 
                         text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
