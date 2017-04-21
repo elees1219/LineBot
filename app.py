@@ -360,9 +360,12 @@ def handle_text_message(event):
                 elif cmd == 'P':
                         kwpct = kwd.row_count()
 
-                        text = u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up + timedelta(hours=8))
-                        text += u'Message Received since booted up: {recv}\n'.format(recv=rec['Msg_Received'])
-                        text += u'Message Replied since booted up: {repl}\n'.format(repl=rec['Msg_Replied'])
+                        text = u'Data Recorded since booted up\n'
+                        text += u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up + timedelta(hours=8))
+                        text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
+                        text += u'Message Replied: {repl}\n'.format(repl=rec['Msg_Replied'])
+                        text += u'System command called count since booted up (including failed): {t}\n{info}\n'.format(t=rec['JC_called'], info=cmd_called_time)
+                        text = u'\nData Collected all time'
                         text += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
                         text += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
@@ -379,7 +382,6 @@ def handle_text_message(event):
                         text += u'Most Unpopular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
                                                                                     c=last[kwdict_col.used_time],
                                                                                     id=last[kwdict_col.id])
-                        text += u'System command called count since booted up (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_called_time)
 
                         api_reply(rep, TextSendMessage(text=text))
                 # GROUP ban basic
