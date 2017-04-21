@@ -622,7 +622,8 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
+             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id))),
+             StickerSendMessage(package_id=package_id, sticker_id=sticker_id)]
         )
 
 
@@ -754,7 +755,7 @@ def introduction_template():
 
 
 def sticker_png_url(sticker_id):
-    return 'https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/12689191/android/sticker.png'.format(stk_id=sticker_id)
+    return 'https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/{stk_id}/android/sticker.png'.format(stk_id=sticker_id)
 
 
 def string_is_int(s):
