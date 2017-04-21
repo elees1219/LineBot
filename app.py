@@ -752,7 +752,7 @@ def permission_level(key):
 
 def oxford_json(word):
     url = oxdict_url + word.lower()
-    r = requests.get(url, headers = {'app_id': app_id, 'app_key': app_key})
+    r = requests.get(url, headers = {'app_id': oxford_id, 'app_key': oxford_key})
     status_code = r.status_code
 
     if status_code != requests.codes.ok:
