@@ -462,8 +462,15 @@ Dictionary look up process returned status code: 404 (Not Found).
 
 (有結果)
 ```
-(Reserved)
+Powered by Oxford Dictionary.
+
+jellyfish (Noun)
+Definition: 
+1. a free-swimming marine coelenterate with a jelly-like bell- or saucer-shaped body that is typically transparent and has stinging tentacles around the edge.
+2. a feeble person.
 ```
+> - 第一行`Powered by Oxford Dictionary.`固定不變，代表來自牛津字典。
+> - 第三行以後則是查詢結果。
 
 # Error
 
