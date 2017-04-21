@@ -612,10 +612,10 @@ def handle_sticker_message(event):
         [TextSendMessage(text='Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
             pck_id=package_id, 
             stk_id=sticker_id)),
-         TextSendMessage(text='Picture Location on Android(png): emulated\0\Android\data\jp.naver.line.android\stickers\{pck_id}\{stk_id}'.format(
+         TextSendMessage(text='Picture Location on Android(png):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{pck_id}\\{stk_id}'.format(
             pck_id=package_id, 
             stk_id=sticker_id)),
-         TextSendMessage(text='Picture Location on Windows PC(png): C:\Users\RaenonX\AppData\Local\LINE\Data\Sticker\{pck_id}\{stk_id}'.format(
+         TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\RaenonX\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
             pck_id=package_id, 
             stk_id=sticker_id))]
     )
