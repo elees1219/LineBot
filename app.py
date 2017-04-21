@@ -770,6 +770,7 @@ def introduction_template():
             ])
     template_message = TemplateSendMessage(
         alt_text='Group / Room joining introduction', template=buttons_template)
+    return template_message
 
 
 def sticker_png_url(sticker_id):
