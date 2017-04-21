@@ -5,8 +5,15 @@ import os
 import sys
 import tempfile
 import traceback
-import hashlib 
 import datetime
+
+# import for 'SHA'
+import hashlib 
+
+# import for Oxford Dictionary
+import httplib
+import requests
+import json
 
 # Database import
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
@@ -29,6 +36,8 @@ from linebot.models import (
 
 # Main initializing
 app = Flask(__name__)
+
+# Line Bot Environment initializing
 administrator = os.getenv('ADMIN', None)
 group_admin = os.getenv('G_ADMIN', None)
 group_mod = os.getenv('G_MOD', None)
@@ -41,11 +50,28 @@ if group_admin is None:
 if group_mod is None:
     print('The SHA224 of G_MOD not defined. Program will be terminated.')
     sys.exit(1)
+
+# Oxford Dictionary Environment initializing
+oxford_id = os.getenv('OXFORD_ID', None)
+oxford_key = os.getenv('OXFORD_KEY', None)
+if oxford_id is None:
+    try:
+        line_bot_api.push_message('Ud5a2b5bb5eca86342d3ed75d1d606e2c', TextSendMessage(text='Oxford ID illegal.'))
+    except LineBotApiError as e:
+        print(e)
+if oxford_key is None:
+    try:
+        line_bot_api.push_message('Ud5a2b5bb5eca86342d3ed75d1d606e2c', TextSendMessage(text='Oxford Key illegal.'))
+    except LineBotApiError as e:
+        print(e)
+language = 'en'
+oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/'
+
 boot_up = datetime.datetime.now()
 rec = {'JC_called': 0}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
-                   'H': 0, 'SHA': 0}
+                   'H': 0, 'SHA': 0, 'O': 0}
 
 # Database initializing
 kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
@@ -108,7 +134,7 @@ def handle_text_message(event):
 
             split_count = {'S': 4, 'A': 4, 'M': 5, 'D': 3, 'R': 5, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3, 
-                           'H': 2, 'SHA': 3}
+                           'H': 2, 'SHA': 3, 'O': 3}
 
             if head == 'JC':
                 rec['JC_called'] += 1
@@ -462,6 +488,33 @@ def handle_text_message(event):
                 # SHA224 generator
                 elif cmd == 'SHA':
                     api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
+                # Look up vocabulary in Oxford Dictionary
+                elif cmd == 'O':
+                    j = oxford_json(param1)
+
+                    if type(oxford_json) is int:
+                        code = oxford_json
+
+                        text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
+                            status_code=code,
+                            explanation=httplib.responses[code])
+                    else:
+                        text = 'Powered by Oxford Dictionary.\n'
+
+                        lexents = j['results'][0]['lexicalEntries']
+                        for lexent in lexents:
+                            text += '{text} ({lexCat})\n'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
+                            
+                            sens = lexent['entries'][0]['senses']
+                            
+                            text += 'Definition: \n'
+                            for index, sen in enumerate(sens):
+                                for de in sen['definitions']:
+                                    text += '{count}. {de}\n'.format(count=index+1, de=de)
+                                    
+                            text += '\n'
+
+                    api.reply_message(rep, TextSendMessage(text=text))
                 else:
                     cmd_called_time[cmd] -= 1
         except exceptions.LineBotApiError as ex:
@@ -693,6 +746,18 @@ def permission_level(key):
         return 1
     else:
         return 0
+
+
+def oxford_json(word):
+    url = oxdict_url + word.lower()
+    r = requests.get(url, headers = {'app_id': app_id, 'app_key': app_key})
+    status_code = r.status_code
+
+    if status_code != requests.codes.ok:
+        return status_code
+    else:
+        return r.json()
+
 
 
 if __name__ == "__main__":
