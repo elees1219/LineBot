@@ -365,32 +365,32 @@ def handle_text_message(event):
                         text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
                         text += u'Message Replied: {repl}\n'.format(repl=rec['Msg_Replied'])
                         text += u'System command called count (including failed): {t}\n{info}\n'.format(t=rec['JC_called'], info=cmd_called_time)
-                        text += u'\nData Collected all the time\n'
-                        text += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
-                        text += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
+                        text2 = u'\nData Collected all the time\n'
+                        text2 += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
+                        text2 += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
-                        text += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
+                        text2 += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
                             name=api.get_profile(user_list_top[0]).display_name,
                             num=user_list_top[1],
                             pct=user_list_top[1] / float(kwpct) * 100)
 
                         first = kwd.most_used()
-                        text += u'Most Popular Keyword ({t} Time(s)):\n'.format(t=first[0][kwdict_col.used_time])
+                        text2 += u'Most Popular Keyword ({t} Time(s)):\n'.format(t=first[0][kwdict_col.used_time])
                         for entry in first:
-                            text += '{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
+                            text2 += '{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
                                                                            c=entry[kwdict_col.used_time],
                                                                            id=entry[kwdict_col.id])
 
-                        text += '\n'
+                        text2 += '\n'
 
                         last = kwd.least_used()
-                        text += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_time])
+                        text2 += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_time])
                         for entry in last:
-                            text += '{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
+                            text2 += '{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
                                                                            c=entry[kwdict_col.used_time],
                                                                            id=entry[kwdict_col.id])
 
-                        api_reply(rep, TextSendMessage(text=text))
+                        api_reply(rep, [TextSendMessage(text=text), TextMessage(text=text2)])
                 # GROUP ban basic
                 elif cmd == 'G':
                         if isinstance(event.source, SourceGroup):
