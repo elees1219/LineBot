@@ -695,8 +695,7 @@ def handle_join(event):
                              'To contact the developer, use the URL below http://line.me/ti/p/~chris80124 \n\n' + 
                              'HAVE A FUNNY EXPERIENCE USING THIS BOT!'))
     if isinstance(event.source, SourceGroup):
-        gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX', 'RaenonX')
-    
+        gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX')
 
 
 @handler.add(LeaveEvent)
