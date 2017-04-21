@@ -550,7 +550,7 @@ def handle_text_message(event):
                     api.reply_message(rep, TemplateSendMessage(
                         alt_text=stk_descp,
                         template=ButtonsTemplate(text=stk_descp, 
-                                                 thumbnailImageUrl=reply,
+                                                 thumbnail_image_url=reply,
                                                  actions=[
                                                      URITemplateAction(label=u'Sticker Download', uri=reply)
                                                  ])))
