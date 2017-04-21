@@ -36,8 +36,14 @@ from linebot.models import (
 
 # Main initializing
 app = Flask(__name__)
+boot_up = datetime.datetime.now()
+rec = {'JC_called': 0}
+cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
+                   'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
+                   'H': 0, 'SHA': 0, 'O': 0}
 
 # Line Bot Environment initializing
+MAIN_UID = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
 administrator = os.getenv('ADMIN', None)
 group_admin = os.getenv('G_ADMIN', None)
 group_mod = os.getenv('G_MOD', None)
@@ -50,34 +56,6 @@ if group_admin is None:
 if group_mod is None:
     print('The SHA224 of G_MOD not defined. Program will be terminated.')
     sys.exit(1)
-
-# Oxford Dictionary Environment initializing
-oxford_id = os.getenv('OXFORD_ID', None)
-oxford_key = os.getenv('OXFORD_KEY', None)
-if oxford_id is None:
-    try:
-        line_bot_api.push_message('Ud5a2b5bb5eca86342d3ed75d1d606e2c', TextSendMessage(text='Oxford ID illegal.'))
-    except LineBotApiError as e:
-        print(e)
-if oxford_key is None:
-    try:
-        line_bot_api.push_message('Ud5a2b5bb5eca86342d3ed75d1d606e2c', TextSendMessage(text='Oxford Key illegal.'))
-    except LineBotApiError as e:
-        print(e)
-language = 'en'
-oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/'
-
-boot_up = datetime.datetime.now()
-rec = {'JC_called': 0}
-cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
-                   'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
-                   'H': 0, 'SHA': 0, 'O': 0}
-
-# Database initializing
-kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
-gb = group_ban("postgres", os.environ["DATABASE_URL"])
-
-# get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 if channel_secret is None:
@@ -88,6 +66,26 @@ if channel_access_token is None:
     sys.exit(1)
 api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+
+# Database initializing
+kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
+gb = group_ban("postgres", os.environ["DATABASE_URL"])
+
+# Oxford Dictionary Environment initializing
+oxford_id = os.getenv('OXFORD_ID', None)
+oxford_key = os.getenv('OXFORD_KEY', None)
+if oxford_id is None:
+    try:
+        api.push_message(MAIN_UID, TextSendMessage(text='Oxford ID illegal.'))
+    except LineBotApiError as e:
+        print(e)
+if oxford_key is None:
+    try:
+        api.push_message(MAIN_UID, TextSendMessage(text='Oxford Key illegal.'))
+    except LineBotApiError as e:
+        print(e)
+language = 'en'
+oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/'
 
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
@@ -541,25 +539,7 @@ def handle_text_message(event):
             else:
                 api.reply_message(rep, TextSendMessage(text=reply))
 
-
-    return
-
-    # MD5 generator
-
-    if text == 'profile':
-        if isinstance(event.source, SourceUser):
-            profile = api.get_profile(event.source.user_id)
-            api.reply_message(
-                event.reply_token, [
-                    TextSendMessage(text='Display name: ' + profile.display_name),
-                    TextSendMessage(text='Status message: ' + profile.status_message),
-                ]
-            )
-        else:
-            api.reply_message(
-                event.reply_token,
-                TextMessage(text="Bot can't use profile API without user ID"))
-    elif text == 'bye':
+    if text == 'bye':
         if isinstance(event.source, SourceGroup):
             api.reply_message(
                 event.reply_token, TextMessage(text='Leaving group'))
@@ -611,13 +591,38 @@ def handle_text_message(event):
         template_message = TemplateSendMessage(
             alt_text='Buttons alt text', template=carousel_template)
         api.reply_message(event.reply_token, template_message)
-    elif text == 'imagemap':
-        pass
-    else:
+
+
+# Incomplete
+@handler.add(PostbackEvent)
+def handle_postback(event):
+    return
+    if event.postback.data == 'ping':
         api.reply_message(
-            event.reply_token, TextSendMessage(text=event.message.text))
+            event.reply_token, TextSendMessage(text='pong'))
 
 
+@handler.add(MessageEvent, message=StickerMessage)
+def handle_sticker_message(event):
+    package_id = event.message.package_id
+    sticker_id = event.message.sticker_id
+
+    return
+    api.reply_message(
+        event.reply_token,
+        [TextSendMessage(text='Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
+            pck_id=package_id, 
+            stk_id=sticker_id)),
+         TextSendMessage(text='Picture Location on Android(png): emulated\0\Android\data\jp.naver.line.android\stickers\{pck_id}\{stk_id}'.format(
+            pck_id=package_id, 
+            stk_id=sticker_id)),
+         TextSendMessage(text='Picture Location on Windows PC(png): C:\Users\RaenonX\AppData\Local\LINE\Data\Sticker\{pck_id}\{stk_id}'.format(
+            pck_id=package_id, 
+            stk_id=sticker_id))]
+    )
+
+
+# Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
     return
@@ -631,18 +636,7 @@ def handle_location_message(event):
     )
 
 
-@handler.add(MessageEvent, message=StickerMessage)
-def handle_sticker_message(event):
-    package_id = event.message.package_id
-    sticker_id = event.message.sticker_id
-
-    return
-    api.reply_message(
-        event.reply_token,
-        StickerSendMessage(package_id=2, sticker_id=144)
-    )
-
-
+# Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
     return
@@ -673,6 +667,7 @@ def handle_content_message(event):
         ])
 
 
+# Incomplete
 @handler.add(FollowEvent)
 def handle_follow(event):
     return
@@ -681,6 +676,7 @@ def handle_follow(event):
         event.reply_token, TextSendMessage(text='Got follow event'))
 
 
+# Incomplete
 @handler.add(UnfollowEvent)
 def handle_unfollow():
     return
@@ -690,7 +686,6 @@ def handle_unfollow():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    gb.new_data(event.source.groupId, 'Ud5a2b5bb5eca86342d3ed75d1d606e2c', 'RaenonX', 'RaenonX')
     api.reply_message(
         event.reply_token,
         TextSendMessage(text='Welcome to use the shadow of JELLYFISH!\n\n' + 
@@ -699,28 +694,17 @@ def handle_join(event):
                              '======================================\n' +
                              'To contact the developer, use the URL below http://line.me/ti/p/~chris80124 \n\n' + 
                              'HAVE A FUNNY EXPERIENCE USING THIS BOT!'))
+    if isinstance(event.source, SourceGroup):
+        gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX', 'RaenonX')
+    
 
 
 @handler.add(LeaveEvent)
-def handle_leave():
-    return
-    app.logger.info("Got leave event")
+def handle_leave(event):
+    gid = event.source.groupId
 
-
-@handler.add(PostbackEvent)
-def handle_postback(event):
-    return
-    if event.postback.data == 'ping':
-        api.reply_message(
-            event.reply_token, TextSendMessage(text='pong'))
-
-
-@handler.add(BeaconEvent)
-def handle_beacon(event):
-    return
-    api.reply_message(
-        event.reply_token,
-        TextSendMessage(text='Got beacon event. hwid=' + event.beacon.hwid))
+    gb.del_data(gid)
+    api.push_message(MAIN_UID, TextSendMessage(text='Group Left.\nGroup ID: {gid}'.format(gid=gid)))
 
 
 def split(text, splitter, size):

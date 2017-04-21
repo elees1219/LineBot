@@ -70,6 +70,15 @@ class group_ban(object):
             self.sql_cmd(cmd)
             return True
 
+    def del_data(self, groupId):
+        if len(groupId) != self.id_length:
+            return False
+        else:
+            cmd = u'DELETE FROM group_ban WHERE groupId = {gid}'.format(
+                gid=groupId)
+            self.sql_cmd(cmd)
+            return True
+
     def get_group_by_id(self, groupId):
         cmd = u'SELECT * FROM group_ban WHERE groupId = \'{id}\''.format(id=groupId)
         result = self.sql_cmd(cmd)
