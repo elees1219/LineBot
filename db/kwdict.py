@@ -199,6 +199,6 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator', 'is_sticker']
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator', 'is_sticker_reply']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
 kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8)

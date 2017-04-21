@@ -16,7 +16,7 @@ import requests
 import json
 
 # Database import
-from db import kw_dict_mgr, group_ban, user_mute, kwdict_col, gb_col, um_col
+from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
 from flask import Flask, request, abort
 
