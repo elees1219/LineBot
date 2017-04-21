@@ -542,10 +542,18 @@ def handle_text_message(event):
             if res is not None:
                 result = res[0]
                 if result[kwdict_col.is_sticker]:
-                    reply = sticker_png_url(result[kwdict_col.reply].decode('utf8'))
-                    print reply
-                    print result
-                    api.reply_message(rep, ImageMessage(originalContentUrl=reply, previewImageUrl=reply))
+                    sticker_id = result[kwdict_col.reply]
+                    stk_descp = 'Sticker ID: {stk_id}'.format(stk_id=sticker_id)
+
+                    reply = sticker_png_url(sticker_id)
+
+                    api.reply_message(rep, TemplateSendMessage(
+                        alt_text=stk_descp,
+                        template=ButtonsTemplate(text=stk_descp, 
+                                                 thumbnailImageUrl=reply,
+                                                 actions=[
+                                                     URITemplateAction(label=u'Sticker Download', uri=reply)
+                                                 ])))
                 else:
                     reply = result[kwdict_col.reply].decode('utf8')
                     api.reply_message(rep, TextSendMessage(text=reply))
