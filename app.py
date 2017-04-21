@@ -361,13 +361,14 @@ def handle_text_message(event):
                         kwpct = kwd.row_count()
 
                         text = u'Data Recorded since booted up\n'
-                        text += u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up + timedelta(hours=8))
+                        text += u'Boot up Time: {bt} (UTC+8)\n\n'.format(bt=boot_up + timedelta(hours=8))
                         text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
-                        text += u'Message Replied: {repl}\n'.format(repl=rec['Msg_Replied'])
-                        text += u'System command called count (including failed): {t}\n{info}\n'.format(t=rec['JC_called'], info=cmd_called_time)
-                        text2 = u'\nData Collected all the time\n'
+                        text += u'Message Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
+                        text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_called_time)
+                        
+                        text2 = u'Data Collected all the time\n\n'
                         text2 += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
-                        text2 += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
+                        text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_time_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
                         text2 += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
                             name=api.get_profile(user_list_top[0]).display_name,
