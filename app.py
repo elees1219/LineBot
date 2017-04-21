@@ -121,8 +121,8 @@ def handle_text_message(event):
     text = event.message.text
     splitter = '  '
 
-    if len(text.split(splitter)) > 1 and text.startswith('JC'):
-        try:
+    try:
+        if len(text.split(splitter)) > 1 and text.startswith('JC'):
             head, oth = split(text, splitter, 2)
 
             split_count = {'S': 4, 'A': 5, 'M': 5, 'D': 3, 'R': 4, 'Q': 3, 
@@ -136,32 +136,32 @@ def handle_text_message(event):
                 params = split(text, splitter, prm_count)
 
                 if prm_count != len(params) - params.count(None):
-                    text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
-                    api.reply_message(rep, TextSendMessage(text=text))
-                    return
+                        text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
+                        api.reply_message(rep, TextSendMessage(text=text))
+                        return
 
                 head, cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
 
                 if cmd not in split_count:
-                    text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
-                    api.reply_message(rep, TextSendMessage(text=text))
-                    return
+                        text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
+                        api.reply_message(rep, TextSendMessage(text=text))
+                        return
 
                 cmd_called_time[cmd] += 1
                 
                 # SQL Command
                 if cmd == 'S':
-                    if isinstance(event.source, SourceUser) and permission_level(param2) >= 3:
-                        results = kwd.sql_cmd(param1)
-                        if results is not None:
-                            text = u'SQL command result({len}): \n'.format(len=len(results))
-                            for result in results:
-                                text += u'{result}\n'.format(result=result)
-                                
-                    else:
-                        text = 'This is a restricted function.'
+                        if isinstance(event.source, SourceUser) and permission_level(param2) >= 3:
+                            results = kwd.sql_cmd(param1)
+                            if results is not None:
+                                text = u'SQL command result({len}): \n'.format(len=len(results))
+                                for result in results:
+                                    text += u'{result}\n'.format(result=result)
+                                    
+                        else:
+                            text = 'This is a restricted function.'
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # ADD keyword
                 elif cmd == 'A':
                     text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
@@ -195,367 +195,367 @@ def handle_text_message(event):
                     api.reply_message(rep, TextSendMessage(text=text))
                 # ADD keyword(sys)
                 elif cmd == 'M':
-                    text = 'Restricted Function.'
+                        text = 'Restricted Function.'
 
-                    if isinstance(event.source, SourceUser) and permission_level(param3) >= 2:
-                        uid = event.source.user_id
-                        results = kwd.insert_keyword_sys(param1, param2, uid)
-                        text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
-                        for result in results:
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                            text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                        if isinstance(event.source, SourceUser) and permission_level(param3) >= 2:
+                            uid = event.source.user_id
+                            results = kwd.insert_keyword_sys(param1, param2, uid)
+                            text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
+                            for result in results:
+                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                                text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # DELETE keyword
                 elif cmd == 'D':
-                    text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-
-                    if len(param1.split(splitter)) > 1:
-                        extra_prm_count = 2
-                        paramD = split(param1, splitter, extra_prm_count)
-                        param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(extra_prm_count)]
-                        if param1 != 'ID':
-                            text = 'Incorrect 1st parameter to delete keyword pair. To use this function, 1st parameter needs to be \'ID\'.'
-                            results = None
-                        else:
-                            results = kwd.delete_keyword_id(param2)   
-                    else:
-                        results = kwd.delete_keyword(param1)
-
-                    if results is not None:
-                        for result in results:
-                            text = 'Pair below DELETED.\n'
-                            text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                            text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                            text += u'Reply: {rep}\n\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                            profile = api.get_profile(result[kwdict_col.creator])
-                            text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
-
-                    api.reply_message(rep, TextSendMessage(text=text))
-                # DELETE keyword(sys)
-                elif cmd == 'R':
-                    text = 'Restricted Function.'
-
-                    if isinstance(event.source, SourceUser) and permission_level(param2) >= 2:
                         text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-                        results = kwd.delete_keyword_sys(param1)
+
+                        if len(param1.split(splitter)) > 1:
+                            extra_prm_count = 2
+                            paramD = split(param1, splitter, extra_prm_count)
+                            param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(extra_prm_count)]
+                            if param1 != 'ID':
+                                text = 'Incorrect 1st parameter to delete keyword pair. To use this function, 1st parameter needs to be \'ID\'.'
+                                results = None
+                            else:
+                                results = kwd.delete_keyword_id(param2)   
+                        else:
+                            results = kwd.delete_keyword(param1)
 
                         if results is not None:
                             for result in results:
-                                text = 'System Pair below DELETED.\n'
+                                text = 'Pair below DELETED.\n'
                                 text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                                 text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                                text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                                text += u'Reply: {rep}\n\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
                                 profile = api.get_profile(result[kwdict_col.creator])
                                 text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                        api.reply_message(rep, TextSendMessage(text=text))
+                # DELETE keyword(sys)
+                elif cmd == 'R':
+                        text = 'Restricted Function.'
+
+                        if isinstance(event.source, SourceUser) and permission_level(param2) >= 2:
+                            text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
+                            results = kwd.delete_keyword_sys(param1)
+
+                            if results is not None:
+                                for result in results:
+                                    text = 'System Pair below DELETED.\n'
+                                    text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                                    text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                                    profile = api.get_profile(result[kwdict_col.creator])
+                                    text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
+
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # QUERY keyword
                 elif cmd == 'Q':
-                    text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
-                    if len(param1.split(splitter)) > 1:
-                        extra_prm_count = 2
-                        paramQ = split(param1, splitter, extra_prm_count)
-                        param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(extra_prm_count)]
-                        try:
-                            num1 = int(param2)
-                            num2 = int(param1)
+                        text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
+                        if len(param1.split(splitter)) > 1:
+                            extra_prm_count = 2
+                            paramQ = split(param1, splitter, extra_prm_count)
+                            param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(extra_prm_count)]
+                            try:
+                                num1 = int(param2)
+                                num2 = int(param1)
 
-                            if num1 - num2 < 0:
+                                if num1 - num2 < 0:
+                                    results = None
+                                    text = '2nd parameter must bigger than 1st parameter.'
+                                elif num1 - num2 < 15:
+                                    results = kwd.search_keyword_index(param1, param2)
+                                else:
+                                    results = None
+                                    text = 'Maximum selecting range by ID is 15.'
+                            except ValueError:
                                 results = None
-                                text = '2nd parameter must bigger than 1st parameter.'
-                            elif num1 - num2 < 15:
-                                results = kwd.search_keyword_index(param1, param2)
-                            else:
-                                results = None
-                                text = 'Maximum selecting range by ID is 15.'
-                        except ValueError:
-                            results = None
-                            text = 'Illegal parameter. 2nd parameter and 3rd parameter can be numbers only.'
-                        
-                    else:
-                        results = kwd.search_keyword(param1)
+                                text = 'Illegal parameter. 2nd parameter and 3rd parameter can be numbers only.'
+                            
+                        else:
+                            results = kwd.search_keyword(param1)
 
-                    if results is not None:
-                        text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
-                        
-                        for result in results:
-                            text += u'ID: {id} - {kw} {od}{delete}{adm}\n'.format(
-                                kw=result[kwdict_col.keyword].decode('utf8'),
-                                od='(OVR)' if bool(result[kwdict_col.override]) == True else '',
-                                delete='(DEL)' if bool(result[kwdict_col.deleted]) == True else '',
-                                adm='(TOP)' if bool(result[kwdict_col.admin]) == True else '',
-                                id=result[kwdict_col.id])
+                        if results is not None:
+                            text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
+                            
+                            for result in results:
+                                text += u'ID: {id} - {kw} {od}{delete}{adm}\n'.format(
+                                    kw=result[kwdict_col.keyword].decode('utf8'),
+                                    od='(OVR)' if bool(result[kwdict_col.override]) == True else '',
+                                    delete='(DEL)' if bool(result[kwdict_col.deleted]) == True else '',
+                                    adm='(TOP)' if bool(result[kwdict_col.admin]) == True else '',
+                                    id=result[kwdict_col.id])
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
                 elif cmd == 'C':
-                    text = 'Access denied. Insufficient permission.'
+                        text = 'Access denied. Insufficient permission.'
 
-                    if permission_level(param2) >= 3:
-                        text = 'Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'
+                        if permission_level(param2) >= 3:
+                            text = 'Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # INFO of keyword
                 elif cmd == 'I':
-                    text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
-                    if len(param1.split(splitter)) > 1:
-                        extra_prm_count = 2
-                        paramI = split(param1, splitter, extra_prm_count)
-                        param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(extra_prm_count)]
-                        if param1 != 'ID':
-                            text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
-                            results = None
+                        text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
+                        if len(param1.split(splitter)) > 1:
+                            extra_prm_count = 2
+                            paramI = split(param1, splitter, extra_prm_count)
+                            param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(extra_prm_count)]
+                            if param1 != 'ID':
+                                text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
+                                results = None
+                            else:
+                                results = kwd.get_info_id(param2)   
                         else:
-                            results = kwd.get_info_id(param2)   
-                    else:
-                        results = kwd.get_info(param1)
+                            results = kwd.get_info(param1)
 
-                    if results is not None:
-                        if len(results) > 3:
-                            text = 'Because the limit of the single search has reached, data will be display in basic form.\n'
-                            text += 'To get more information, please input the ID of keyword.\n\n'
-                            for result in results:
-                                text += u'ID: {id} - {kw}→{rep} ({ct})\n'.format(
-                                    id=result[kwdict_col.id],
-                                    kw=result[kwdict_col.keyword].decode('utf8'),
-                                    rep=result[kwdict_col.reply].decode('utf8'),
-                                    ct=result[kwdict_col.used_time])
-                        else:
-                            text = ''
-                            for result in results:
-                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                                text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                                text += u'Deleted: {de}\n'.format(de=result[kwdict_col.deleted])
-                                text += u'Override: {od}\n'.format(od=result[kwdict_col.override])
-                                text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
-                                text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
-                                profile = api.get_profile(result[kwdict_col.creator])
-                                text += u'Created by {name}.\n'.format(name=profile.display_name)
+                        if results is not None:
+                            if len(results) > 3:
+                                text = 'Because the limit of the single search has reached, data will be display in basic form.\n'
+                                text += 'To get more information, please input the ID of keyword.\n\n'
+                                for result in results:
+                                    text += u'ID: {id} - {kw}→{rep} ({ct})\n'.format(
+                                        id=result[kwdict_col.id],
+                                        kw=result[kwdict_col.keyword].decode('utf8'),
+                                        rep=result[kwdict_col.reply].decode('utf8'),
+                                        ct=result[kwdict_col.used_time])
+                            else:
+                                text = ''
+                                for result in results:
+                                    text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
+                                    text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
+                                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                                    text += u'Deleted: {de}\n'.format(de=result[kwdict_col.deleted])
+                                    text += u'Override: {od}\n'.format(od=result[kwdict_col.override])
+                                    text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
+                                    text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
+                                    profile = api.get_profile(result[kwdict_col.creator])
+                                    text += u'Created by {name}.\n'.format(name=profile.display_name)
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
-                    try:
-                        results = kwd.order_by_usedtime(int(param1))
-                        text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
-                        rank = 0
+                        try:
+                            results = kwd.order_by_usedtime(int(param1))
+                            text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
+                            rank = 0
 
-                        for result in results:
-                            rank += 1
-                            text += u'No.{rk} - {kw} (ID: {id}, {ct} times.)\n'.format(rk=rank, 
-                                                                      kw=result[kwdict_col.keyword].decode('utf8'), 
-                                                                      id=result[kwdict_col.id],
-                                                                      ct=result[kwdict_col.used_time])
-                    except ValueError as err:
-                        text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
-                        text += u'Error message: {msg}'.format(msg=err.message)
-                    
-                    api.reply_message(rep, TextSendMessage(text=text))
+                            for result in results:
+                                rank += 1
+                                text += u'No.{rk} - {kw} (ID: {id}, {ct} times.)\n'.format(rk=rank, 
+                                                                          kw=result[kwdict_col.keyword].decode('utf8'), 
+                                                                          id=result[kwdict_col.id],
+                                                                          ct=result[kwdict_col.used_time])
+                        except ValueError as err:
+                            text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
+                            text += u'Error message: {msg}'.format(msg=err.message)
+                        
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # SPECIAL record
                 elif cmd == 'P':
-                    kwpct = kwd.row_count()
+                        kwpct = kwd.row_count()
 
-                    text = u'Boot up Time: {bt} (UTC)\n'.format(bt=boot_up)
-                    text += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
-                    text += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
-                    user_list_top = kwd.user_sort_by_created_pair()[0]
-                    text += u'Most Creative User:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
-                        name=api.get_profile(user_list_top[0]).display_name,
-                        num=user_list_top[1],
-                        pct=user_list_top[1] / float(kwpct) * 100)
-                    all = kwd.order_by_usedtime_all()
-                    first = all[0]
-                    text += u'Most Popular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
-                                                                                c=first[kwdict_col.used_time],
-                                                                                id=first[kwdict_col.id])
-                    last = all[-1]
-                    text += u'Most Unpopular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
-                                                                                c=last[kwdict_col.used_time],
-                                                                                id=last[kwdict_col.id])
-                    text += u'System command called time (including failed): {t}\n'.format(t= rec['JC_called'])
-                    for cmd, time in cmd_called_time.iteritems():
-                        text += u'Command \'{c}\' Called {t} Time(s).\n'.format(c=cmd, t=time)
+                        text = u'Boot up Time: {bt} (UTC)\n'.format(bt=boot_up)
+                        text += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
+                        text += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
+                        user_list_top = kwd.user_sort_by_created_pair()[0]
+                        text += u'Most Creative User:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
+                            name=api.get_profile(user_list_top[0]).display_name,
+                            num=user_list_top[1],
+                            pct=user_list_top[1] / float(kwpct) * 100)
+                        all = kwd.order_by_usedtime_all()
+                        first = all[0]
+                        text += u'Most Popular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n'.format(kw=first[kwdict_col.keyword].decode('utf-8'), 
+                                                                                    c=first[kwdict_col.used_time],
+                                                                                    id=first[kwdict_col.id])
+                        last = all[-1]
+                        text += u'Most Unpopular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
+                                                                                    c=last[kwdict_col.used_time],
+                                                                                    id=last[kwdict_col.id])
+                        text += u'System command called time (including failed): {t}\n'.format(t= rec['JC_called'])
+                        for cmd, time in cmd_called_time.iteritems():
+                            text += u'Command \'{c}\' Called {t} Time(s).\n'.format(c=cmd, t=time)
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # GROUP ban basic
                 elif cmd == 'G':
-                    if isinstance(event.source, SourceGroup):
-                        group_detail = gb.get_group_by_id(event.source.group_id)
-                        if group_detail is not None:
-                            text = u'Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
-                            text += u'Silence: {sl}\n\n'.format(sl=group_detail[gb_col.silence])
-                            text += u'Admin: {name}\n'.format(name=api.get_profile(group_detail[gb_col.admin]).display_name)
-                            text += u'Admin User ID: {name}'.format(name=api.get_profile(group_detail[gb_col.admin]).user_id)
+                        if isinstance(event.source, SourceGroup):
+                            group_detail = gb.get_group_by_id(event.source.group_id)
+                            if group_detail is not None:
+                                text = u'Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
+                                text += u'Silence: {sl}\n\n'.format(sl=group_detail[gb_col.silence])
+                                text += u'Admin: {name}\n'.format(name=api.get_profile(group_detail[gb_col.admin]).display_name)
+                                text += u'Admin User ID: {name}'.format(name=api.get_profile(group_detail[gb_col.admin]).user_id)
+                            else:
+                                text = u'Group ID: {id}\n'.format(id=event.source.group_id)
+                                text += u'Silence: False'
                         else:
-                            text = u'Group ID: {id}\n'.format(id=event.source.group_id)
-                            text += u'Silence: False'
-                    else:
-                        text = 'This function can be only execute in GROUP.'
-                    
-                    api.reply_message(rep, TextSendMessage(text=text))
+                            text = 'This function can be only execute in GROUP.'
+                        
+                        api.reply_message(rep, TextSendMessage(text=text))
                 # GROUP ban advance
                 elif cmd == 'GA':
-                    max_param_count = 6
-                    paramI = split(param1, splitter, max_param_count)
-                    param_count = len(paramI) - paramI.count(None)
-                    param1, param2, param3, param4, param5, param6 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(max_param_count)]
-                    public_key = param1
+                        max_param_count = 6
+                        paramI = split(param1, splitter, max_param_count)
+                        param_count = len(paramI) - paramI.count(None)
+                        param1, param2, param3, param4, param5, param6 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(max_param_count)]
+                        public_key = param1
 
-                    error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
-                    illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
+                        error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
+                        illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
 
-                    perm = permission_level(public_key)
-                    pert_dict = {3: 'Permission: Bot Administrator',
-                                 2: 'Permission: Group Admin',
-                                 1: 'Permission: Group Moderator',
-                                 0: 'Permission: User'}
-                    pert = pert_dict[perm]
+                        perm = permission_level(public_key)
+                        pert_dict = {3: 'Permission: Bot Administrator',
+                                     2: 'Permission: Group Admin',
+                                     1: 'Permission: Group Moderator',
+                                     0: 'Permission: User'}
+                        pert = pert_dict[perm]
 
-                    if isinstance(event.source, SourceUser):
-                        text = error
+                        if isinstance(event.source, SourceUser):
+                            text = error
 
-                        if perm >= 1 and param_count == 4:
-                            cmd_dict = {'SF': True, 'ST': False}
-                            status_silence = {True: 'disabled', False: 'enabled'}
+                            if perm >= 1 and param_count == 4:
+                                cmd_dict = {'SF': True, 'ST': False}
+                                status_silence = {True: 'disabled', False: 'enabled'}
 
-                            if param2 in cmd_dict:
-                                settarget = cmd_dict[param2]
+                                if param2 in cmd_dict:
+                                    settarget = cmd_dict[param2]
 
-                                if gb.set_silence(param3, str(settarget) , param4):
-                                    text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
-                                    text += 'GID: {gid}'.format(gid=param3)
-                                else:
-                                    text = 'Group auto reply setting not changed.\n\n'
-                                    text += 'GID: {gid}'.format(gid=param3)
-                            else:
-                                text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                        elif perm >= 2 and param_count == 6:
-                            cmd_dict = {'SA': gb.change_admin, 
-                                        'SM1': gb.set_mod1,
-                                        'SM2': gb.set_mod2,
-                                        'SM3': gb.set_mod3}
-                            pos_dict = {'SA': 'Administrator',
-                                        'SM1': 'Moderator 1',
-                                        'SM2': 'Moderator 2',
-                                        'SM3': 'Moderator 3'}
-
-                            gid = param3
-                            uid = param4
-                            pkey = param5
-                            npkey = param6
-
-                            try:
-                                if cmd_dict[param2](gid, uid, pkey, npkey):
-                                    position = pos_dict[param2]
-
-                                    text = u'Group administrator has been changed.\n'
-                                    text += u'Group ID: {gid}\n\n'.format(gid=gid)
-                                    text += u'New {pos} User ID: {uid}\n'.format(uid=uid, pos=position)
-                                    text += u'New {pos} User Name: {unm}\n\n'.format(
-                                        unm=api.get_profile(uid).display_name.decode('utf-8'),
-                                        pos=position)
-                                    text += u'New {pos} Key: {npkey}\n'.format(npkey=npkey, pos=position)
-                                    text += u'Please protect your key well!'
-                                else:
-                                    text = '{pos} changing process failed.'
-                            except KeyError as Ex:
-                                text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                        elif perm >= 3 and (param_count == 2 or param_count == 5):
-                            if param2 == 'C' and param_count == 2:
-                                if gb.create_ban():
-                                    text = 'Group Ban table successfully created.'
-                                else:
-                                    text = 'Group Ban table creating failed.'
-                            elif param_count == 5:
-                                if param2 == 'N':
-                                    if gb.new_data(param3, param4, param5):
-                                        text = u'Group data registered.\n'
-                                        text += u'Group ID: {gid}'.format(gid=param2)
-                                        text += u'Admin ID: {uid}'.format(uid=param3)
-                                        text += u'Admin Name: {name}'.format(gid=api.get_profile(param3).display_name.decode('utf-8'))
+                                    if gb.set_silence(param3, str(settarget) , param4):
+                                        text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
+                                        text += 'GID: {gid}'.format(gid=param3)
                                     else:
-                                        text = 'Group data register failed.'
-                    else:
-                        text = illegal_type
+                                        text = 'Group auto reply setting not changed.\n\n'
+                                        text += 'GID: {gid}'.format(gid=param3)
+                                else:
+                                    text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
+                            elif perm >= 2 and param_count == 6:
+                                cmd_dict = {'SA': gb.change_admin, 
+                                            'SM1': gb.set_mod1,
+                                            'SM2': gb.set_mod2,
+                                            'SM3': gb.set_mod3}
+                                pos_dict = {'SA': 'Administrator',
+                                            'SM1': 'Moderator 1',
+                                            'SM2': 'Moderator 2',
+                                            'SM3': 'Moderator 3'}
 
-                    api.reply_message(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
+                                gid = param3
+                                uid = param4
+                                pkey = param5
+                                npkey = param6
+
+                                try:
+                                    if cmd_dict[param2](gid, uid, pkey, npkey):
+                                        position = pos_dict[param2]
+
+                                        text = u'Group administrator has been changed.\n'
+                                        text += u'Group ID: {gid}\n\n'.format(gid=gid)
+                                        text += u'New {pos} User ID: {uid}\n'.format(uid=uid, pos=position)
+                                        text += u'New {pos} User Name: {unm}\n\n'.format(
+                                            unm=api.get_profile(uid).display_name.decode('utf-8'),
+                                            pos=position)
+                                        text += u'New {pos} Key: {npkey}\n'.format(npkey=npkey, pos=position)
+                                        text += u'Please protect your key well!'
+                                    else:
+                                        text = '{pos} changing process failed.'
+                                except KeyError as Ex:
+                                    text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
+                            elif perm >= 3 and (param_count == 2 or param_count == 5):
+                                if param2 == 'C' and param_count == 2:
+                                    if gb.create_ban():
+                                        text = 'Group Ban table successfully created.'
+                                    else:
+                                        text = 'Group Ban table creating failed.'
+                                elif param_count == 5:
+                                    if param2 == 'N':
+                                        if gb.new_data(param3, param4, param5):
+                                            text = u'Group data registered.\n'
+                                            text += u'Group ID: {gid}'.format(gid=param2)
+                                            text += u'Admin ID: {uid}'.format(uid=param3)
+                                            text += u'Admin Name: {name}'.format(gid=api.get_profile(param3).display_name.decode('utf-8'))
+                                        else:
+                                            text = 'Group data register failed.'
+                        else:
+                            text = illegal_type
+
+                        api.reply_message(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
                 # get CHAT id
                 elif cmd == 'H':
-                    if isinstance(event.source, SourceUser):
-                        text = event.source.user_id
-                        source_type = 'Type: User'
-                    elif isinstance(event.source, SourceGroup):
-                        text = event.source.group_id
-                        source_type = 'Type: Group'
-                    elif isinstance(event.source, SourceRoom):
-                        text = event.source.room_id
-                        source_type = 'Type: Room'
-                    else:
-                        text = 'Unknown chatting type.'
+                        if isinstance(event.source, SourceUser):
+                            text = event.source.user_id
+                            source_type = 'Type: User'
+                        elif isinstance(event.source, SourceGroup):
+                            text = event.source.group_id
+                            source_type = 'Type: Group'
+                        elif isinstance(event.source, SourceRoom):
+                            text = event.source.room_id
+                            source_type = 'Type: Room'
+                        else:
+                            text = 'Unknown chatting type.'
 
-                    api.reply_message(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
+                        api.reply_message(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
                     api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
                 # Look up vocabulary in Oxford Dictionary
                 elif cmd == 'O':
-                    if oxford_disabled:
-                        text = 'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
-                    else:
-                        j = oxford_json(param1)
-
-                        if type(j) is int:
-                            code = j
-
-                            text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
-                                status_code=code,
-                                explanation=httplib.responses[code])
+                        if oxford_disabled:
+                            text = 'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
                         else:
-                            text = 'Powered by Oxford Dictionary.\n\n'
+                            j = oxford_json(param1)
 
-                            lexents = j['results'][0]['lexicalEntries']
-                            for lexent in lexents:
-                                text += '{text} ({lexCat})\n'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
-                                
-                                sens = lexent['entries'][0]['senses']
-                                
-                                text += 'Definition: \n'
-                                for index, sen in enumerate(sens):
-                                    for de in sen['definitions']:
-                                        text += '{count}. {de}\n'.format(count=index+1, de=de)
-                                        
-                                text += '\n'
+                            if type(j) is int:
+                                code = j
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                                text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
+                                    status_code=code,
+                                    explanation=httplib.responses[code])
+                            else:
+                                text = 'Powered by Oxford Dictionary.\n\n'
+
+                                lexents = j['results'][0]['lexicalEntries']
+                                for lexent in lexents:
+                                    text += '{text} ({lexCat})\n'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
+                                    
+                                    sens = lexent['entries'][0]['senses']
+                                    
+                                    text += 'Definition: \n'
+                                    for index, sen in enumerate(sens):
+                                        for de in sen['definitions']:
+                                            text += '{count}. {de}\n'.format(count=index+1, de=de)
+                                            
+                                    text += '\n'
+
+                        api.reply_message(rep, TextSendMessage(text=text))
                 else:
                     cmd_called_time[cmd] -= 1
-        except exceptions.LineBotApiError as ex:
-            text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
-            for err in ex.error.details:
-                text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property, msg=err.message)
-            api.reply_message(rep, TextSendMessage(text=text))
-        except Exception as exc:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
-            api.reply_message(rep, TextSendMessage(text=text))
-    else:
-        if isinstance(event.source, SourceGroup):
-            group = gb.get_group_by_id(event.source.group_id)
-            if group is not None and group[gb_col.silence]:
-                return
+        else:
+            if isinstance(event.source, SourceGroup):
+                group = gb.get_group_by_id(event.source.group_id)
+                if group is not None and group[gb_col.silence]:
+                    return
 
-        res = kwd.get_reply(text)
-        if res is not None:
-            result = res[0]
-            if result[kwdict_col.is_sticker]:
-                reply = sticker_png_url(result[kwdict_col.reply].decode('utf8'))
-                api.reply_message(rep, ImageMessage(originalContentUrl=reply))
-            else:
-                reply = result[kwdict_col.reply].decode('utf8')
-                api.reply_message(rep, TextSendMessage(text=reply))
+            res = kwd.get_reply(text)
+            if res is not None:
+                result = res[0]
+                if result[kwdict_col.is_sticker]:
+                    reply = sticker_png_url(result[kwdict_col.reply].decode('utf8'))
+                    api.reply_message(rep, ImageMessage(originalContentUrl=reply))
+                else:
+                    reply = result[kwdict_col.reply].decode('utf8')
+                    api.reply_message(rep, TextSendMessage(text=reply))
+    except exceptions.LineBotApiError as ex:
+        text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
+        for err in ex.error.details:
+            text += u'Property: {prop}\nMessage: {msg}'.format(prop=err.property, msg=err.message)
+        api.reply_message(rep, TextSendMessage(text=text))
+    except Exception as exc:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
+        api.reply_message(rep, TextSendMessage(text=text))
 
     return
 
