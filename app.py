@@ -543,7 +543,7 @@ def handle_text_message(event):
                 result = res[0]
                 if result[kwdict_col.is_sticker]:
                     reply = sticker_png_url(result[kwdict_col.reply].decode('utf8'))
-                    api.reply_message(rep, ImageMessage(originalContentUrl=reply))
+                    api.reply_message(rep, ImageMessage(originalContentUrl=reply, previewImageUrl=reply))
                 else:
                     reply = result[kwdict_col.reply].decode('utf8')
                     api.reply_message(rep, TextSendMessage(text=reply))
