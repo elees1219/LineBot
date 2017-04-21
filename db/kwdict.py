@@ -128,7 +128,7 @@ class kw_dict_mgr(object):
             return None
 
     def most_used(self):
-        cmd = u'SELECT * FROM keyword_dict WHERE used_time = MAX(used_time) AND override = FALSE ORDER BY id ASC;'
+        cmd = u'SELECT * FROM keyword_dict GROUP BY id HAVING used_time = MAX(used_time) WHERE override = FALSE ORDER BY id ASC;'
         result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
@@ -136,7 +136,7 @@ class kw_dict_mgr(object):
             return None
 
     def least_used(self):
-        cmd = u'SELECT * FROM keyword_dict WHERE used_time = MIN(used_time) AND override = FALSE ORDER BY id ASC;'
+        cmd = u'SELECT * FROM keyword_dict GROUP BY id HAVING used_time = MIN(used_time) WHERE override = FALSE ORDER BY id ASC;'
         result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
