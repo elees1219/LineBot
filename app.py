@@ -5,7 +5,7 @@ import os
 import sys
 import tempfile
 import traceback
-import datetime
+from datetime import datetime, timedelta
 
 # import for 'SHA'
 import hashlib 
@@ -37,7 +37,7 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.datetime.now()
-rec = {'JC_called': 0}
+rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0}
@@ -118,6 +118,8 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
+    rec['Msg_Received'] += 1
+
     rep = event.reply_token
     text = event.message.text
     splitter = '  '
@@ -138,14 +140,14 @@ def handle_text_message(event):
 
                 if prm_count != len(params) - params.count(None):
                         text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                         return
 
                 head, cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
 
                 if cmd not in split_count:
                         text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                         return
 
                 cmd_called_time[cmd] += 1
@@ -162,7 +164,7 @@ def handle_text_message(event):
                         else:
                             text = 'This is a restricted function.'
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # ADD keyword
                 elif cmd == 'A':
                     text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
@@ -193,7 +195,7 @@ def handle_text_message(event):
                                     text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
 
-                    api.reply_message(rep, TextSendMessage(text=text))
+                    api_reply(rep, TextSendMessage(text=text))
                 # ADD keyword(sys)
                 elif cmd == 'M':
                         text = 'Restricted Function.'
@@ -207,7 +209,7 @@ def handle_text_message(event):
                                 text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                                 text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # DELETE keyword
                 elif cmd == 'D':
                         text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
@@ -233,7 +235,7 @@ def handle_text_message(event):
                                 profile = api.get_profile(result[kwdict_col.creator])
                                 text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # DELETE keyword(sys)
                 elif cmd == 'R':
                         text = 'Restricted Function.'
@@ -251,7 +253,7 @@ def handle_text_message(event):
                                     profile = api.get_profile(result[kwdict_col.creator])
                                     text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # QUERY keyword
                 elif cmd == 'Q':
                         text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
@@ -289,7 +291,7 @@ def handle_text_message(event):
                                     adm='(TOP)' if bool(result[kwdict_col.admin]) == True else '',
                                     id=result[kwdict_col.id])
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
                 elif cmd == 'C':
                         text = 'Access denied. Insufficient permission.'
@@ -297,7 +299,7 @@ def handle_text_message(event):
                         if permission_level(param2) >= 3:
                             text = 'Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # INFO of keyword
                 elif cmd == 'I':
                         text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
@@ -336,7 +338,7 @@ def handle_text_message(event):
                                     profile = api.get_profile(result[kwdict_col.creator])
                                     text += u'Created by {name}.\n'.format(name=profile.display_name)
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
                         try:
@@ -354,16 +356,18 @@ def handle_text_message(event):
                             text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
                             text += u'Error message: {msg}'.format(msg=err.message)
                         
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # SPECIAL record
                 elif cmd == 'P':
                         kwpct = kwd.row_count()
 
-                        text = u'Boot up Time: {bt} (UTC)\n'.format(bt=boot_up)
+                        text = u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up + timedelta(hours=8))
+                        text += u'Message Received since booted up: {recv}\n'.format(recv=rec['Msg_Received'])
+                        text += u'Message Replied since booted up: {repl}\n'.format(repl=rec['Msg_Replied'])
                         text += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
                         text += u'Count of Reply: {crep}\n'.format(crep=kwd.used_time_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
-                        text += u'Most Creative User:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
+                        text += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
                             name=api.get_profile(user_list_top[0]).display_name,
                             num=user_list_top[1],
                             pct=user_list_top[1] / float(kwpct) * 100)
@@ -376,11 +380,9 @@ def handle_text_message(event):
                         text += u'Most Unpopular Keyword:\n{kw} (ID: {id}, {c} Time(s))\n\n'.format(kw=last[kwdict_col.keyword].decode('utf-8'), 
                                                                                     c=last[kwdict_col.used_time],
                                                                                     id=last[kwdict_col.id])
-                        text += u'System command called time (including failed): {t}\n'.format(t= rec['JC_called'])
-                        for cmd, time in cmd_called_time.iteritems():
-                            text += u'Command \'{c}\' Called {t} Time(s).\n'.format(c=cmd, t=time)
+                        text += u'System command called count since booted up (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_called_time)
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # GROUP ban basic
                 elif cmd == 'G':
                         if isinstance(event.source, SourceGroup):
@@ -396,7 +398,7 @@ def handle_text_message(event):
                         else:
                             text = 'This function can be only execute in GROUP.'
                         
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 # GROUP ban advance
                 elif cmd == 'GA':
                         max_param_count = 6
@@ -482,7 +484,7 @@ def handle_text_message(event):
                         else:
                             text = illegal_type
 
-                        api.reply_message(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
+                        api_reply(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
                 # get CHAT id
                 elif cmd == 'H':
                         if isinstance(event.source, SourceUser):
@@ -497,10 +499,10 @@ def handle_text_message(event):
                         else:
                             text = 'Unknown chatting type.'
 
-                        api.reply_message(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
+                        api_reply(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
-                    api.reply_message(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
+                    api_reply(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
                 # Look up vocabulary in OXFORD Dictionary
                 elif cmd == 'O':
                         if oxford_disabled:
@@ -530,7 +532,7 @@ def handle_text_message(event):
                                             
                                     text += '\n'
 
-                        api.reply_message(rep, TextSendMessage(text=text))
+                        api_reply(rep, TextSendMessage(text=text))
                 else:
                     cmd_called_time[cmd] -= 1
         else:
@@ -548,7 +550,7 @@ def handle_text_message(event):
 
                     reply = sticker_png_url(sticker_id)
 
-                    api.reply_message(rep, TemplateSendMessage(
+                    api_reply(rep, TemplateSendMessage(
                         alt_text=stk_descp,
                         template=ButtonsTemplate(text=stk_descp, 
                                                  thumbnail_image_url=reply,
@@ -557,16 +559,16 @@ def handle_text_message(event):
                                                  ])))
                 else:
                     reply = result[kwdict_col.reply].decode('utf8')
-                    api.reply_message(rep, TextSendMessage(text=reply))
+                    api_reply(rep, TextSendMessage(text=reply))
     except exceptions.LineBotApiError as ex:
         text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
         for err in ex.error.details:
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
-        api.reply_message(rep, TextSendMessage(text=text))
+        api_reply(rep, TextSendMessage(text=text))
     except Exception as exc:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
-        api.reply_message(rep, TextSendMessage(text=text))
+        api_reply(rep, TextSendMessage(text=text))
 
     return
 
@@ -577,7 +579,7 @@ def handle_text_message(event):
         ])
         template_message = TemplateSendMessage(
             alt_text='Confirm alt text', template=confirm_template)
-        api.reply_message(event.reply_token, template_message)
+        api_reply(event.reply_token, template_message)
     elif text == 'carousel':
         carousel_template = CarouselTemplate(columns=[
             CarouselColumn(text='hoge1', title='fuga1', actions=[
@@ -594,7 +596,7 @@ def handle_text_message(event):
         ])
         template_message = TemplateSendMessage(
             alt_text='Buttons alt text', template=carousel_template)
-        api.reply_message(event.reply_token, template_message)
+        api_reply(event.reply_token, template_message)
 
 
 # Incomplete
@@ -602,7 +604,7 @@ def handle_text_message(event):
 def handle_postback(event):
     return
     if event.postback.data == 'ping':
-        api.reply_message(
+        api_reply(
             event.reply_token, TextSendMessage(text='pong'))
 
 
@@ -612,7 +614,7 @@ def handle_sticker_message(event):
         package_id = event.message.package_id
         sticker_id = event.message.sticker_id
 
-        api.reply_message(
+        api_reply(
             event.reply_token,
             [TextSendMessage(text='Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
                 pck_id=package_id, 
@@ -632,7 +634,7 @@ def handle_sticker_message(event):
 def handle_location_message(event):
     return
 
-    api.reply_message(
+    api_reply(
         event.reply_token,
         LocationSendMessage(
             title=event.message.title, address=event.message.address,
@@ -665,7 +667,7 @@ def handle_content_message(event):
     dist_name = os.path.basename(dist_path)
     os.rename(tempfile_path, dist_path)
 
-    api.reply_message(
+    api_reply(
         event.reply_token, [
             TextSendMessage(text='Save content.'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
@@ -674,7 +676,7 @@ def handle_content_message(event):
 
 @handler.add(FollowEvent)
 def handle_follow(event):
-    api.reply_message(event.reply_token, introduction_template())
+    api_reply(event.reply_token, introduction_template())
 
 
 # Incomplete
@@ -687,14 +689,14 @@ def handle_unfollow():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    api.reply_message(event.reply_token, introduction_template())
+    api_reply(event.reply_token, introduction_template())
 
     if isinstance(event.source, SourceGroup):
         gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX')
-        api.reply_message(event.reply_token, TextMessage(text='Group data registered. Type in \'JC G\' to get more details.'))
+        api_reply(event.reply_token, TextMessage(text='Group data registered. Type in \'JC G\' to get more details.'))
     if isinstance(event.source, SourceRoom):
         gb.new_data(event.source.room_id, MAIN_UID, 'RaenonX')
-        api.reply_message(event.reply_token, TextMessage(text='Room data registered. Type in \'JC G\' to get more details.'))
+        api_reply(event.reply_token, TextMessage(text='Room data registered. Type in \'JC G\' to get more details.'))
 
 
 @handler.add(LeaveEvent)
@@ -764,6 +766,11 @@ def string_is_int(s):
         return True
     except ValueError:
         return False
+
+
+def api_reply(reply_token, messages):
+    rec['Msg_Replied'] += 1
+    api.reply_message(reply_token, messages)
 
 
 
