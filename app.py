@@ -70,7 +70,6 @@ handler = WebhookHandler(channel_secret)
 # Database initializing
 kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
 gb = group_ban("postgres", os.environ["DATABASE_URL"])
-um = user_mute("postgres", os.environ["DATABASE_URL"])
 
 # Oxford Dictionary Environment initializing
 oxford_id = os.getenv('OXFORD_ID', None)
