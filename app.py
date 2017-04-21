@@ -604,21 +604,22 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
-    package_id = event.message.package_id
-    sticker_id = event.message.sticker_id
+    if isinstance(event.source, SourceUser):
+        package_id = event.message.package_id
+        sticker_id = event.message.sticker_id
 
-    api.reply_message(
-        event.reply_token,
-        [TextSendMessage(text='Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
-            pck_id=package_id, 
-            stk_id=sticker_id)),
-         TextSendMessage(text='Picture Location on Android(png):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{pck_id}\\{stk_id}'.format(
-            pck_id=package_id, 
-            stk_id=sticker_id)),
-         TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\RaenonX\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
-            pck_id=package_id, 
-            stk_id=sticker_id))]
-    )
+        api.reply_message(
+            event.reply_token,
+            [TextSendMessage(text='Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
+                pck_id=package_id, 
+                stk_id=sticker_id)),
+             TextSendMessage(text='Picture Location on Android(png):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{pck_id}\\{stk_id}'.format(
+                pck_id=package_id, 
+                stk_id=sticker_id)),
+             TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\RaenonX\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
+                pck_id=package_id, 
+                stk_id=sticker_id))]
+        )
 
 
 # Incomplete
