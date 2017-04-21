@@ -700,7 +700,7 @@ def handle_join(event):
 
 @handler.add(LeaveEvent)
 def handle_leave(event):
-    gid = event.source.groupId
+    gid = event.source.group_id
 
     gb.del_data(gid)
     api.push_message(MAIN_UID, TextSendMessage(text='Group Left.\nGroup ID: {gid}'.format(gid=gid)))
