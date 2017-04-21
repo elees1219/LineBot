@@ -166,7 +166,7 @@ def handle_text_message(event):
                 elif cmd == 'A':
                     text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
 
-                    if True or isinstance(event.source, SourceUser):
+                    if isinstance(event.source, SourceUser):
                         uid = event.source.user_id
                         results = kwd.insert_keyword(param1, param2, uid)
                         text = u'Pair Added. Total: {len}\n'.format(len=len(results))
