@@ -612,7 +612,7 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(sticker_png_url(sticker_id))]
+             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
 
 
@@ -694,8 +694,6 @@ def handle_leave(event):
 
 
 # Encapsulated Functions
-
-
 def split(text, splitter, size):
     list = []
   
