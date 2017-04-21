@@ -47,7 +47,8 @@ class kw_dict_mgr(object):
                     override BOOLEAN NOT NULL DEFAULT FALSE, \
                     admin BOOLEAN NOT NULL DEFAULT FALSE, \
                     used_time INTEGER NOT NULL, \
-                    creator VARCHAR(33) NOT NULL);'
+                    creator VARCHAR(33) NOT NULL) \
+                    is_sticker BOOLEAN DEFAULT FALSE;'
         result = self.sql_cmd(cmd)
         return True if len(result) <= 1 else False
 
@@ -76,6 +77,7 @@ class kw_dict_mgr(object):
         return result
 
     def get_reply(self, keyword):
+        keyword = keyword.replace('%', '')
         cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE ORDER BY admin DESC, id DESC;'.format(kw=keyword)
         cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\' AND override = FALSE'.format(kw=keyword)
         self.sql_cmd(cmd_update)

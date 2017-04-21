@@ -82,8 +82,6 @@ class group_ban(object):
     def get_group_by_id(self, groupId):
         cmd = u'SELECT * FROM group_ban WHERE groupId = \'{id}\''.format(id=groupId)
         result = self.sql_cmd(cmd)
-        print cmd
-        print result
         if len(result) >= 1:
             return result[0]
         else:
