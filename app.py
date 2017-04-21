@@ -607,6 +607,11 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
+    package_id = event.message.package_id
+    sticker_id = event.message.sticker_id
+    api.reply_message(event.reply_token, StickerSendMessage(package_id=package_id, sticker_id=sticker_id))
+    return
+
     if isinstance(event.source, SourceUser):
         package_id = event.message.package_id
         sticker_id = event.message.sticker_id
@@ -622,8 +627,7 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id))),
-             StickerSendMessage(package_id=package_id, sticker_id=sticker_id)]
+             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
 
 
