@@ -672,7 +672,6 @@ def handle_sticker_message(event):
         else:
             kwdata = 'No associated keyword pair.\n'
 
-
         api_reply(
             rep,
             [TextSendMessage(text=kwdata + 'Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
@@ -876,7 +875,8 @@ def send_error_url_line(token, error_text):
     timestamp = rec_error(traceback.format_exc())
     err_detail = u'Detail URL: {url}'.format(url=request.url_root + url_for('get_error_message', timestamp=timestamp))
     print rec['Error'][timestamp]
-    api_reply(rep, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
+    api_reply(token, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
+
 
 if __name__ == "__main__":
     # create tmp dir for download content
