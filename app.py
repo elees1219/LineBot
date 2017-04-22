@@ -120,7 +120,7 @@ def callback():
 
 @app.route("/error", methods=['POST', 'GET'])
 def get_error_message():
-    return '<p>' + escape(rec['Error']) + '</p>'
+    return '<p>' + escape(rec['Error']).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -663,9 +663,18 @@ def handle_sticker_message(event):
     src = event.source
 
     if isinstance(event.source, SourceUser):
+        results = kwd.get_reply(sticker_id)
+        
+        if results is not None:
+            result = results[0]
+            kwdata = 'Keyword ID: {id}\n'.format(id=result[kwdict_col.id])
+        else:
+            kwdata = 'No associated keyword pair.\n'
+
+
         api_reply(
             rep,
-            [TextSendMessage(text='Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
+            [TextSendMessage(text=kwdata + 'Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
              TextSendMessage(text='Picture Location on Android(png):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{pck_id}\\{stk_id}'.format(
