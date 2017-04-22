@@ -206,7 +206,7 @@ def handle_text_message(event):
                                     
                                     url_val_result = validators.url(param3)
                                     if type(url_val_result) is bool and url_val_result:
-                                        results = kwd.insert_keyword(param1, param3, uid, is_top[cmd], True, True)
+                                        results = kwd.insert_keyword(param1, param3, uid, is_top[cmd], False, True)
                                     else:
                                         results = None
                                         text = 'URL(parameter 3) is illegal. \
