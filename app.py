@@ -119,8 +119,10 @@ def callback():
 
 @app.route("/error", methods=['POST', 'GET'])
 def get_error_message():
-    # return rec['Error']
-    return str(rec['Error'])
+    print 'get_error_msg'
+    print type(rec['Error'])
+    print rec['Error']
+    return rec['Error']
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -855,12 +857,10 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 
 
 def rec_error(details):
-    print 'rec_error'
-    print details
     if details is not None:
         rec['error'] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
         rec['error'] += '\n\n'
-        rec['error'] += details   
+        rec['error'] += details  
 
 
 if __name__ == "__main__":
