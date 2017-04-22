@@ -1,1 +1,23 @@
+OVERRIDE¡÷RANDOM REPLY
+CAROUSEL TO DISPLAY DATA (P LAST)
+I P K Display Sticker Pair Data
+
+User manual update ->
+I/O --> A, M, D, R
+O --> P
+
+Optimize¡÷Integrate split system
+
 get the ranking of keyword using count in function I (https://www.postgresql.org/docs/9.1/static/tutorial-window.html)
+
+===============
+delete moderator
+DM
+delete admin
+DA
+
+1=public key
+2=DA/DM
+3=USER ID
+4=GROUP ID
+5=PRIVATE KEY

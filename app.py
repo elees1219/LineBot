@@ -591,10 +591,13 @@ def handle_text_message(event):
             if res is not None:
                 result = res[0]
                 reply = result[kwdict_col.reply].decode('utf-8')
+
+                print reply
+
                 if result[kwdict_col.is_pic_reply]:
                     api_reply(rep, TemplateSendMessage(
                         alt_text='Picture / Sticker Reply.',
-                        template=ButtonsTemplate(text='', 
+                        template=ButtonsTemplate(text='Created by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name), 
                                                  thumbnail_image_url=reply,
                                                  actions=[
                                                      URITemplateAction(label=u'Original Picture', uri=reply)
