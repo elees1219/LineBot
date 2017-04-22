@@ -40,37 +40,30 @@ class kw_dict_mgr(object):
 
     def create_kwdict(self):
         cmd = u'CREATE TABLE keyword_dict( \
-                    id SERIAL, \
-                    keyword VARCHAR(500), \
-                    reply VARCHAR(500), \
-                    deleted BOOLEAN NOT NULL DEFAULT FALSE, \
-                    override BOOLEAN NOT NULL DEFAULT FALSE, \
-                    admin BOOLEAN NOT NULL DEFAULT FALSE, \
-                    used_time INTEGER NOT NULL, \
-                    creator VARCHAR(33) NOT NULL) \
-                    is_sticker BOOLEAN DEFAULT FALSE;'
+                    {} SERIAL, \
+                    {} VARCHAR(500), \
+                    {} VARCHAR(500), \
+                    {} BOOLEAN NOT NULL DEFAULT FALSE, \
+                    {} BOOLEAN NOT NULL DEFAULT FALSE, \
+                    {} BOOLEAN NOT NULL DEFAULT FALSE, \
+                    {} INTEGER NOT NULL, \
+                    {} VARCHAR(33) NOT NULL), \
+                    {} BOOLEAN DEFAULT FALSE, \
+                    {} BOOLEAN DEFAULT FALSE;'.format(*_col_list)
         result = self.sql_cmd(cmd)
         return True if len(result) <= 1 else False
 
-    def insert_keyword(self, keyword, reply, creator_id):
-        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin) \
-               VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, FALSE) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
-        cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
-        self.sql_cmd(cmd_override)
-        result = self.sql_cmd(cmd)
-        return result
-
-    def insert_keyword_sticker(self, keyword, sticker_id, creator_id):
-        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_reply) \
-               VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, FALSE, TRUE) RETURNING *;'.format(kw=keyword, rep=sticker_id, cid=creator_id)
-        cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
-        self.sql_cmd(cmd_override)
-        result = self.sql_cmd(cmd)
-        return result
-
-    def insert_keyword_sys(self, keyword, reply, creator_id):
-        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin) \
-               VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, TRUE) RETURNING *;'.format(kw=keyword, rep=reply, cid=creator_id)
+    def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
+        keyword = keyword.replace('  ', ' ')
+        reply = reply.replace('  ', ' ')
+        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_kw, is_pic_reply) \
+               VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, {sys}, {stk_kw}, {pic_rep}) \
+               RETURNING *;'.format(kw=keyword, 
+                                    rep=reply if not is_pic_reply else kw_dict_mgr.sticker_png_url(sticker_id), 
+                                    cid=creator_id, 
+                                    sys=is_top,
+                                    pic_rep=is_pic_reply,
+                                    stk_kw=is_sticker_kw)
         cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
         self.sql_cmd(cmd_override)
         result = self.sql_cmd(cmd)
@@ -128,7 +121,7 @@ class kw_dict_mgr(object):
             return None
 
     def most_used(self):
-        cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MAX(used_time) FROM keyword_dict);'
+        cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MAX(used_time) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
         result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
@@ -136,31 +129,31 @@ class kw_dict_mgr(object):
             return None
 
     def least_used(self):
-        cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MIN(used_time) FROM keyword_dict);'
+        cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MIN(used_time) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
         result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
         else:
             return None
 
-    def delete_keyword(self, keyword):
-        cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = FALSE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
+    def delete_keyword(self, keyword, is_top):
+        cmd = u'UPDATE keyword_dict \
+                SET deleted = TRUE \
+                WHERE keyword = \'{kw}\' AND admin = {top} deleted = FALSE \
+                RETURNING *;'.format(kw=keyword, 
+                                     top=is_top)
         result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
         else:
             return None
 
-    def delete_keyword_id(self, id):
-        cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE id = \'{id}\' AND admin = FALSE AND deleted = FALSE RETURNING *;'.format(id=id)
-        result = self.sql_cmd(cmd)
-        if len(result) > 0:
-            return result
-        else:
-            return None
-
-    def delete_keyword_sys(self, keyword):
-        cmd = u'UPDATE keyword_dict SET deleted = TRUE WHERE keyword = \'{kw}\' AND admin = TRUE AND deleted = FALSE RETURNING *;'.format(kw=keyword)
+    def delete_keyword_id(self, id, is_top):
+        cmd = u'UPDATE keyword_dict \
+                SET deleted = TRUE \
+                WHERE id = \'{id}\' AND admin = {top} AND deleted = FALSE \
+                RETURNING *;'.format(id=id,
+                                     top=is_top)
         result = self.sql_cmd(cmd)
         if len(result) > 0:
             return result
@@ -183,11 +176,44 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd)
         return int(result[0][0])
 
+    def picture_reply_count(self):
+        cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_pic_reply = TRUE;'
+        result = self.sql_cmd(cmd)
+        return int(result[0][0])
+
+    def picture_reply_count(self):
+        cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_sticker_kw = TRUE;'
+        result = self.sql_cmd(cmd)
+        return int(result[0][0])
+
     def used_time_sum(self):
         cmd = u'SELECT SUM(used_time) FROM keyword_dict;'
         result = self.sql_cmd(cmd)
         return int(result[0][0])
 
+
+
+
+    
+
+    @staticmethod
+    def sticker_png_url(sticker_id):
+        return 'https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/{stk_id}/android/sticker.png'.format(stk_id=sticker_id)
+    
+    @staticmethod
+    def sticker_id(sticker_url):
+        return sticker_url.replace('https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/', '').replace('/android/sticker.png', '')
+    
+    @staticmethod
+    def entry_basic_info(entry_row):
+        text = u'ID: {id}\n'.format(id=entry_row[kwdict_col.id])
+        if result[kwdict_col.is_sticker_kw]:
+            text += u'Keyword: {kw}\n'.format(kw=entry_row[kwdict_col.keyword].decode('utf8'))
+        else:
+            text += u'Keyword: (Sticker ID: {kw})\n'.format(kw=entry_row[kwdict_col.keyword].decode('utf8'))
+        text += u'Reply Content: {rep}\n'.format(rep=entry_row[kwdict_col.reply].decode('utf8'))
+        text += u'Reply using picture / sticker: {rep}'.format(rep=entry_row[kwdict_col.is_pic_reply].decode('utf8'))
+        return text
 
 
 
@@ -207,6 +233,6 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator', 'is_sticker_reply']
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator', 'is_pic_reply', 'is_sticker_kw']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
-kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8)
+kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)

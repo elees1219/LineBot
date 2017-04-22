@@ -19,6 +19,8 @@ import json
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
 from flask import Flask, request, abort
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 from linebot import (
     LineBotApi, WebhookHandler, exceptions
@@ -40,7 +42,8 @@ boot_up = datetime.now()
 rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
-                   'H': 0, 'SHA': 0, 'O': 0}
+                   'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
+val = URLValidator(verify_exists=True)
 
 # Line Bot Environment initializing
 MAIN_UID = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
@@ -127,9 +130,12 @@ def handle_text_message(event):
         if len(text.split(splitter)) > 1 and text.startswith('JC'):
             head, oth = split(text, splitter, 2)
 
-            split_count = {'S': 4, 'A': 3, 'M': 5, 'D': 3, 'R': 4, 'Q': 3, 
+            split_count = {'S': 4, 'A': 3, 'M': 3, 'D': 3, 'R': 3, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3, 
-                           'H': 2, 'SHA': 3, 'O': 3}
+                           'H': 2, 'SHA': 3, 'O': 3, 'B': 3}
+            is_top = {'S': True, 'A': False, 'M': True, 'D': False, 'R': True, 'Q': False, 
+                      'C': True, 'I': False, 'K': False, 'P': False, 'G': False, 'GA': True, 
+                      'H': False, 'SHA': False, 'O': False, 'B': False}
 
             if head == 'JC':
                 rec['JC_called'] += 1
@@ -138,11 +144,11 @@ def handle_text_message(event):
                 params = split(text, splitter, prm_count)
 
                 if prm_count != len(params) - params.count(None):
-                        text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.\n\n'
+                        text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
                         api_reply(rep, TextSendMessage(text=text))
                         return
 
-                head, cmd, param1, param2, param3 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
+                head, cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
 
                 if cmd not in split_count:
                         text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
@@ -164,100 +170,95 @@ def handle_text_message(event):
                             text = 'This is a restricted function.'
 
                         api_reply(rep, TextSendMessage(text=text))
-                # ADD keyword
-                elif cmd == 'A':
-                    max_param_count = 3
+                # ADD keyword & ADD top keyword
+                elif cmd == 'A' or cmd == 'M':
+                    max_param_count = 4
                     paramA = split(param1, splitter, max_param_count)
-                    param1, param2, param3 = [paramA.pop(0) if len(paramA) > 0 else None for i in range(max_param_count)]
+                    if is_top[cmd] and permission_level(paramA.pop(0)) < 3:
+                        text = 'Insufficient Permission.'
+                    elif not isinstance(event.source, SourceUser):
+                        text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
+                    else:
+                        param1, param2, param3, param4 = [paramA.pop(0) if len(paramA) > 0 else None for i in range(max_param_count)]
 
-                    text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
-
-                    if isinstance(event.source, SourceUser):
                         uid = event.source.user_id
-                        if param3 is None:
-                            results = kwd.insert_keyword(param1, param2, uid)
-                        else:
-                            if param2 == 'STK':
-                                if string_is_int(param3):
-                                    results = kwd.insert_keyword_sticker(param1, param3, uid)
-                                else:
-                                    results = None
-                                    text = 'Illegal 3rd parameter. The 3rd parameter can be integer only.'
-                            else:
+                        if param4 is not None:
+                            if param1 != 'STK':
                                 results = None
-                                text = 'Illegal 2nd parameter. If you want to add sticker reply, the 2nd parameter must be \'STK\'.'
+                                text = 'To use sticker-received-picture-or-sticker-reply function, the 1st parameter must be \'STK\'.'
+                            elif param3 != 'PIC':
+                                results = None
+                                text = 'To use sticker-received-picture-or-sticker-reply function, the 3rd parameter must be \'PIC\'.'
+                            else:
+                                try:
+                                    if string_is_int(param4):
+                                        param4 = sticker_png_url(param4)
+
+                                    val(param4)
+                                    results = kwd.insert_keyword(param1, param3, uid, is_top[cmd], True, True)
+                                except ValidationError, e:
+                                    results = None
+                                    text = 'URL(parameter 4) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).'
+                        elif param3 is not None:
+                            if param2 == 'PIC':
+                                try:
+                                    if string_is_int(param3):
+                                        param4 = sticker_png_url(param3)
+
+                                    val(param3)
+                                    results = kwd.insert_keyword(param1, param3, uid, is_top[cmd], False, True)
+                                except ValidationError, e:
+                                    results = None
+                                    text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).'
+                            elif param1 == 'STK':
+                                results = kwd.insert_keyword(param2, param3, uid, is_top[cmd], True, False)
+                            else:
+                                text = 'Unable to determine the function to use. parameter 1 must be \'STK\' or parameter 2 must be \'PIC\'. Check the user manual to get more details.'
+                                results = None
+                        elif param2 is not None:
+                            results = kwd.insert_keyword(param1, param2, uid, is_top[cmd], False, False)
+                        else:
+                            results = None
+                            text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
 
                         if results is not None:
-                            text = u'Pair Added. Total: {len}\n'.format(len=len(results))
+                            text = u'Pair Added. {top}\n'.format(len=len(results), 
+                                                                 top='(top)' if is_top[cmd] else '')
                             for result in results:
-                                print result
-                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                                if result[kwdict_col.is_sticker_reply]:
-                                    text += u'Reply Sticker ID: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                                else:
-                                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-
+                                text += kwd.entry_basic_info(result)
 
                     api_reply(rep, TextSendMessage(text=text))
-                # ADD keyword(sys)
-                elif cmd == 'M':
-                        text = 'Restricted Function.'
+                # DELETE keyword & DELETE top keyword
+                elif cmd == 'D' or cmd == 'R':
+                    extra_prm_count = 2
+                    paramD = split(param1, splitter, extra_prm_count)
 
-                        if isinstance(event.source, SourceUser) and permission_level(param3) >= 2:
-                            uid = event.source.user_id
-                            results = kwd.insert_keyword_sys(param1, param2, uid)
-                            text = u'System Pair Added. Total: {len}\n'.format(len=len(results))
-                            for result in results:
-                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                                text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
+                    if is_top[cmd] and permission_level(paramA.pop(0)) < 2:
+                        text = 'Insufficient Permission.'
+                    else:
+                        param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(max_param_count)]
 
-                        api_reply(rep, TextSendMessage(text=text))
-                # DELETE keyword
-                elif cmd == 'D':
-                        text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-
-                        if len(param1.split(splitter)) > 1:
-                            extra_prm_count = 2
-                            paramD = split(param1, splitter, extra_prm_count)
-                            param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(extra_prm_count)]
-                            if param1 != 'ID':
-                                text = 'Incorrect 1st parameter to delete keyword pair. To use this function, 1st parameter needs to be \'ID\'.'
-                                results = None
-                            else:
-                                results = kwd.delete_keyword_id(param2)   
+                        if param2 is None:
+                            results = kwd.delete_keyword(param1, is_top[cmd])
                         else:
-                            results = kwd.delete_keyword(param1)
+                            if param1 == 'ID':
+                                 if string_is_int(param2):
+                                     results = kwd.delete_keyword_id(param2, is_top[cmd])
+                                 else:
+                                     results = None
+                                     text = 'Illegal parameter 2. Parameter 2 need to be integer to delete keyword by ID.'
+                            else:
+                                results = None
+                                text = 'Incorrect 1st parameter to delete keyword pair. To use ID to delete keyword, 1st parameter needs to be \'ID\'.'
 
-                        if results is not None:
-                            for result in results:
-                                text = 'Pair below DELETED.\n'
-                                text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                                text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                                text += u'Reply: {rep}\n\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                                profile = api.get_profile(result[kwdict_col.creator])
-                                text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
+                    if results is not None:
+                        for result in results:
+                            text = 'Pair Deleted. {top}\n'.format(top='(top)' if is_top[cmd] else '')
+                            text += kwd.entry_basic_info(result)
+                            profile = api.get_profile(result[kwdict_col.creator])
+                            text += u'\n\nThis pair is created by {name}.'.format(name=profile.display_name)
 
-                        api_reply(rep, TextSendMessage(text=text))
-                # DELETE keyword(sys)
-                elif cmd == 'R':
-                        text = 'Restricted Function.'
-
-                        if isinstance(event.source, SourceUser) and permission_level(param2) >= 2:
-                            text = u'Specified keyword({kw}) to delete not exists.'.format(kw=param1)
-                            results = kwd.delete_keyword_sys(param1)
-
-                            if results is not None:
-                                for result in results:
-                                    text = 'System Pair below DELETED.\n'
-                                    text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                                    text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                                    profile = api.get_profile(result[kwdict_col.creator])
-                                    text += u'This pair is created by {name}.\n'.format(name=profile.display_name)
-
-                        api_reply(rep, TextSendMessage(text=text))
+                    api_reply(rep, TextSendMessage(text=text))
                 # QUERY keyword
                 elif cmd == 'Q':
                         text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
@@ -280,7 +281,6 @@ def handle_text_message(event):
                             except ValueError:
                                 results = None
                                 text = 'Illegal parameter. 2nd parameter and 3rd parameter can be numbers only.'
-                            
                         else:
                             results = kwd.search_keyword(param1)
 
@@ -404,20 +404,25 @@ def handle_text_message(event):
                                 break
 
                         api_reply(rep, [TextSendMessage(text=text), TextMessage(text=text2)])
-                # GROUP ban basic
+                # GROUP ban basic (info)
                 elif cmd == 'G':
-                        if isinstance(event.source, SourceGroup):
-                            group_detail = gb.get_group_by_id(event.source.group_id)
+                        if not isinstance(event.source, SourceUser):
+                            if isinstance(event.source, SourceRoom):
+                                gid = event.source.room_id
+                            elif isinstance(event.source, SourceGroup):
+                                gid = event.source.group_id
+
+                            group_detail = gb.get_group_by_id(gid)
                             if group_detail is not None:
-                                text = u'Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
+                                text = u'Chat Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
                                 text += u'Silence: {sl}\n\n'.format(sl=group_detail[gb_col.silence])
                                 text += u'Admin: {name}\n'.format(name=api.get_profile(group_detail[gb_col.admin]).display_name)
                                 text += u'Admin User ID: {name}'.format(name=api.get_profile(group_detail[gb_col.admin]).user_id)
                             else:
-                                text = u'Group ID: {id}\n'.format(id=event.source.group_id)
+                                text = u'Chat Group ID: {id}\n'.format(id=gid)
                                 text += u'Silence: False'
                         else:
-                            text = 'This function can be only execute in GROUP.'
+                            text = 'This function can be only execute in GROUP or ROOM.'
                         
                         api_reply(rep, TextSendMessage(text=text))
                 # GROUP ban advance
@@ -523,7 +528,12 @@ def handle_text_message(event):
                         api_reply(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
-                    api_reply(rep, TextSendMessage(text=hashlib.sha224(param1.encode('utf-8')).hexdigest()))
+                    if param1 != None:
+                        text = hashlib.sha224(param1.encode('utf-8')).hexdigest()
+                    else:
+                        text = 'Illegal Parameter to generate SHA224 hash.'
+
+                    api_reply(rep, TextSendMessage(text=text))
                 # Look up vocabulary in OXFORD Dictionary
                 elif cmd == 'O':
                         if oxford_disabled:
@@ -554,10 +564,23 @@ def handle_text_message(event):
                                     text += '\n'
 
                         api_reply(rep, TextSendMessage(text=text))
+                # Leave group or room
+                elif cmd == 'B':
+                    if isinstance(event.source, SourceRoom):
+                        rid = event.source.room_id
+                        api_reply(rep, TextSendMessage(text='Room ID: {rid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(rid=rid)))
+                        api.leave_room(rid)
+                    elif isinstance(event.source, SourceGroup):
+                        gid = event.source.group_id
+                        api_reply(rep, TextSendMessage(text='Group ID: {gid}\nnBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(gid=gid)))
+                        api.leave_group(gid)
+                    elif isinstance(event.source, SourceUser):
+                        text = 'Unable to leave 1v1 chat.'
+                        api_reply(rep, TextSendMessage(text=text))
                 else:
                     cmd_called_time[cmd] -= 1
         else:
-            if isinstance(event.source, SourceGroup):
+            if isinstance(event.source, SourceGroup) or isinstance(event.source, SourceRoom):
                 group = gb.get_group_by_id(event.source.group_id)
                 if group is not None and group[gb_col.silence]:
                     return
@@ -565,18 +588,15 @@ def handle_text_message(event):
             res = kwd.get_reply(text)
             if res is not None:
                 result = res[0]
-                if result[kwdict_col.is_sticker_reply]:
-                    sticker_id = result[kwdict_col.reply]
-                    stk_descp = 'Sticker ID: {stk_id}'.format(stk_id=sticker_id)
-
-                    reply = sticker_png_url(sticker_id)
+                if result[kwdict_col.is_pic_reply]:
+                    url = result[kwdict_col.reply]
 
                     api_reply(rep, TemplateSendMessage(
-                        alt_text=stk_descp,
-                        template=ButtonsTemplate(text=stk_descp, 
-                                                 thumbnail_image_url=reply,
+                        alt_text='Picture Reply.',
+                        template=ButtonsTemplate(text='', 
+                                                 thumbnail_image_url=url,
                                                  actions=[
-                                                     URITemplateAction(label=u'Sticker Download', uri=reply)
+                                                     URITemplateAction(label=u'Original Picture', uri=url)
                                                  ])))
                 else:
                     reply = result[kwdict_col.reply].decode('utf8')
@@ -720,13 +740,6 @@ def handle_join(event):
         api_reply(event.reply_token, TextMessage(text='Room data registered. Type in \'JC G\' to get more details.'))
 
 
-@handler.add(LeaveEvent)
-def handle_leave(event):
-    gid = event.source.group_id
-
-    gb.del_data(gid)
-
-
 # Encapsulated Functions
 def split(text, splitter, size):
     list = []
@@ -779,7 +792,7 @@ def introduction_template():
 
 
 def sticker_png_url(sticker_id):
-    return 'https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/{stk_id}/android/sticker.png'.format(stk_id=sticker_id)
+    return kwd.sticker_png_url(sticker_id)
 
 
 def string_is_int(s):

@@ -2,6 +2,26 @@
 ## 貼圖分析
 對著小水母張貼貼圖將會顯示如下列資訊: 
 
+```
+Package ID: 1117417
+Sticker ID: 4797205
+```
+```
+Picture Location on Android(png):
+emulated\0\Android\data\jp.naver.line.android\stickers\1117417\4797205
+```
+```
+Picture Location on Windows PC(png):
+C:\Users\USER_NAME\AppData\Local\LINE\Data\Sticker\1117417\4797205
+```
+```
+Picture Location on Web(png):
+https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/4797205/android/sticker.png
+```
+
+> - 回覆的第一則訊息會顯示貼圖的圖包ID(Package ID)和貼圖本身的ID(Sticker ID)。貼圖ID可以用在回覆組回覆時使用貼圖。
+> - 第二、三則訊息則是圖片在Android手機或是Windows系統的電腦中，貼圖圖片檔案所在位置。
+> - 第四則訊息則是貼圖在網路上的位址(URL)。如果是動圖的話，此位址則是動圖的最後模樣。
 
 <hr>
 
@@ -41,7 +61,7 @@
 | `S` | **S**QL | 直接指令 | 3+ | `JC  S  __  __` | | [連結](#s) |
 | `M` | **M**AKE | 新增高級回覆組 | 2+ | `JC  M  水母  大水母  __` | 參數3為密鑰 | [連結](#m) |
 | `R` | **R**EMOVE | 刪除高級回覆組 | 3+ | `JC  R  水母  __` | | [連結](#r) |
-| `C` | **C**REATE | 建立關鍵字表格 | 0 | `JC  C` | 平時不使用 | [連結](#c) |
+| `C` | **C**REATE | 建立關鍵字表格 | 3+ | `JC  C  {KEY}` | 平時不使用 | [連結](#c) |
 | `G` | **G**ROUP | 群組靜音狀態查詢 | 0 | `JC  G` | | [連結](#g)
 | `GA` | **G**ROUP ADVANCE | 群組靜音管理 | 1+ | (參見詳細) | | [連結](#ga)
 | `O` | **O**XFORD | 牛津字典 | 0 | `JC  O  ace` | | [連結](#o)
@@ -356,7 +376,7 @@ JC  SHA  水母
 | :---: | :---: | :---: |
 | ○ | × | × |
 
-新增高階回覆組。於參數1輸入關鍵字，於參數2輸入回覆，參數3輸入密鑰。
+新增高階回覆組。於參數1輸入密鑰，參數2輸入關鍵字，參數3輸入回覆。
 ## R
 使用頻道
 
@@ -372,7 +392,7 @@ JC  SHA  水母
 | :---: | :---: | :---: |
 | ○ | ○ | ○ |
 
-建立關鍵字表格，無參數，平時不使用。
+建立關鍵字表格，參數1輸入密鑰，平時不使用。
 ## G
 使用頻道
 
@@ -502,6 +522,26 @@ Definition:
 ```
 > - 第一行`Powered by Oxford Dictionary.`固定不變，代表來自牛津字典。
 > - 第三行以後則是查詢結果。
+
+>## B
+使用頻道
+
+| C | R | G |
+| :---: | :---: | :---: |
+| × | ○ | ○ |
+
+以下範例代表要求機器人離開群組、房間。
+```
+JC  B
+```
+
+輸入後，機器人將會回覆以下訊息並離開群組:
+```
+Leave Group: Cxxxxxx
+Contact Link: http://line.me/ti/p/@fcb0332q
+```
+> - Cxxxxxx代表群組或房間ID，長度為33字元
+> - 如果離開的是房間的話，**Leave Group**會變成**Leave Room**。
 
 # Error
 

@@ -46,16 +46,16 @@ class group_ban(object):
 
     def create_ban(self):
         cmd = u'CREATE TABLE group_ban( \
-                    groupId VARCHAR(33) PRIMARY KEY, \
-                    silence BOOLEAN NOT NULL DEFAULT FALSE, \
-                    admin VARCHAR(33) NOT NULL, \
-                    admin_sha VARCHAR(56) NOT NULL, \
-                    moderator1 VARCHAR(33), \
-                    moderator1_sha VARCHAR(56), \
-                    moderator2 VARCHAR(33), \
-                    moderator2_sha VARCHAR(56), \
-                    moderator3 VARCHAR(33), \
-                    moderator3_sha VARCHAR(56));'
+                    {} VARCHAR(33) PRIMARY KEY, \
+                    {} BOOLEAN NOT NULL DEFAULT FALSE, \
+                    {} VARCHAR(33) NOT NULL, \
+                    {} VARCHAR(56) NOT NULL, \
+                    {} VARCHAR(33), \
+                    {} VARCHAR(56), \
+                    {} VARCHAR(33), \
+                    {} VARCHAR(56), \
+                    {} VARCHAR(33), \
+                    {} VARCHAR(56));'.format(*_col_list)
         result = self.sql_cmd(cmd)
         return True if len(result) <= 1 else False
 
