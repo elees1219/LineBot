@@ -592,8 +592,6 @@ def handle_text_message(event):
                 result = res[0]
                 reply = result[kwdict_col.reply].decode('utf-8')
 
-                print reply
-
                 if result[kwdict_col.is_pic_reply]:
                     api_reply(rep, TemplateSendMessage(
                         alt_text='Picture / Sticker Reply.',
@@ -604,16 +602,16 @@ def handle_text_message(event):
                                                  ])))
                 else:
                     api_reply(rep, TextSendMessage(text=reply))
-    # except exceptions.LineBotApiError as ex:
-    #     text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
-    #     for err in ex.error.details:
-    #         text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
-    # 
-    #     api_reply(rep, TextSendMessage(text=text))
-    # except Exception as exc:
-    #     exc_type, exc_obj, exc_tb = sys.exc_info()
-    #     text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
-    #     api_reply(rep, TextSendMessage(text=text))
+    except exceptions.LineBotApiError as ex:
+        text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
+        for err in ex.error.details:
+            text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
+    
+        api_reply(rep, TextSendMessage(text=text))
+    except Exception as exc:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
+        api_reply(rep, TextSendMessage(text=text))
     finally:
         pass
 
