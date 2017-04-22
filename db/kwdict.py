@@ -221,6 +221,29 @@ class kw_dict_mgr(object):
         text += u'Reply using picture / sticker: {r_pic}'.format(r_pic=entry_row[kwdict_col.is_pic_reply])
         return text
 
+    @staticmethod
+    def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
+        if gb.is_group_set_to_silence(channel_id):
+            return
+
+        res = kwd.get_reply(keyword, is_sticker_kw)
+        if res is not None:
+            result = res[0]
+            print result
+            reply = result[kwdict_col.reply].decode('utf-8')
+
+            if result[kwdict_col.is_pic_reply]:
+                api_reply(token, TemplateSendMessage(
+                    alt_text='Picture / Sticker Reply.\nURL: {url}'.format(url=reply if len(reply) <= 350 else 'unable to display (too long)'),
+                    template=ButtonsTemplate(text=u'ID: {id}\nCreated by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name,
+                                                                                            id=result[kwdict_col.id]), 
+                                             thumbnail_image_url=reply,
+                                             actions=[
+                                                 URITemplateAction(label=u'Original Picture', uri=reply)
+                                             ])))
+            else:
+                api_reply(token, TextSendMessage(text=reply))
+
 
 
     def _close_connection(self):

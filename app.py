@@ -598,7 +598,7 @@ def handle_text_message(event):
                 else:
                     cmd_called_time[cmd] -= 1
         else:
-            reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
+            kwd.reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
@@ -677,8 +677,8 @@ def handle_sticker_message(event):
                 stk_id=sticker_id)),
              TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
-
-    reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True)
+    else:
+        kwd.reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True)
 
 
 # Incomplete
@@ -832,29 +832,8 @@ def api_reply(reply_token, msg):
     api.reply_message(reply_token, msg)
 
 
-def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
-    if gb.is_group_set_to_silence(channel_id):
-        return
-
-    res = kwd.get_reply(keyword, is_sticker_kw)
-    if res is not None:
-        result = res[0]
-        print result
-        reply = result[kwdict_col.reply].decode('utf-8')
-
-        if result[kwdict_col.is_pic_reply]:
-            api_reply(token, TemplateSendMessage(
-                alt_text='Picture / Sticker Reply.\nURL: {url}'.format(url=reply if len(reply) <= 350 else 'unable to display (too long)'),
-                template=ButtonsTemplate(text=u'Created by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name), 
-                                         thumbnail_image_url=reply,
-                                         actions=[
-                                             URITemplateAction(label=u'Original Picture', uri=reply)
-                                         ])))
-        else:
-            api_reply(token, TextSendMessage(text=reply))
-
 def rec_error(details):
-    rec['error'] = datetime.now() + timedelta(hours=8)
+    rec['error'] = str(datetime.now() + timedelta(hours=8))
     rec['error'] += '\n\n'
     rec['error'] += details
 
