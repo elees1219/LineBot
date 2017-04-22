@@ -598,7 +598,6 @@ def handle_text_message(event):
                 else:
                     cmd_called_time[cmd] -= 1
         else:
-            reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
@@ -663,11 +662,11 @@ def handle_sticker_message(event):
     src = event.source
 
     if isinstance(event.source, SourceUser):
-        results = kwd.get_reply(sticker_id)
+        results = kwd.get_reply(sticker_id, True)
         
         if results is not None:
             result = results[0]
-            kwdata = 'Keyword ID: {id}\n'.format(id=result[kwdict_col.id])
+            kwdata = 'Associated Keyword ID: {id}\n'.format(id=result[kwdict_col.id])
         else:
             kwdata = 'No associated keyword pair.\n'
 
