@@ -67,6 +67,7 @@ if channel_access_token is None:
     sys.exit(1)
 api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+main_silent = False
 
 # Database initializing
 kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
@@ -118,12 +119,20 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
+
     rec['Msg_Received'] += 1
 
     rep = event.reply_token
     text = event.message.text
     src = event.source
     splitter = '  '
+
+    if main_silent:
+        return
+    if text == administrator:
+        main_silent = not main_silent
+        api.reply_message(rep, TextSendMessage(text='Set to {mute}.'.format(mute='Silent' if main_silent else 'Active')))
+        return
 
     try:
         if len(text.split(splitter)) > 1 and text.startswith('JC'):
