@@ -122,6 +122,7 @@ def handle_text_message(event):
 
     rep = event.reply_token
     text = event.message.text
+    src = event.source
     splitter = '  '
 
     try:
@@ -515,19 +516,18 @@ def handle_text_message(event):
                         api_reply(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
                 # get CHAT id
                 elif cmd == 'H':
-                        if isinstance(event.source, SourceUser):
-                            text = event.source.user_id
-                            source_type = 'Type: User'
-                        elif isinstance(event.source, SourceGroup):
-                            text = event.source.group_id
-                            source_type = 'Type: Group'
-                        elif isinstance(event.source, SourceRoom):
-                            text = event.source.room_id
-                            source_type = 'Type: Room'
-                        else:
-                            text = 'Unknown chatting type.'
+                    text = get_source_channel_id(src)
 
-                        api_reply(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
+                    if isinstance(event.source, SourceUser):
+                        source_type = 'Type: User'
+                    elif isinstance(event.source, SourceGroup):
+                        source_type = 'Type: Group'
+                    elif isinstance(event.source, SourceRoom):
+                        source_type = 'Type: Room'
+                    else:
+                        text = 'Unknown chatting type.'
+
+                    api_reply(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
                     if param1 != None:
@@ -568,40 +568,23 @@ def handle_text_message(event):
                         api_reply(rep, TextSendMessage(text=text))
                 # Leave group or room
                 elif cmd == 'B':
-                    if isinstance(event.source, SourceRoom):
-                        rid = event.source.room_id
-                        api_reply(rep, TextSendMessage(text='Room ID: {rid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(rid=rid)))
-                        api.leave_room(rid)
-                    elif isinstance(event.source, SourceGroup):
-                        gid = event.source.group_id
-                        api_reply(rep, TextSendMessage(text='Group ID: {gid}\nnBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(gid=gid)))
-                        api.leave_group(gid)
-                    elif isinstance(event.source, SourceUser):
+                    cid = get_source_channel_id(src)
+
+                    api_reply(rep, TextSendMessage(text='Channel ID: {cid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(
+                        cid=cid)))
+
+                    if isinstance(src, SourceUser):
                         text = 'Unable to leave 1v1 chat.'
                         api_reply(rep, TextSendMessage(text=text))
+                    else:
+                        if isinstance(src, SourceRoom):
+                            api.leave_room(cid)
+                        elif isinstance(src, SourceGroup):
+                            api.leave_group(cid)
                 else:
                     cmd_called_time[cmd] -= 1
         else:
-            if isinstance(event.source, SourceGroup) or isinstance(event.source, SourceRoom):
-                group = gb.get_group_by_id(event.source.group_id)
-                if group is not None and group[gb_col.silence]:
-                    return
-
-            res = kwd.get_reply(text)
-            if res is not None:
-                result = res[0]
-                reply = result[kwdict_col.reply].decode('utf-8')
-
-                if result[kwdict_col.is_pic_reply]:
-                    api_reply(rep, TemplateSendMessage(
-                        alt_text='Picture / Sticker Reply.',
-                        template=ButtonsTemplate(text=u'Created by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name), 
-                                                 thumbnail_image_url=reply,
-                                                 actions=[
-                                                     URITemplateAction(label=u'Original Picture', uri=reply)
-                                                 ])))
-                else:
-                    api_reply(rep, TextSendMessage(text=reply))
+            reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
     except exceptions.LineBotApiError as ex:
         text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
         for err in ex.error.details:
@@ -655,12 +638,14 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
-    if isinstance(event.source, SourceUser):
-        package_id = event.message.package_id
-        sticker_id = event.message.sticker_id
+    package_id = event.message.package_id
+    sticker_id = event.message.sticker_id
+    rep = event.reply_token
+    src = event.source
 
+    if isinstance(event.source, SourceUser):
         api_reply(
-            event.reply_token,
+            rep,
             [TextSendMessage(text='Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
@@ -672,6 +657,8 @@ def handle_sticker_message(event):
                 stk_id=sticker_id)),
              TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
+
+    reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True)
 
 
 # Incomplete
@@ -799,6 +786,19 @@ def sticker_png_url(sticker_id):
     return kwd.sticker_png_url(sticker_id)
 
 
+def get_source_channel_id(source_event):
+    if isinstance(source_event, SourceGroup):
+        id = source_event.group_id
+    elif isinstance(source_event, SourceRoom):
+        id = source_event.room_id
+    elif isinstance(source_event, SourceUser):
+        id = source_event.user_id
+    else:
+        id = None
+       
+    return id
+
+
 def string_is_int(s):
     try: 
         int(s)
@@ -810,6 +810,27 @@ def string_is_int(s):
 def api_reply(reply_token, msg):
     rec['Msg_Replied'] += 1
     api.reply_message(reply_token, msg)
+
+
+def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
+    if id is not None and gb.is_group_set_to_silence(channel_id):
+        return
+
+    res = kwd.get_reply(keyword, False)
+    if res is not None:
+        result = res[0]
+        reply = result[kwdict_col.reply].decode('utf-8')
+
+        if result[kwdict_col.is_pic_reply]:
+            api_reply(token, TemplateSendMessage(
+                alt_text='Picture / Sticker Reply.',
+                template=ButtonsTemplate(text=u'Created by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name), 
+                                         thumbnail_image_url=reply,
+                                         actions=[
+                                             URITemplateAction(label=u'Original Picture', uri=reply)
+                                         ])))
+        else:
+            api_reply(token, TextSendMessage(text=reply))
 
 
 

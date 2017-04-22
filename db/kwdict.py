@@ -69,12 +69,17 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd)
         return result
 
-    def get_reply(self, keyword):
+    def get_reply(self, keyword, is_sticker):
         keyword = keyword.replace('%', '')
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' AND deleted = FALSE ORDER BY admin DESC, id DESC;'.format(kw=keyword)
-        cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE keyword = \'{kw}\' AND override = FALSE'.format(kw=keyword)
-        self.sql_cmd(cmd_update)
+        cmd = u'SELECT * FROM keyword_dict \
+        WHERE keyword = \'{kw}\' AND deleted = FALSE AND is_sticker_kw = {stk_kw}\
+        ORDER BY admin DESC, id DESC;'.format(
+            kw=keyword, 
+            is_sticker=is_sticker,
+            stk_kw=is_sticker)
         result = self.sql_cmd(cmd)
+        cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE id = \'{id}\' AND override = FALSE'.format(id=result[kwdict_col.id])
+        self.sql_cmd(cmd_update)
         if len(result) > 0:
             return result
         else:
