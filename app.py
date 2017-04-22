@@ -598,7 +598,7 @@ def handle_text_message(event):
                 else:
                     cmd_called_time[cmd] -= 1
         else:
-            reply_message_by_keyword(gb, get_source_channel_id(src), rep, text, False)
+            reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
@@ -678,7 +678,7 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
     else:
-        reply_message_by_keyword(gb, get_source_channel_id(src), rep, sticker_id, True)
+        reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True)
 
 
 # Incomplete
