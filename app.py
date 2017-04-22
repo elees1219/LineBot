@@ -604,7 +604,7 @@ def handle_text_message(event):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
         api_reply(rep, TextSendMessage(text=text))
-        print exc
+        print exc_tb
     finally:
         pass
 
