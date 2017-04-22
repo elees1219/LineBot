@@ -117,7 +117,7 @@ def callback():
     return 'OK'
 
 
-@app.route("/error/<string:timestamp>", methods=['POST', 'GET'])
+@app.route("/error/<timestamp>", methods=['POST', 'GET'])
 def get_error_message(timestamp):
     error_message = rec['Error'][timestamp]
 
@@ -611,8 +611,8 @@ def handle_text_message(event):
         for err in ex.error.details:
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
 
-        timestamp = str(rec_error(traceback.format_exc()))
-        err_detail = u'Detail URL: {url}'.format(url=url_for(get_error_message, timestamp))
+        timestamp = rec_error(traceback.format_exc())
+        err_detail = u'Detail URL: {url}'.format(url=url_for('get_error_message', timestamp=timestamp))
         print rec['Error'][timestamp]
         api_reply(rep, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
     except Exception as exc:
@@ -620,8 +620,8 @@ def handle_text_message(event):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
 
-        timestamp = str(rec_error(traceback.format_exc()))
-        err_detail = u'Detail URL: {url}'.format(url=url_for(get_error_message, timestamp))
+        timestamp = rec_error(traceback.format_exc())
+        err_detail = u'Detail URL: {url}'.format(url=url_for('get_error_message', timestamp=timestamp))
         print rec['Error'][timestamp]
         api_reply(rep, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
     return
@@ -871,10 +871,10 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 
 def rec_error(details):
     if details is not None:
-        timestamp = int(time.time())
-        rec['Error'][str(timestamp)] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
-        rec['Error'][str(timestamp)] += '\n\n'
-        rec['Error'][str(timestamp)] += details  
+        timestamp = str(int(time.time()))
+        rec['Error'][timestamp] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
+        rec['Error'][timestamp] += '\n\n'
+        rec['Error'][timestamp] += details  
         return timestamp
 
 
