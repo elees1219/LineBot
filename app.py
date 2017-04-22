@@ -6,6 +6,7 @@ import sys
 import tempfile
 import traceback
 import validators
+from cgi import escape
 from datetime import datetime, timedelta
 
 # import for 'SHA'
@@ -119,7 +120,7 @@ def callback():
 
 @app.route("/error", methods=['POST', 'GET'])
 def get_error_message():
-    return rec['Error']
+    return escape(rec['Error']).replace('\n', '<br />').replace(' ', '&nbsp;')
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -607,9 +608,7 @@ def handle_text_message(event):
         api_reply(rep, TextSendMessage(text=text))
 
         rec_error(traceback.format_exc())
-        print 'exception'
         print rec['Error']
-        print rec
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -617,9 +616,7 @@ def handle_text_message(event):
         api_reply(rep, TextSendMessage(text=text))
 
         rec_error(traceback.format_exc())
-        print 'exception'
         print rec['Error']
-        print rec
     return
 
     if text == 'confirm':
