@@ -813,7 +813,7 @@ def api_reply(reply_token, msg):
 
 
 def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
-    if id is not None and gb.is_group_set_to_silence(channel_id):
+    if gb.is_group_set_to_silence(channel_id):
         return
 
     res = kwd.get_reply(keyword, False)
