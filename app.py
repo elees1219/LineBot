@@ -178,7 +178,7 @@ def handle_text_message(event):
                 
                 # SQL Command
                 if cmd == 'S':
-                        if isinstance(event.source, SourceUser) and permission_level(param2) >= 3:
+                        if isinstance(src, SourceUser) and permission_level(param2) >= 3:
                             results = kwd.sql_cmd(param1)
                             if results is not None:
                                 text = u'SQL command result({len}): \n'.format(len=len(results))
@@ -195,12 +195,12 @@ def handle_text_message(event):
                     paramA = split(param1, splitter, max_param_count)
                     if is_top[cmd] and permission_level(paramA.pop(0)) < 3:
                         text = 'Insufficient Permission.'
-                    elif not isinstance(event.source, SourceUser):
+                    elif not isinstance(src, SourceUser):
                         text = 'Unable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
                     else:
                         param1, param2, param3, param4 = [paramA.pop(0) if len(paramA) > 0 else None for i in range(max_param_count)]
 
-                        uid = event.source.user_id
+                        uid = src.user_id
                         if param4 is not None:
                             if param1 != 'STK':
                                 results = None
@@ -429,11 +429,8 @@ def handle_text_message(event):
                         api_reply(rep, [TextSendMessage(text=text), TextMessage(text=text2)])
                 # GROUP ban basic (info)
                 elif cmd == 'G':
-                        if not isinstance(event.source, SourceUser):
-                            if isinstance(event.source, SourceRoom):
-                                gid = event.source.room_id
-                            elif isinstance(event.source, SourceGroup):
-                                gid = event.source.group_id
+                        if not isinstance(src, SourceUser):
+                            gid = get_source_channel_id(src)
 
                             group_detail = gb.get_group_by_id(gid)
                             if group_detail is not None:
@@ -466,7 +463,7 @@ def handle_text_message(event):
                                      0: 'Permission: User'}
                         pert = pert_dict[perm]
 
-                        if isinstance(event.source, SourceUser):
+                        if isinstance(src, SourceUser):
                             text = error
 
                             if perm >= 1 and param_count == 4:
@@ -538,11 +535,11 @@ def handle_text_message(event):
                 elif cmd == 'H':
                     text = get_source_channel_id(src)
 
-                    if isinstance(event.source, SourceUser):
+                    if isinstance(src, SourceUser):
                         source_type = 'Type: User'
-                    elif isinstance(event.source, SourceGroup):
+                    elif isinstance(src, SourceGroup):
                         source_type = 'Type: Group'
-                    elif isinstance(event.source, SourceRoom):
+                    elif isinstance(src, SourceRoom):
                         source_type = 'Type: Room'
                     else:
                         text = 'Unknown chatting type.'
@@ -865,7 +862,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 def rec_error(details):
     if details is not None:
         timestamp = str(int(time.time()))
-        rec['Error'][timestamp] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
+        rec['Error'][timestamp] = 'Error Occurred at {time}'.format(time=datetime.now() + timedelta(hours=8))
         rec['Error'][timestamp] += '\n\n'
         rec['Error'][timestamp] += details  
         return timestamp
