@@ -38,7 +38,7 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.now()
-rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0}
+rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -126,11 +126,11 @@ def handle_text_message(event):
     src = event.source
     splitter = '  '
 
-    if main_silent:
+    if rec['Silence']:
         return
     if text == administrator:
-        main_silent = not main_silent
-        api.reply_message(rep, TextSendMessage(text='Set to {mute}.'.format(mute='Silent' if main_silent else 'Active')))
+        rec['Silence'] = not rec['Silence']
+        api.reply_message(rep, TextSendMessage(text='Set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
         return
 
     try:
