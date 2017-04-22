@@ -590,31 +590,27 @@ def handle_text_message(event):
             res = kwd.get_reply(text)
             if res is not None:
                 result = res[0]
+                reply = result[kwdict_col.reply].decode('utf-8')
                 if result[kwdict_col.is_pic_reply]:
-                    url = result[kwdict_col.reply]
-
                     api_reply(rep, TemplateSendMessage(
-                        alt_text='Picture Reply.',
+                        alt_text='Picture / Sticker Reply.',
                         template=ButtonsTemplate(text='', 
-                                                 thumbnail_image_url=url,
+                                                 thumbnail_image_url=reply,
                                                  actions=[
-                                                     URITemplateAction(label=u'Original Picture', uri=url)
+                                                     URITemplateAction(label=u'Original Picture', uri=reply)
                                                  ])))
                 else:
-                    reply = result[kwdict_col.reply].decode('utf8')
                     api_reply(rep, TextSendMessage(text=reply))
-    # except exceptions.LineBotApiError as ex:
-    #     text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
-    #     for err in ex.error.details:
-    #         text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
-    # 
-    #     api_reply(rep, TextSendMessage(text=text))
-    # except Exception as exc:
-    #     exc_type, exc_obj, exc_tb = sys.exc_info()
-    #     text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
-    #     api_reply(rep, TextSendMessage(text=text))
-    finally:
-        print 'finally'
+    except exceptions.LineBotApiError as ex:
+        text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
+        for err in ex.error.details:
+            text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
+    
+        api_reply(rep, TextSendMessage(text=text))
+    except Exception as exc:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
+        api_reply(rep, TextSendMessage(text=text))
 
     return
 
