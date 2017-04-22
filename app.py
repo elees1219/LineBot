@@ -839,7 +839,6 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
         res = kwd.get_reply(keyword, is_sticker_kw)
         if res is not None:
             result = res[0]
-            print result
             reply = result[kwdict_col.reply].decode('utf-8')
 
             if result[kwdict_col.is_pic_reply]:
