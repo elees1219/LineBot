@@ -823,7 +823,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 
         if result[kwdict_col.is_pic_reply]:
             api_reply(token, TemplateSendMessage(
-                alt_text='Picture / Sticker Reply.',
+                alt_text='Picture / Sticker Reply.\nURL: {url}'.format(url=reply if len(reply) <= 350 else 'unable to display (too long)'),
                 template=ButtonsTemplate(text=u'Created by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name), 
                                          thumbnail_image_url=reply,
                                          actions=[
