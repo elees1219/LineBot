@@ -222,8 +222,8 @@ class kw_dict_mgr(object):
         return text
 
     @staticmethod
-    def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
-        if gb.is_group_set_to_silence(channel_id):
+    def reply_message_by_keyword(group_ban_instance, channel_id, token, keyword, is_sticker_kw):
+        if group_ban_instance.is_group_set_to_silence(channel_id):
             return
 
         res = kwd.get_reply(keyword, is_sticker_kw)
@@ -234,7 +234,7 @@ class kw_dict_mgr(object):
 
             if result[kwdict_col.is_pic_reply]:
                 api_reply(token, TemplateSendMessage(
-                    alt_text='Picture / Sticker Reply.\nURL: {url}'.format(url=reply if len(reply) <= 350 else 'unable to display (too long)'),
+                    alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
                     template=ButtonsTemplate(text=u'ID: {id}\nCreated by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name,
                                                                                             id=result[kwdict_col.id]), 
                                              thumbnail_image_url=reply,

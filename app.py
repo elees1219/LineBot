@@ -598,7 +598,7 @@ def handle_text_message(event):
                 else:
                     cmd_called_time[cmd] -= 1
         else:
-            kwd.reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
+            kwd.reply_message_by_keyword(gb, get_source_channel_id(src), rep, text, False)
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
@@ -678,7 +678,7 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
     else:
-        kwd.reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True)
+        kwd.reply_message_by_keyword(gb, get_source_channel_id(src), rep, sticker_id, True)
 
 
 # Incomplete
@@ -833,9 +833,10 @@ def api_reply(reply_token, msg):
 
 
 def rec_error(details):
-    rec['error'] = str(datetime.now() + timedelta(hours=8))
-    rec['error'] += '\n\n'
-    rec['error'] += details
+    if details is None:
+        rec['error'] = str(datetime.now() + timedelta(hours=8))
+        rec['error'] += '\n\n'
+        rec['error'] += details
 
 
 if __name__ == "__main__":
