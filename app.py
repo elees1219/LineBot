@@ -127,7 +127,7 @@ def handle_text_message(event):
         if len(text.split(splitter)) > 1 and text.startswith('JC'):
             head, oth = split(text, splitter, 2)
 
-            split_count = {'S': 4, 'A': 5, 'M': 5, 'D': 3, 'R': 4, 'Q': 3, 
+            split_count = {'S': 4, 'A': 3, 'M': 5, 'D': 3, 'R': 4, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3, 
                            'H': 2, 'SHA': 3, 'O': 3}
 
@@ -166,6 +166,10 @@ def handle_text_message(event):
                         api_reply(rep, TextSendMessage(text=text))
                 # ADD keyword
                 elif cmd == 'A':
+                    max_param_count = 3
+                    paramA = split(param1, splitter, max_param_count)
+                    param1, param2, param3 = [paramA.pop(0) if len(paramA) > 0 else None for i in range(max_param_count)]
+
                     text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
 
                     if isinstance(event.source, SourceUser):
