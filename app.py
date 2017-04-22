@@ -607,7 +607,6 @@ def handle_text_message(event):
         api_reply(rep, TextSendMessage(text=text))
 
         rec['Error'] = traceback.print_exc()
-        print exc
         print rec['Error']
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
@@ -616,7 +615,6 @@ def handle_text_message(event):
         api_reply(rep, TextSendMessage(text=text))
 
         rec['Error'] = traceback.print_exc()
-        print exc
         print rec['Error']
 
     return
@@ -838,8 +836,6 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
         return
 
     res = kwd.get_reply(keyword, False)
-    print keyword
-    print res
     if res is not None:
         print res
         result = res[0]
