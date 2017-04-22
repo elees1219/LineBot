@@ -658,6 +658,7 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
 
+    print 'Sticker Event'
     reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True)
 
 
@@ -813,11 +814,14 @@ def api_reply(reply_token, msg):
 
 
 def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
+    print 'Sticker Event'
     if gb.is_group_set_to_silence(channel_id):
         return
 
+    print 'Sticker Event'
     res = kwd.get_reply(keyword, False)
     if res is not None:
+        print 'Sticker Event'
         result = res[0]
         reply = result[kwdict_col.reply].decode('utf-8')
 
