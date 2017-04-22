@@ -858,11 +858,9 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 
 def rec_error(details):
     if details is not None:
-        rec['error'] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
-        rec['error'] += '\n\n'
-        rec['error'] += details  
-
-    print rec
+        rec['Error'] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
+        rec['Error'] += '\n\n'
+        rec['Error'] += details  
 
 
 if __name__ == "__main__":
