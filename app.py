@@ -37,7 +37,7 @@ from linebot.models import (
 
 # Main initializing
 app = Flask(__name__)
-boot_up = datetime.now()
+boot_up = datetime.now() + timedelta(hours=8)
 rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, "Error": ''}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
@@ -117,7 +117,7 @@ def callback():
     return 'OK'
 
 
-@app.route("/error", methods=['GET'])
+@app.route("/error", methods=['POST', 'GET'])
 def get_error_message():
     return rec['Error']
 
@@ -382,7 +382,7 @@ def handle_text_message(event):
                         kwpct = kwd.row_count()
 
                         text = u'Data Recorded since booted up\n'
-                        text += u'Boot up Time: {bt} (UTC+8)\n\n'.format(bt=boot_up + timedelta(hours=8))
+                        text += u'Boot up Time: {bt} (UTC+8)\n\n'.format(bt=boot_up)
                         text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
                         text += u'Message Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
                         text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_called_time)
@@ -599,7 +599,8 @@ def handle_text_message(event):
         else:
             reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
     except exceptions.LineBotApiError as ex:
-        text = u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
+        text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
+        text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
         for err in ex.error.details:
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
     
@@ -609,8 +610,9 @@ def handle_text_message(event):
         print exc
         print rec['Error']
     except Exception as exc:
+        text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
+        text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
         api_reply(rep, TextSendMessage(text=text))
 
         rec['Error'] = traceback.print_exc()
