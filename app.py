@@ -598,7 +598,7 @@ def handle_text_message(event):
                 else:
                     cmd_called_time[cmd] -= 1
         else:
-            kwd.reply_message_by_keyword(gb, get_source_channel_id(src), rep, text, False)
+            reply_message_by_keyword(gb, get_source_channel_id(src), rep, text, False)
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
@@ -678,7 +678,7 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
     else:
-        kwd.reply_message_by_keyword(gb, get_source_channel_id(src), rep, sticker_id, True)
+        reply_message_by_keyword(gb, get_source_channel_id(src), rep, sticker_id, True)
 
 
 # Incomplete
@@ -832,11 +832,33 @@ def api_reply(reply_token, msg):
     api.reply_message(reply_token, msg)
 
 
+def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
+        if gb.is_group_set_to_silence(channel_id):
+            return
+
+        res = kwd.get_reply(keyword, is_sticker_kw)
+        if res is not None:
+            result = res[0]
+            print result
+            reply = result[kwdict_col.reply].decode('utf-8')
+
+            if result[kwdict_col.is_pic_reply]:
+                api_reply(token, TemplateSendMessage(
+                    alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
+                    template=ButtonsTemplate(text=u'ID: {id}\nCreated by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name,
+                                                                                            id=result[kwdict_col.id]), 
+                                             thumbnail_image_url=reply,
+                                             actions=[
+                                                 URITemplateAction(label=u'Original Picture', uri=reply)
+                                             ])))
+            else:
+                api_reply(token, TextSendMessage(text=reply))
+
+
 def rec_error(details):
-    if details is None:
-        rec['error'] = str(datetime.now() + timedelta(hours=8))
-        rec['error'] += '\n\n'
-        rec['error'] += details
+    rec['error'] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
+    rec['error'] += '\n\n'
+    rec['error'] += details   
 
 
 if __name__ == "__main__":
