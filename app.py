@@ -875,7 +875,7 @@ def send_error_url_line(token, error_text):
     timestamp = rec_error(traceback.format_exc())
     err_detail = u'Detail URL: {url}'.format(url=request.url_root + url_for('get_error_message', timestamp=timestamp))
     print rec['Error'][timestamp]
-    api_reply(token, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
+    api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
 
 
 if __name__ == "__main__":
