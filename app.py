@@ -120,7 +120,7 @@ def callback():
 
 @app.route("/error", methods=['POST', 'GET'])
 def get_error_message():
-    return render_template_string(rec['Error'])
+    return '<p>' + escape(rec['Error']) + '</p>'
 
 
 @handler.add(MessageEvent, message=TextMessage)
