@@ -45,6 +45,7 @@ cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0,
 
 # Line Bot Environment initializing
 MAIN_UID = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
+main_silent = False
 administrator = os.getenv('ADMIN', None)
 group_admin = os.getenv('G_ADMIN', None)
 group_mod = os.getenv('G_MOD', None)
@@ -67,7 +68,6 @@ if channel_access_token is None:
     sys.exit(1)
 api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
-main_silent = False
 
 # Database initializing
 kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
@@ -119,7 +119,6 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-
     rec['Msg_Received'] += 1
 
     rep = event.reply_token
@@ -600,10 +599,12 @@ def handle_text_message(event):
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
     
         api_reply(rep, TextSendMessage(text=text))
+        print ex
     except Exception as exc:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
         api_reply(rep, TextSendMessage(text=text))
+        print exc
     finally:
         pass
 
