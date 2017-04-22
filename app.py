@@ -861,6 +861,9 @@ def rec_error(details):
         rec['error'] += '\n\n'
         rec['error'] += details  
 
+    print 'reced'
+    print rec['error']
+
 
 if __name__ == "__main__":
     # create tmp dir for download content
