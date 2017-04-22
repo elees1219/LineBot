@@ -59,7 +59,7 @@ class kw_dict_mgr(object):
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_kw, is_pic_reply) \
                VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, {sys}, {stk_kw}, {pic_rep}) \
                RETURNING *;'.format(kw=keyword, 
-                                    rep=reply if not is_pic_reply else kw_dict_mgr.sticker_png_url(reply), 
+                                    rep=reply, 
                                     cid=creator_id, 
                                     sys=is_top,
                                     pic_rep=is_pic_reply,
@@ -207,10 +207,11 @@ class kw_dict_mgr(object):
     @staticmethod
     def entry_basic_info(entry_row):
         text = u'ID: {id}\n'.format(id=entry_row[kwdict_col.id])
+        kw = entry_row[kwdict_col.keyword].decode('utf8')
         if not entry_row[kwdict_col.is_sticker_kw]:
-            text += u'Keyword: {kw}\n'.format(kw=entry_row[kwdict_col.keyword].decode('utf8'))
+            text += u'Keyword: {kw}\n'.format(kw=kw)
         else:
-            text += u'Keyword: (Sticker ID: {kw})\n'.format(kw=entry_row[kwdict_col.keyword].decode('utf8'))
+            text += u'Keyword: (Sticker ID: {kw})\n'.format(kw=kw)
         text += u'Reply Content: {rep}\n'.format(rep=entry_row[kwdict_col.reply].decode('utf8'))
         text += u'Reply using picture / sticker: {r_pic}'.format(r_pic=entry_row[kwdict_col.is_pic_reply])
         return text

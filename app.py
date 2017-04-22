@@ -175,7 +175,7 @@ def handle_text_message(event):
                     if is_top[cmd] and permission_level(paramA.pop(0)) < 3:
                         text = 'Insufficient Permission.'
                     elif not isinstance(event.source, SourceUser):
-                        text = 'Unavailable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
+                        text = 'Unable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
                     else:
                         param1, param2, param3, param4 = [paramA.pop(0) if len(paramA) > 0 else None for i in range(max_param_count)]
 
