@@ -116,7 +116,7 @@ def callback():
 
     return 'OK'
 
-@apply.route("/error", methods=['GET'])
+@app.route("/error", methods=['GET'])
 def get_error_message():
     return Error
 
