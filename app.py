@@ -120,7 +120,7 @@ def callback():
 @app.route("/error", methods=['POST', 'GET'])
 def get_error_message():
     # return rec['Error']
-    return 'Error Test'
+    return str(rec['Error'])
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -607,7 +607,7 @@ def handle_text_message(event):
     
         api_reply(rep, TextSendMessage(text=text))
 
-        rec['Error'] = traceback.print_exc()
+        rec_error(traceback.print_exc())
         print rec['Error']
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
@@ -615,7 +615,7 @@ def handle_text_message(event):
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
         api_reply(rep, TextSendMessage(text=text))
 
-        rec['Error'] = traceback.print_exc()
+        rec_error(traceback.print_exc())
         print rec['Error']
 
     return
@@ -836,10 +836,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
     if gb.is_group_set_to_silence(channel_id):
         return
 
-    res = kwd.get_reply(keyword, False)
-    print is_sticker_kw
-    print keyword.encode('utf-8')
-    print res
+    res = kwd.get_reply(keyword, is_sticker_kw)
     if res is not None:
         result = res[0]
         print result
@@ -856,6 +853,10 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
         else:
             api_reply(token, TextSendMessage(text=reply))
 
+def rec_error(details):
+    rec['error'] = datetime.now() + timedelta(hours=8)
+    rec['error'] += '\n\n'
+    rec['error'] += details
 
 
 if __name__ == "__main__":
