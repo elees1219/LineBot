@@ -612,7 +612,7 @@ def handle_text_message(event):
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
 
         timestamp = str(rec_error(traceback.format_exc()))
-        err_detail = u'Detail URL: {url}'.format(url=url_for(get_error_message(timestamp)))
+        err_detail = u'Detail URL: {url}'.format(url=url_for(get_error_message, timestamp))
         print rec['Error'][timestamp]
         api_reply(rep, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
     except Exception as exc:
@@ -621,7 +621,7 @@ def handle_text_message(event):
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
 
         timestamp = str(rec_error(traceback.format_exc()))
-        err_detail = u'Detail URL: {url}'.format(url=url_for(get_error_message(timestamp)))
+        err_detail = u'Detail URL: {url}'.format(url=url_for(get_error_message, timestamp))
         print rec['Error'][timestamp]
         api_reply(rep, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
     return
