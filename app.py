@@ -5,6 +5,7 @@ import os
 import sys
 import tempfile
 import traceback
+import validators
 from datetime import datetime, timedelta
 
 # import for 'SHA'
@@ -19,8 +20,6 @@ import json
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
 from flask import Flask, request, abort
-from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
 
 from linebot import (
     LineBotApi, WebhookHandler, exceptions
@@ -43,7 +42,6 @@ rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
-val = URLValidator(verify_exists=True)
 
 # Line Bot Environment initializing
 MAIN_UID = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
@@ -190,36 +188,40 @@ def handle_text_message(event):
                                 results = None
                                 text = 'To use sticker-received-picture-or-sticker-reply function, the 3rd parameter must be \'PIC\'.'
                             else:
-                                try:
-                                    if string_is_int(param4):
-                                        param4 = sticker_png_url(param4)
+                                if string_is_int(param4):
+                                    param4 = sticker_png_url(param4)
 
-                                    val(param4)
-                                    results = kwd.insert_keyword(param1, param3, uid, is_top[cmd], True, True)
-                                except ValidationError, e:
+                                url_val_result = validators.url(param4)
+                                if type(url_val_result) is bool and url_val_result:
+                                    results = kwd.insert_keyword(param2, param4, uid, is_top[cmd], True, True)
+                                else:
                                     results = None
-                                    text = 'URL(parameter 4) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).'
+                                    text = 'URL(parameter 4) is illegal. \
+                                            Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
+                                            {error}'.format(error=url_val_result)
                         elif param3 is not None:
                             if param2 == 'PIC':
-                                try:
-                                    if string_is_int(param3):
-                                        param4 = sticker_png_url(param3)
-
-                                    val(param3)
-                                    results = kwd.insert_keyword(param1, param3, uid, is_top[cmd], False, True)
-                                except ValidationError, e:
+                                if string_is_int(param3):
+                                    param3 = sticker_png_url(param3)
+                                    
+                                    url_val_result = validators.url(param3)
+                                    if type(url_val_result) is bool and url_val_result:
+                                        results = kwd.insert_keyword(param1, param3, uid, is_top[cmd], True, True)
+                                    else:
+                                        results = None
+                                        text = 'URL(parameter 3) is illegal. \
+                                                Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
+                                                {error}'.format(error=url_val_result)
+                                elif param1 == 'STK':
+                                    results = kwd.insert_keyword(param2, param3, uid, is_top[cmd], True, False)
+                                else:
+                                    text = 'Unable to determine the function to use. parameter 1 must be \'STK\' or parameter 2 must be \'PIC\'. Check the user manual to get more details.'
                                     results = None
-                                    text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).'
-                            elif param1 == 'STK':
-                                results = kwd.insert_keyword(param2, param3, uid, is_top[cmd], True, False)
+                            elif param2 is not None:
+                                 results = kwd.insert_keyword(param1, param2, uid, is_top[cmd], False, False)
                             else:
-                                text = 'Unable to determine the function to use. parameter 1 must be \'STK\' or parameter 2 must be \'PIC\'. Check the user manual to get more details.'
                                 results = None
-                        elif param2 is not None:
-                            results = kwd.insert_keyword(param1, param2, uid, is_top[cmd], False, False)
-                        else:
-                            results = None
-                            text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
+                                text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
 
                         if results is not None:
                             text = u'Pair Added. {top}\n'.format(len=len(results), 
