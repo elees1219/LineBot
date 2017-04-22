@@ -116,9 +116,10 @@ def callback():
 
     return 'OK'
 
+
 @app.route("/error", methods=['GET'])
 def get_error_message():
-    return Error
+    return rec['Error']
 
 
 @handler.add(MessageEvent, message=TextMessage)
