@@ -20,7 +20,7 @@ import json
 # Database import
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template_string
 
 from linebot import (
     LineBotApi, WebhookHandler, exceptions
@@ -120,7 +120,7 @@ def callback():
 
 @app.route("/error", methods=['POST', 'GET'])
 def get_error_message():
-    return escape(rec['Error']).replace('\n', '<br />').replace(' ', '&nbsp;')
+    return render_template_string(rec['Error'])
 
 
 @handler.add(MessageEvent, message=TextMessage)
