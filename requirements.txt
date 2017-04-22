@@ -2,3 +2,4 @@ Flask
 Flask-SQLAlchemy
 line-bot-sdk
 psycopg2
+validators
