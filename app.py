@@ -212,16 +212,16 @@ def handle_text_message(event):
                                         text = 'URL(parameter 3) is illegal. \
                                                 Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
                                                 {error}'.format(error=url_val_result)
-                                elif param1 == 'STK':
-                                    results = kwd.insert_keyword(param2, param3, uid, is_top[cmd], True, False)
-                                else:
-                                    text = 'Unable to determine the function to use. parameter 1 must be \'STK\' or parameter 2 must be \'PIC\'. Check the user manual to get more details.'
-                                    results = None
-                            elif param2 is not None:
-                                 results = kwd.insert_keyword(param1, param2, uid, is_top[cmd], False, False)
+                            elif param1 == 'STK':
+                                results = kwd.insert_keyword(param2, param3, uid, is_top[cmd], True, False)
                             else:
+                                text = 'Unable to determine the function to use. parameter 1 must be \'STK\' or parameter 2 must be \'PIC\'. Check the user manual to get more details.'
                                 results = None
-                                text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
+                        elif param2 is not None:
+                             results = kwd.insert_keyword(param1, param2, uid, is_top[cmd], False, False)
+                        else:
+                            results = None
+                            text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
 
                         if results is not None:
                             text = u'Pair Added. {top}\n'.format(len=len(results), 
