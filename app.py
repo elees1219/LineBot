@@ -248,7 +248,7 @@ def handle_text_message(event):
                             text = u'Pair Added. {top}\n'.format(len=len(results), 
                                                                  top='(top)' if is_top[cmd] else '')
                             for result in results:
-                                text += kwd.entry_basic_info(result)
+                                text += kw_dict_mgr.entry_basic_info(result)
 
                     api_reply(rep, TextSendMessage(text=text))
                 # DELETE keyword & DELETE top keyword
@@ -277,7 +277,7 @@ def handle_text_message(event):
                     if results is not None:
                         for result in results:
                             text = 'Pair Deleted. {top}\n'.format(top='(top)' if is_top[cmd] else '')
-                            text += kwd.entry_basic_info(result)
+                            text += kw_dict_mgr.entry_basic_info(result)
                             profile = api.get_profile(result[kwdict_col.creator])
                             text += u'\n\nThis pair is created by {name}.'.format(name=profile.display_name)
 
@@ -808,7 +808,7 @@ def introduction_template():
 
 
 def sticker_png_url(sticker_id):
-    return kwd.sticker_png_url(sticker_id)
+    return kw_dict_mgr.sticker_png_url(sticker_id)
 
 
 def get_source_channel_id(source_event):
