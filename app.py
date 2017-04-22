@@ -126,11 +126,11 @@ def handle_text_message(event):
     src = event.source
     splitter = '  '
 
-    if rec['Silence']:
-        return
     if text == administrator:
         rec['Silence'] = not rec['Silence']
         api.reply_message(rep, TextSendMessage(text='Set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
+        return
+    elif rec['Silence']:
         return
 
     try:
