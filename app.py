@@ -609,6 +609,7 @@ def handle_text_message(event):
         rec_error(traceback.format_exc())
         print 'exception'
         print rec['Error']
+        print rec
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -618,7 +619,7 @@ def handle_text_message(event):
         rec_error(traceback.format_exc())
         print 'exception'
         print rec['Error']
-
+        print rec
     return
 
     if text == 'confirm':
@@ -861,8 +862,7 @@ def rec_error(details):
         rec['error'] += '\n\n'
         rec['error'] += details  
 
-    print 'reced'
-    print rec['error']
+    print rec
 
 
 if __name__ == "__main__":
