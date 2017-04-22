@@ -607,7 +607,7 @@ def handle_text_message(event):
     
         api_reply(rep, TextSendMessage(text=text))
 
-        rec_error(traceback.print_exc())
+        rec_error(traceback.format_exc())
         print rec['Error']
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
@@ -615,7 +615,7 @@ def handle_text_message(event):
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
         api_reply(rep, TextSendMessage(text=text))
 
-        rec_error(traceback.print_exc())
+        rec_error(traceback.format_exc())
         print rec['Error']
 
     return
@@ -855,10 +855,10 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 
 
 def rec_error(details):
-    print details
-    rec['error'] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
-    rec['error'] += '\n\n'
-    rec['error'] += details   
+    if details is not None:
+        rec['error'] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
+        rec['error'] += '\n\n'
+        rec['error'] += details   
 
 
 if __name__ == "__main__":
