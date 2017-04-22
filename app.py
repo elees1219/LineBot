@@ -38,7 +38,7 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.now()
-rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
+rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, "Error": ''}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -115,6 +115,10 @@ def callback():
         abort(400)
 
     return 'OK'
+
+@apply.route("/error", methods=['GET'])
+def get_error_message():
+    return Error
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -599,14 +603,18 @@ def handle_text_message(event):
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
     
         api_reply(rep, TextSendMessage(text=text))
-        print ex
-        print traceback.print_exc()
+
+        rec['Error'] = traceback.print_exc()
+        print exc
+        print rec['Error']
     except Exception as exc:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
         api_reply(rep, TextSendMessage(text=text))
+
+        rec['Error'] = traceback.print_exc()
         print exc
-        print traceback.print_exc()
+        print rec['Error']
 
     return
 
