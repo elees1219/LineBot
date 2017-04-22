@@ -190,6 +190,7 @@ def handle_text_message(event):
                         if results is not None:
                             text = u'Pair Added. Total: {len}\n'.format(len=len(results))
                             for result in results:
+                                print result
                                 text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
                                 text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
                                 if result[kwdict_col.is_sticker_reply]:
