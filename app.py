@@ -600,13 +600,13 @@ def handle_text_message(event):
     
         api_reply(rep, TextSendMessage(text=text))
         print ex
+        print traceback.print_exc()
     except Exception as exc:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text = u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
         api_reply(rep, TextSendMessage(text=text))
-        print sys.excepthook()
-    finally:
-        pass
+        print exc
+        print traceback.print_exc()
 
     return
 
