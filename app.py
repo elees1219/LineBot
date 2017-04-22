@@ -613,6 +613,7 @@ def handle_text_message(event):
 
         timestamp = rec_error(traceback.format_exc())
         err_detail = u'Detail URL: {url}'.format(url=url_for('get_error_message', timestamp=timestamp))
+        print request
         print rec['Error'][timestamp]
         api_reply(rep, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
     except Exception as exc:
