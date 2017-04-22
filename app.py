@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import errno
-import os
-import sys
-import tempfile
+import errno, os, sys, tempfile
 import traceback
 import validators
+import time
 from cgi import escape
 from datetime import datetime, timedelta
 
@@ -20,7 +18,7 @@ import json
 # Database import
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
-from flask import Flask, request, abort, render_template_string
+from flask import Flask, request, abort, url_for
 
 from linebot import (
     LineBotApi, WebhookHandler, exceptions
@@ -39,7 +37,7 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
-rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, 'Error': ''}
+rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, 'Error': dict()}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -85,6 +83,7 @@ if oxford_key is None:
 language = 'en'
 oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/'
 
+
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
@@ -118,9 +117,16 @@ def callback():
     return 'OK'
 
 
-@app.route("/error", methods=['POST', 'GET'])
-def get_error_message():
-    return '<p>' + escape(rec['Error']).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
+@app.route("/error/<string:timestamp>", methods=['POST', 'GET'])
+def get_error_message(timestamp):
+    error_message = rec['Error'][timestamp]
+
+    if error_message is None:
+        content = 'No error recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+    else:
+        content = error_message
+        
+    return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -604,19 +610,20 @@ def handle_text_message(event):
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
         for err in ex.error.details:
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
-    
-        api_reply(rep, TextSendMessage(text=text))
 
-        rec_error(traceback.format_exc())
-        print rec['Error']
+        timestamp = str(rec_error(traceback.format_exc()))
+        err_detail = u'Detail URL: {url}'.format(url=url_for(get_error_message(timestamp)))
+        print rec['Error'][timestamp]
+        api_reply(rep, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
-        api_reply(rep, TextSendMessage(text=text))
 
-        rec_error(traceback.format_exc())
-        print rec['Error']
+        timestamp = str(rec_error(traceback.format_exc()))
+        err_detail = u'Detail URL: {url}'.format(url=url_for(get_error_message(timestamp)))
+        print rec['Error'][timestamp]
+        api_reply(rep, [TextSendMessage(text=text), TextSendMessage(text=err_detail)])
     return
 
     if text == 'confirm':
@@ -864,9 +871,11 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 
 def rec_error(details):
     if details is not None:
-        rec['Error'] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
-        rec['Error'] += '\n\n'
-        rec['Error'] += details  
+        timestamp = int(time.time())
+        rec['Error'][str(timestamp)] = 'Error Recorded at {time}'.format(time=datetime.now() + timedelta(hours=8))
+        rec['Error'][str(timestamp)] += '\n\n'
+        rec['Error'][str(timestamp)] += details  
+        return timestamp
 
 
 if __name__ == "__main__":
