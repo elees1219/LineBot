@@ -212,7 +212,7 @@ class kw_dict_mgr(object):
         else:
             text += u'Keyword: (Sticker ID: {kw})\n'.format(kw=entry_row[kwdict_col.keyword].decode('utf8'))
         text += u'Reply Content: {rep}\n'.format(rep=entry_row[kwdict_col.reply].decode('utf8'))
-        text += u'Reply using picture / sticker: {rep}'.format(rep=entry_row[kwdict_col.is_pic_reply].decode('utf8'))
+        text += u'Reply using picture / sticker: {r_pic}'.format(r_pic=entry_row[kwdict_col.is_pic_reply])
         return text
 
 
