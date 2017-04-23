@@ -27,10 +27,10 @@ class kw_dict_mgr(object):
             result = self.cur.fetchall()
         except psycopg2.Error as ex:
             self._close_connection()
-            return [[args for args in ex.args], []]
+            return [[args for args in ex.args]]
         except Exception as ex:
             self._close_connection()
-            return [[args for args in ex.args], []]
+            return [[args for args in ex.args]]
         
         self._close_connection()
         return result
@@ -73,7 +73,7 @@ class kw_dict_mgr(object):
         keyword = keyword.replace('%', '')
         keyword = keyword.replace("'", r"\'")
         cmd = u'SELECT * FROM keyword_dict \
-        WHERE keyword = \'{kw}\' AND deleted = FALSE AND is_sticker_kw = {stk_kw}\
+        WHERE keyword = \'[{kw}]\' AND deleted = FALSE AND is_sticker_kw = {stk_kw}\
         ORDER BY admin DESC, id DESC;'.format(
             kw=keyword, 
             is_sticker=is_sticker,
