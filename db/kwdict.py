@@ -20,10 +20,10 @@ class kw_dict_mgr(object):
     def sql_cmd(self, cmd):
         return sql_cmd(cmd, None)
 
-    def sql_cmd(self, cmd, **kwargs):
+    def sql_cmd(self, cmd, dict):
         self._set_connection()
         try:
-            self.cur.execute(cmd, kwargs)
+            self.cur.execute(cmd, dict)
             result = self.cur.fetchall()
         except psycopg2.Error as ex:
             self._close_connection()
@@ -69,16 +69,14 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd)
         return result
 
-    def get_reply(self, keyword, is_sticker):
+    def get_reply(self, keyword, is_sticker_kw):
         keyword = keyword.replace('%', '')
         keyword = keyword.replace("'", r"'")
         cmd = u'SELECT * FROM keyword_dict \
-        WHERE keyword = \'{kw}\' AND deleted = FALSE AND is_sticker_kw = {stk_kw}\
-        ORDER BY admin DESC, id DESC;'.format(
-            kw=keyword, 
-            is_sticker=is_sticker,
-            stk_kw=is_sticker)
-        result = self.sql_cmd(cmd)
+        WHERE keyword = \'%(kw)s\' AND deleted = FALSE AND is_sticker_kw = %(stk_kw)s\
+        ORDER BY admin DESC, id DESC;'
+        db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
+        result = self.sql_cmd(cmd, db_dict)
         print result
         if len(result) > 0:
             cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE id = \'{id}\' AND override = FALSE'.format(id=result[0][kwdict_col.id])
