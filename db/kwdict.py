@@ -78,6 +78,7 @@ class kw_dict_mgr(object):
             is_sticker=is_sticker,
             stk_kw=is_sticker)
         result = self.sql_cmd(cmd)
+        print result
         if len(result) > 0:
             cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE id = \'{id}\' AND override = FALSE'.format(id=result[0][kwdict_col.id])
             self.sql_cmd(cmd_update)

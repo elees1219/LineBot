@@ -159,6 +159,11 @@ def handle_text_message(event):
             if head == 'JC':
                 rec['JC_called'] += 1
 
+                if cmd not in split_count:
+                        text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
+                        api_reply(rep, TextSendMessage(text=text))
+                        return
+
                 prm_count = split_count[oth.split(splitter)[0]]
                 params = split(text, splitter, prm_count)
 
@@ -168,11 +173,6 @@ def handle_text_message(event):
                         return
 
                 head, cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
-
-                if cmd not in split_count:
-                        text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
-                        api_reply(rep, TextSendMessage(text=text))
-                        return
 
                 cmd_called_time[cmd] += 1
                 
