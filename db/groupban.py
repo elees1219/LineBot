@@ -114,13 +114,13 @@ class group_ban(object):
         else:
             return False
 
-    def set_mod1(self, groupId, moderator_pos, newModUID, key, newkey):
+    def set_mod1(self, groupId, newModUID, key, newkey):
         return self._set_moderator(self, groupId, 1, newModUID, key, newkey)
 
-    def set_mod2(self, groupId, moderator_pos, newModUID, key, newkey):
+    def set_mod2(self, groupId, newModUID, key, newkey):
         return self._set_moderator(self, groupId, 2, newModUID, key, newkey)
 
-    def set_mod3(self, groupId, moderator_pos, newModUID, key, newkey):
+    def set_mod3(self, groupId, newModUID, key, newkey):
         return self._set_moderator(self, groupId, 3, newModUID, key, newkey)
 
     def _set_moderator(self, groupId, moderator_pos, newModUID, key, newkey):
