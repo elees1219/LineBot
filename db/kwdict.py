@@ -226,7 +226,9 @@ class kw_dict_mgr(object):
     
     @staticmethod
     def list_keyword(data, limit=3):
-        text = ''
+        """return two object to access by [\'limited\'] and [\'full\']."""
+        ret = {'limited': '', 'full': ''}
+        limited = False
 
         for index, row in enumerate(data, start=1):
             text += 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
@@ -235,11 +237,17 @@ class kw_dict_mgr(object):
                 ovr='(OVR)' if row[kwdict_col.override] else '',
                 top='(TOP)' if row[kwdict_col.admin] else '',
                 delete='(DEL)' if row[kwdict_col.deleted] else '')
+            ret['full'] += text
+
+            if not limited:
+                ret['limited'] += text
+
             if index >= limit:
-                text += '...({num} more)'.format(num=len(data) - limit)
+                ret['limited'] += '...({num} more)'.format(num=len(data) - limit)
+                limited = True
                 break
 
-        return text
+        return ret
 
 
 

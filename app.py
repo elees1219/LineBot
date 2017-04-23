@@ -37,7 +37,8 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
-rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, 'Error': dict()}
+rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
+content = {'Error': dict(), 'FullQuery': dict()}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -119,7 +120,7 @@ def callback():
 
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
-    error_message = rec['Error'][timestamp]
+    error_message = content['Error'][timestamp]
 
     if error_message is None:
         content = 'No error recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -127,6 +128,21 @@ def get_error_message(timestamp):
         content = error_message
         
     return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
+
+@app.route("/query/<timestamp>", methods=['GET'])
+def full_query(timestamp):
+    query = content['FullQuery'][timestamp]
+
+    if error_message is None:
+        content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+    else:
+        content = query
+        
+    return html_paragraph(content)
+
+def html_paragraph(content):
+    return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
+
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -205,6 +221,9 @@ def handle_text_message(event):
                             if param1 != 'STK':
                                 results = None
                                 text = 'To use sticker-received-picture-or-sticker-reply function, the 1st parameter must be \'STK\'.'
+                            elif not string_is_int(param2):
+                                results = None
+                                text = 'The 2nd parameter must be integer to represent sticker ID.'
                             elif param3 != 'PIC':
                                 results = None
                                 text = 'To use sticker-received-picture-or-sticker-reply function, the 3rd parameter must be \'PIC\'.'
@@ -234,7 +253,11 @@ def handle_text_message(event):
                                                 Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
                                                 {error}'.format(error=url_val_result)
                             elif param1 == 'STK':
-                                results = kwd.insert_keyword(param2, param3, uid, is_top[cmd], True, False)
+                                if string_is_int(param2):
+                                    results = kwd.insert_keyword(param2, param3, uid, is_top[cmd], True, False)
+                                else:
+                                    results = None
+                                    text = 'The 2nd parameter must be integer to represent sticker ID.'
                             else:
                                 text = 'Unable to determine the function to use. parameter 1 must be \'STK\' or parameter 2 must be \'PIC\'. Check the user manual to get more details.'
                                 results = None
@@ -304,7 +327,11 @@ def handle_text_message(event):
                         results = kwd.search_keyword(param1)
 
                     if results is not None:
-                        text = kwd.list_keyword(results, 50)
+                        timestamp = int(time.time())
+                        q_list = kwd.list_keyword(results, 25)
+                        content['FullQuery'][timestamp] = q_list['full']
+                        text = q_list['limited']
+                        text += u'\n\nFull Query URL: {url}'.format(url=request.url_root + url_for('full_query', timestamp=timestamp)[1:])
                     else:
                         if param2 is not None:
                             text = 'Specified ID range to QUERY ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
@@ -855,16 +882,16 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 def rec_error(details):
     if details is not None:
         timestamp = str(int(time.time()))
-        rec['Error'][timestamp] = 'Error Occurred at {time}'.format(time=datetime.now() + timedelta(hours=8))
-        rec['Error'][timestamp] += '\n\n'
-        rec['Error'][timestamp] += details  
+        content['Error'][timestamp] = 'Error Occurred at {time}'.format(time=datetime.now() + timedelta(hours=8))
+        content['Error'][timestamp] += '\n\n'
+        content['Error'][timestamp] += details  
         return timestamp
 
 
 def send_error_url_line(token, error_text):
     timestamp = rec_error(traceback.format_exc())
     err_detail = u'Detail URL: {url}'.format(url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:])
-    print rec['Error'][timestamp]
+    print content['Error'][timestamp]
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
 
 
