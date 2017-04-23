@@ -367,6 +367,7 @@ def handle_text_message(event):
                         else:
                             text = 'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=param1)
 
+                    print text
                     api_reply(rep, TextSendMessage(text=text))
                 # - RANKING
                 elif cmd == 'K':
