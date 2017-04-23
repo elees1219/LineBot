@@ -297,7 +297,6 @@ def handle_text_message(event):
                                 text = '2nd parameter must bigger than 1st parameter.'
                             else:
                                 results = kwd.search_keyword_index(num1, num2)
-                                print results
                         except ValueError:
                             results = None
                             text = 'Illegal parameter. 1rd parameter and 2nd parameter must be integer.'
