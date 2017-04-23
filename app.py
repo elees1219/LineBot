@@ -284,7 +284,6 @@ def handle_text_message(event):
                     api_reply(rep, TextSendMessage(text=text))
                 # QUERY keyword
                 elif cmd == 'Q':
-                    text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
                     if len(param1.split(splitter)) > 1:
                         extra_prm_count = 2
                         paramQ = split(param1, splitter, extra_prm_count)
@@ -306,6 +305,11 @@ def handle_text_message(event):
 
                     if results is not None:
                         text = kwd.list_keyword(results, 50)
+                    else:
+                        if param2 is not None:
+                            text = 'Specified ID range to QUERY ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
+                        else:
+                            text = 'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=param1)
 
                     api_reply(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
