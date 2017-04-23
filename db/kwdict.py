@@ -104,7 +104,7 @@ class kw_dict_mgr(object):
             return None
 
     def get_info_id(self, id):
-        cmd = u'SELECT * FROM keyword_dict WHERE id = %(id)i ORDER BY id DESC;'
+        cmd = u'SELECT * FROM keyword_dict WHERE id = %(id) ORDER BY id DESC;'
         cmd_dict = {'id': id}
         result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
