@@ -889,6 +889,8 @@ def rec_error(details):
 def rec_query(full_query):
     timestamp = int(time.time())
     content['FullQuery'][timestamp] = full_query
+    print content
+    print global content
     return request.url_root + url_for('full_query', timestamp=timestamp)[1:]
 
 
