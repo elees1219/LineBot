@@ -296,13 +296,14 @@ def handle_text_message(event):
                             if num1 - num2 < 0:
                                 results = None
                                 text = '2nd parameter must bigger than 1st parameter.'
+                            else:
+                                results = kwd.search_keyword_index(num1, num2)
                         except ValueError:
                             results = None
                             text = 'Illegal parameter. 1rd parameter and 2nd parameter can be numbers only.'
                     else:
                         results = kwd.search_keyword(param1)
 
-                    print results
                     if results is not None:
                         text = kwd.list_keyword(results, 50)
 
