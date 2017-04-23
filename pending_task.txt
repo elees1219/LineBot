@@ -1,15 +1,14 @@
-OVERRIDE¡÷RANDOM REPLY
 CAROUSEL TO DISPLAY DATA (P LAST)
 I P K Display Sticker Pair Data
+get the ranking of keyword using count in function I (https://www.postgresql.org/docs/9.1/static/tutorial-window.html) - SELECT * FROM (SELECT id, rank() OVER (ORDER BY used_time DESC) FROM keyword_dict AS foo) AS bar WHERE ID = 307
 
 User manual update / User manual remake ->
 I/O --> A, M, D, R
 O --> P
 EX --> Sticker Msg Recv/Repl 
 
+OVERRIDE¡÷RANDOM REPLY
 Optimize¡÷Integrate split system
-
-get the ranking of keyword using count in function I (https://www.postgresql.org/docs/9.1/static/tutorial-window.html)
 
 ===============
 delete moderator

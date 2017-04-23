@@ -259,7 +259,7 @@ def handle_text_message(event):
                     if is_top[cmd] and permission_level(paramA.pop(0)) < 2:
                         text = 'Insufficient Permission.'
                     else:
-                        param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(max_param_count)]
+                        param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(extra_prm_count)]
 
                         if param2 is None:
                             results = kwd.delete_keyword(param1, is_top[cmd])
