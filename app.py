@@ -38,8 +38,7 @@ from linebot.models import (
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
 rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
-content = {'Error': dict(), 'FullQuery': dict()}
-print content
+report_content = {'Error': dict(), 'FullQuery': dict()}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -121,7 +120,7 @@ def callback():
 
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
-    error_message = content['Error'][timestamp]
+    error_message = report_content['Error'][timestamp]
 
     if error_message is None:
         content = 'No error recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -132,7 +131,7 @@ def get_error_message(timestamp):
 
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
-    query = content['FullQuery'][timestamp]
+    query = report_content['FullQuery'][timestamp]
     
     if error_message is None:
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -881,24 +880,22 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 def rec_error(details):
     if details is not None:
         timestamp = str(int(time.time()))
-        content['Error'][timestamp] = 'Error Occurred at {time}'.format(time=datetime.now() + timedelta(hours=8))
-        content['Error'][timestamp] += '\n\n'
-        content['Error'][timestamp] += details  
+        report_content['Error'][timestamp] = 'Error Occurred at {time}'.format(time=datetime.now() + timedelta(hours=8))
+        report_content['Error'][timestamp] += '\n\n'
+        report_content['Error'][timestamp] += details  
         return timestamp
 
 
 def rec_query(full_query):
-    global content 
     timestamp = int(time.time())
-    content['FullQuery'][timestamp] = full_query
+    report_content['FullQuery'][timestamp] = full_query
     return request.url_root + url_for('full_query', timestamp=timestamp)[1:]
 
 
 def send_error_url_line(token, error_text):
-    global content 
     timestamp = rec_error(traceback.format_exc())
     err_detail = u'Detail URL: {url}'.format(url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:])
-    print content['Error'][timestamp]
+    print report_content['Error'][timestamp]
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
 
 
