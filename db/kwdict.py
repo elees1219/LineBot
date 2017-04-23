@@ -244,9 +244,9 @@ class kw_dict_mgr(object):
             if not limited:
                 ret['limited'] += text
 
-            if index >= limit:
-                ret['limited'] += '...({num} more)'.format(num=count - limit)
-                limited = True
+                if index >= limit:
+                    ret['limited'] += '...({num} more)'.format(num=count - limit)
+                    limited = True
 
         return ret
 
