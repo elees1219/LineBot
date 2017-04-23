@@ -284,28 +284,29 @@ def handle_text_message(event):
                     api_reply(rep, TextSendMessage(text=text))
                 # QUERY keyword
                 elif cmd == 'Q':
-                        text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
-                        if len(param1.split(splitter)) > 1:
-                            extra_prm_count = 2
-                            paramQ = split(param1, splitter, extra_prm_count)
-                            param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(extra_prm_count)]
-                            try:
-                                num1 = int(param2)
-                                num2 = int(param1)
+                    text = u'Specified keyword({kw}) to query returned no result.'.format(kw=param1)
+                    if len(param1.split(splitter)) > 1:
+                        extra_prm_count = 2
+                        paramQ = split(param1, splitter, extra_prm_count)
+                        param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(extra_prm_count)]
+                        try:
+                            num1 = int(param2)
+                            num2 = int(param1)
 
-                                if num1 - num2 < 0:
-                                    results = None
-                                    text = '2nd parameter must bigger than 1st parameter.'
-                            except ValueError:
+                            if num1 - num2 < 0:
                                 results = None
-                                text = 'Illegal parameter. 1rd parameter and 2nd parameter can be numbers only.'
-                        else:
-                            results = kwd.search_keyword(param1)
+                                text = '2nd parameter must bigger than 1st parameter.'
+                        except ValueError:
+                            results = None
+                            text = 'Illegal parameter. 1rd parameter and 2nd parameter can be numbers only.'
+                    else:
+                        results = kwd.search_keyword(param1)
 
-                        if results is not None:
-                            text = kwd.list_keyword(results, 50)
+                    print results
+                    if results is not None:
+                        text = kwd.list_keyword(results, 50)
 
-                        api_reply(rep, TextSendMessage(text=text))
+                    api_reply(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
                 elif cmd == 'C':
                         text = 'Access denied. Insufficient permission.'
