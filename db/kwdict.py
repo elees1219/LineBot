@@ -23,7 +23,13 @@ class kw_dict_mgr(object):
     def sql_cmd(self, cmd, dict):
         self._set_connection()
         self.cur.execute(cmd, dict)
-        result = self.cur.fetchall()
+        try:
+            result = self.cur.fetchall()
+        except psycopg2.ProgrammingError as ex:
+            if ex.message == 'no results to fetch':
+                result = None
+            else:
+                raise ex
         
         self._close_connection()
         return result
@@ -104,7 +110,7 @@ class kw_dict_mgr(object):
             return None
 
     def get_info_id(self, id):
-        cmd = u'SELECT * FROM keyword_dict WHERE id = %(id) ORDER BY id DESC;'
+        cmd = u'SELECT * FROM keyword_dict WHERE id = %(id)s ORDER BY id DESC;'
         cmd_dict = {'id': id}
         result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
