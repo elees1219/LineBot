@@ -179,7 +179,7 @@ def handle_text_message(event):
                 # SQL Command
                 if cmd == 'S':
                         if isinstance(src, SourceUser) and permission_level(param2) >= 3:
-                            results = kwd.sql_cmd(param1)
+                            results = kwd.sql_cmd_only(param1)
                             if results is not None:
                                 text = u'SQL command result({len}): \n'.format(len=len(results))
                                 for result in results:

@@ -17,7 +17,7 @@ class kw_dict_mgr(object):
 
 
 
-    def sql_cmd(self, cmd):
+    def sql_cmd_only(self, cmd):
         return sql_cmd(cmd, None)
 
     def sql_cmd(self, cmd, dict):
@@ -50,7 +50,7 @@ class kw_dict_mgr(object):
                     {} VARCHAR(33) NOT NULL), \
                     {} BOOLEAN DEFAULT FALSE, \
                     {} BOOLEAN DEFAULT FALSE;'.format(*_col_list)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         return True if len(result) <= 1 else False
 
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
@@ -65,8 +65,8 @@ class kw_dict_mgr(object):
                                     pic_rep=is_pic_reply,
                                     stk_kw=is_sticker_kw)
         cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
-        self.sql_cmd(cmd_override)
-        result = self.sql_cmd(cmd)
+        self.sql_cmd_only(cmd_override)
+        result = self.sql_cmd_only(cmd)
         return result
 
     def get_reply(self, keyword, is_sticker_kw):
@@ -80,14 +80,14 @@ class kw_dict_mgr(object):
         print result
         if len(result) > 0:
             cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE id = \'{id}\' AND override = FALSE'.format(id=result[0][kwdict_col.id])
-            self.sql_cmd(cmd_update)
+            self.sql_cmd_only(cmd_update)
             return result
         else:
             return None
 
     def search_keyword(self, keyword):
         cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%%{kw}%%\' OR reply LIKE \'%%{kw}%%\' ORDER BY id DESC;'.format(kw=keyword)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -95,7 +95,7 @@ class kw_dict_mgr(object):
 
     def search_keyword_index(self, startIndex, endIndex):
         cmd = u'SELECT * FROM keyword_dict WHERE id >= {si} AND id <= {ei} ORDER BY id DESC;'.format(si=startIndex, ei=endIndex)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -103,7 +103,7 @@ class kw_dict_mgr(object):
 
     def get_info(self, keyword):
         cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' OR reply = \'{kw}\' ORDER BY id DESC;'.format(kw=keyword)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -111,7 +111,7 @@ class kw_dict_mgr(object):
 
     def get_info_id(self, id):
         cmd = u'SELECT * FROM keyword_dict WHERE id = \'{id}\' ORDER BY id DESC;'.format(id=id)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -119,7 +119,7 @@ class kw_dict_mgr(object):
 
     def order_by_usedtime(self, count):
         cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT {ct};'.format(ct=count)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -127,7 +127,7 @@ class kw_dict_mgr(object):
 
     def most_used(self):
         cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MAX(used_time) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -135,7 +135,7 @@ class kw_dict_mgr(object):
 
     def least_used(self):
         cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MIN(used_time) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -147,7 +147,7 @@ class kw_dict_mgr(object):
                 WHERE keyword = \'{kw}\' AND admin = {top} deleted = FALSE \
                 RETURNING *;'.format(kw=keyword, 
                                      top=is_top)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -159,7 +159,7 @@ class kw_dict_mgr(object):
                 WHERE id = \'{id}\' AND admin = {top} AND deleted = FALSE \
                 RETURNING *;'.format(id=id,
                                      top=is_top)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -167,7 +167,7 @@ class kw_dict_mgr(object):
 
     def user_sort_by_created_pair(self):
         cmd = u'SELECT creator, COUNT(creator) FROM keyword_dict GROUP BY creator ORDER BY COUNT(creator) DESC;'
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
@@ -178,22 +178,22 @@ class kw_dict_mgr(object):
 
     def row_count(self):
         cmd = u'SELECT COUNT(id) FROM keyword_dict;'
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
     def picture_reply_count(self):
         cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_pic_reply = TRUE;'
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
     def picture_reply_count(self):
         cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_sticker_kw = TRUE;'
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
     def used_time_sum(self):
         cmd = u'SELECT SUM(used_time) FROM keyword_dict;'
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
 
