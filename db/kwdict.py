@@ -228,9 +228,9 @@ class kw_dict_mgr(object):
     def entry_detailed_info(line_api, entry_row):
         basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
         basic += u'Attribute: \n'
-        basic += u'{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '',
-                                                   ovr='[ OVERRIDE ]' if entry_row[kwdict_col.override] else '',
-                                                   delete='[ DELETED ]' if entry_row[kwdict_col.deleted] else '')
+        basic += u'{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '[ - ]',
+                                                   ovr='[ OVERRIDE ]' if entry_row[kwdict_col.override] else '[ - ]',
+                                                   delete='[ DELETED ]' if entry_row[kwdict_col.deleted] else '[ - ]')
         basic += u'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_time])
 
         profile = line_api.get_profile(entry_row[kwdict_col.creator])
@@ -272,12 +272,13 @@ class kw_dict_mgr(object):
         ret = {'limited': '', 'full': ''}
         limited = False
         count = len(data)
-        separator = '===================='
-        ret['full'] = 'Count of results: {num}\n\n'.format(num=count)
+        separator = '====================\n'
+        ret['full'] = 'Count of results: {num}'.format(num=count)
+        ret['full'] += separator
 
         for index, row in enumerate(data, start=1):
-            text = separator
             text += kw_dict_mgr.entry_detailed_info(line_api, row)
+            text += '\n'
             ret['full'] += text
 
             if not limited:
