@@ -233,7 +233,7 @@ class kw_dict_mgr(object):
         ret['full'] = 'Count of results: {num}'.format(num=count)
 
         for index, row in enumerate(data, start=1):
-            text += 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
+            text = 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
                 id=row[kwdict_col.id],
                 kw='(Sticker {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
                 ovr='(OVR)' if row[kwdict_col.override] else '',
