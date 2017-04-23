@@ -328,9 +328,8 @@ def handle_text_message(event):
 
                     if results is not None:
                         q_list = kwd.list_keyword(results, 25)
-                        rec_query(q_list['full'])
                         text = q_list['limited']
-                        text += '\n\nFull Query URL: {url}'.format(url=request.url_root + url_for('full_query', timestamp=timestamp)[1:])
+                        text += '\n\nFull Query URL: {url}'.format(url=rec_query(q_list['full']))
                     else:
                         if param2 is not None:
                             text = 'Specified ID range to QUERY ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
@@ -890,6 +889,8 @@ def rec_error(details):
 def rec_query(full_query):
     timestamp = int(time.time())
     content['FullQuery'][timestamp] = full_query
+    return request.url_root + url_for('full_query', timestamp=timestamp)[1:]
+
 
 def send_error_url_line(token, error_text):
     timestamp = rec_error(traceback.format_exc())
