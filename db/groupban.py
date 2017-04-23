@@ -115,16 +115,16 @@ class group_ban(object):
             return False
 
     def set_mod1(self, groupId, newModUID, key, newkey):
-        return self._set_moderator(self, groupId, 1, newModUID, key, newkey)
+        return self._set_moderator(groupId, 1, newModUID, key, newkey)
 
     def set_mod2(self, groupId, newModUID, key, newkey):
-        return self._set_moderator(self, groupId, 2, newModUID, key, newkey)
+        return self._set_moderator(groupId, 2, newModUID, key, newkey)
 
     def set_mod3(self, groupId, newModUID, key, newkey):
         return self._set_moderator(groupId, 3, newModUID, key, newkey)
 
     def _set_moderator(self, groupId, moderator_pos, newModUID, key, newkey):
-        if len(groupId) != self.id_length or len(newModUID) != self.id_length or moderator_count > 3 or moderator_count < 0:
+        if len(groupId) != self.id_length or len(newModUID) != self.id_length or moderator_pos > 3 or moderator_pos < 0:
             return False
 
         mod_col_dict = {1: 'moderator1', 2: 'moderator2', 3: 'moderator3'}
