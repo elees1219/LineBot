@@ -133,7 +133,7 @@ def get_error_message(timestamp):
 def full_query(timestamp):
     query = report_content['FullQuery'][timestamp]
     
-    if error_message is None:
+    if query is None:
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
     else:
         content = query
@@ -889,7 +889,6 @@ def rec_error(details):
 def rec_query(full_query):
     timestamp = str(int(time.time()))
     report_content['FullQuery'][timestamp] = full_query
-    print report_content
     return request.url_root + url_for('full_query', timestamp=timestamp)[1:]
 
 
