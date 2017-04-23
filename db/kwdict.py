@@ -233,10 +233,10 @@ class kw_dict_mgr(object):
                                                    delete='[ DELETED ]' if entry_row[kwdict_col.deleted] else '')
         basic += 'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_time])
 
-        profile = line_api.get_profile(result[kwdict_col.creator])
+        profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
         basic += 'Creator Name: {name}\n'.format(name=profile.display_name)
-        basic += 'Creator user id: {uid}'.format(uid=result[kwdict_col.creator])
+        basic += 'Creator user id: {uid}'.format(uid=entry_row[kwdict_col.creator])
 
         return basic
     
