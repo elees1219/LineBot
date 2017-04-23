@@ -20,10 +20,10 @@ class kw_dict_mgr(object):
     def sql_cmd(self, cmd):
         return sql_cmd(cmd, None)
 
-    def sql_cmd(self, cmd, *args):
+    def sql_cmd(self, cmd, **kwargs):
         self._set_connection()
         try:
-            self.cur.execute(cmd, args)
+            self.cur.execute(cmd, kwargs)
             result = self.cur.fetchall()
         except psycopg2.Error as ex:
             self._close_connection()
@@ -74,8 +74,7 @@ class kw_dict_mgr(object):
         keyword = keyword.replace("'", r"'")
         cmd = u'SELECT * FROM keyword_dict \
         WHERE keyword = \'{kw}\' AND deleted = FALSE AND is_sticker_kw = {stk_kw}\
-        ORDER BY admin DESC, id DESC;'.format(
-            is_sticker=is_sticker,
+        ORDER BY admin DESC, id DESC;'.format(is_sticker=is_sticker,
             stk_kw=is_sticker)
         result = self.sql_cmd(cmd, kw=keyword)
         print result
