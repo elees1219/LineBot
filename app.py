@@ -117,7 +117,7 @@ def callback():
     return 'OK'
 
 
-@app.route("/error/<timestamp>", methods=['POST', 'GET'])
+@app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
     error_message = rec['Error'][timestamp]
 

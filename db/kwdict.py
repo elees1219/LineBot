@@ -56,9 +56,9 @@ class kw_dict_mgr(object):
         keyword = keyword.replace('  ', ' ')
         reply = reply.replace('  ', ' ')
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_kw, is_pic_reply) \
-                VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(pic_rep)s, %(stk_kw)s) \
+                VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                 RETURNING *;'
-        cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'pic_rep': is_pic_reply, 'stk_kw': is_sticker_kw}
+        cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
         cmd_override = u'UPDATE keyword_dict SET override = TRUE \
                          WHERE keyword = %(kw)s'
         cmd_override_dict = {'kw': keyword}
@@ -92,7 +92,7 @@ class kw_dict_mgr(object):
             return None
 
     def search_keyword_index(self, startIndex, endIndex):
-        cmd = u'SELECT * FROM keyword_dict WHERE id >= %(si)i AND id <= %(ei)i ORDER BY id DESC;'
+        cmd = u'SELECT * FROM keyword_dict WHERE id >= %(si)s AND id <= %(ei)s ORDER BY id DESC;'
         cmd_dict = {'si': startIndex, 'ei': endIndex}
         result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
@@ -119,7 +119,7 @@ class kw_dict_mgr(object):
             return None
 
     def order_by_usedtime(self, count):
-        cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT %(ct)i;'
+        cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT %(ct)s;'
         cmd_dict = {'ct': idcount}
         result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
@@ -158,7 +158,7 @@ class kw_dict_mgr(object):
     def delete_keyword_id(self, id, is_top):
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE \
-                WHERE id = %(id)i AND admin = %(top)s AND deleted = FALSE \
+                WHERE id = %(id)s AND admin = %(top)s AND deleted = FALSE \
                 RETURNING *;'
                 
         cmd_dict = {'id': id, 'top': is_top}
