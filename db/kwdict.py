@@ -226,7 +226,7 @@ class kw_dict_mgr(object):
 
     @staticmethod
     def entry_detailed_info(line_api, entry_row):
-        basic = entry_basic_info(entry_row) + '\n\n'
+        basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
         basic += 'Attribute: \n'
         basic += '{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '',
                                                    ovr='[ OVERRIDE ]' if entry_row[kwdict_col.override] else '',
