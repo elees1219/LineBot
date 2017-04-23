@@ -229,9 +229,11 @@ class kw_dict_mgr(object):
         """return two object to access by [\'limited\'] and [\'full\']."""
         ret = {'limited': '', 'full': ''}
         limited = False
+        count = len(data)
+        ret['full'] = 'Count of results: {num}'.format(num=count)
 
         for index, row in enumerate(data, start=1):
-            text = 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
+            text += 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
                 id=row[kwdict_col.id],
                 kw='(Sticker {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
                 ovr='(OVR)' if row[kwdict_col.override] else '',
@@ -243,9 +245,8 @@ class kw_dict_mgr(object):
                 ret['limited'] += text
 
             if index >= limit:
-                ret['limited'] += '...({num} more)'.format(num=len(data) - limit)
+                ret['limited'] += '...({num} more)'.format(num=count - limit)
                 limited = True
-                break
 
         return ret
 
