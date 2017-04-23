@@ -279,7 +279,7 @@ def handle_text_message(event):
                             text = 'Pair Deleted. {top}\n'.format(top='(top)' if is_top[cmd] else '')
                             text += kw_dict_mgr.entry_basic_info(result)
                             profile = api.get_profile(result[kwdict_col.creator])
-                            text += u'\n\nThis pair is created by {name}.'.format(name=profile.display_name)
+                            text += u'\nThis pair is created by {name}.'.format(name=profile.display_name)
 
                     api_reply(rep, TextSendMessage(text=text))
                 # QUERY keyword
