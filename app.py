@@ -327,11 +327,10 @@ def handle_text_message(event):
                         results = kwd.search_keyword(param1)
 
                     if results is not None:
-                        timestamp = int(time.time())
                         q_list = kwd.list_keyword(results, 25)
-                        content['FullQuery'][timestamp] = q_list['full']
+                        rec_query(q_list['full'])
                         text = q_list['limited']
-                        text += u'\n\nFull Query URL: {url}'.format(url=request.url_root + url_for('full_query', timestamp=timestamp)[1:])
+                        text += '\n\nFull Query URL: {url}'.format(url=request.url_root + url_for('full_query', timestamp=timestamp)[1:])
                     else:
                         if param2 is not None:
                             text = 'Specified ID range to QUERY ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
@@ -347,7 +346,7 @@ def handle_text_message(event):
                             text = 'Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'
 
                         api_reply(rep, TextSendMessage(text=text))
-                # INFO of keyword
+                # - INFO of keyword
                 elif cmd == 'I':
                         text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
                         if len(param1.split(splitter)) > 1:
@@ -386,7 +385,7 @@ def handle_text_message(event):
                                     text += u'Created by {name}.\n'.format(name=profile.display_name)
 
                         api_reply(rep, TextSendMessage(text=text))
-                # RANKING
+                # - RANKING
                 elif cmd == 'K':
                         try:
                             results = kwd.order_by_usedtime(int(param1))
@@ -404,7 +403,7 @@ def handle_text_message(event):
                             text += u'Error message: {msg}'.format(msg=err.message)
                         
                         api_reply(rep, TextSendMessage(text=text))
-                # SPECIAL record
+                # - SPECIAL record
                 elif cmd == 'P':
                         kwpct = kwd.row_count()
 
@@ -887,6 +886,10 @@ def rec_error(details):
         content['Error'][timestamp] += details  
         return timestamp
 
+
+def rec_query(full_query):
+    timestamp = int(time.time())
+    content['FullQuery'][timestamp] = full_query
 
 def send_error_url_line(token, error_text):
     timestamp = rec_error(traceback.format_exc())
