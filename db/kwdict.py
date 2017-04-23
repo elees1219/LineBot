@@ -120,7 +120,7 @@ class kw_dict_mgr(object):
 
     def order_by_usedtime(self, count):
         cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT %(ct)s;'
-        cmd_dict = {'ct': idcount}
+        cmd_dict = {'ct': count}
         result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
@@ -221,11 +221,27 @@ class kw_dict_mgr(object):
         else:
             text += u'Keyword: (Sticker ID: {kw})\n'.format(kw=kw)
         text += u'Reply {rep_type}: {rep}'.format(rep=entry_row[kwdict_col.reply].decode('utf8'),
-                                                    rep_type='Picture URL' if entry_row[kwdict_col.is_pic_reply] else 'Text')
+                                                  rep_type='Picture URL' if entry_row[kwdict_col.is_pic_reply] else 'Text')
         return text
+
+    @staticmethod
+    def entry_detailed_info(line_api, entry_row):
+        basic = entry_basic_info(entry_row) + '\n\n'
+        basic += 'Attribute: \n'
+        basic += '{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '',
+                                                   ovr='[ OVERRIDE ]' if entry_row[kwdict_col.override] else '',
+                                                   delete='[ DELETED ]' if entry_row[kwdict_col.deleted] else '')
+        basic += 'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_time])
+
+        profile = line_api.get_profile(result[kwdict_col.creator])
+
+        basic += 'Creator Name: {name}\n'.format(name=profile.display_name)
+        basic += 'Creator user id: {uid}'.format(uid=result[kwdict_col.creator])
+
+        return basic
     
     @staticmethod
-    def list_keyword(data, limit=3):
+    def list_keyword(data, limit=25):
         """return two object to access by [\'limited\'] and [\'full\']."""
         ret = {'limited': '', 'full': ''}
         limited = False
@@ -246,6 +262,30 @@ class kw_dict_mgr(object):
 
                 if index >= limit:
                     ret['limited'] += '...({num} more)'.format(num=count - limit)
+                    limited = True
+
+        return ret
+
+    @staticmethod
+    def list_keyword_info(line_api, data, limit=3):
+        """return two object to access by [\'limited\'] and [\'full\']."""
+        ret = {'limited': '', 'full': ''}
+        limited = False
+        count = len(data)
+        separator = '===================='
+        ret['full'] = 'Count of results: {num}\n\n'.format(num=count)
+
+        for index, row in enumerate(data, start=1):
+            text = separator
+            text += entry_detailed_info(line_api, row)
+            ret['full'] += text
+
+            if not limited:
+                ret['limited'] += text
+
+                if index >= limit:
+                    ret['limited'] += separator
+                    ret['limited'] += '{num} not displayed.'.format(num=count - limit)
                     limited = True
 
         return ret

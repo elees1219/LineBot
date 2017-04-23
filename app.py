@@ -194,17 +194,25 @@ def handle_text_message(event):
                 
                 # SQL Command
                 if cmd == 'S':
-                        if isinstance(src, SourceUser) and permission_level(param2) >= 3:
-                            results = kwd.sql_cmd_only(param1)
-                            if results is not None:
-                                text = u'SQL command result({len}): \n'.format(len=len(results))
-                                for result in results:
-                                    text += u'{result}\n'.format(result=result)
-                                    
-                        else:
-                            text = 'This is a restricted function.'
+                    if isinstance(src, SourceUser) and permission_level(param2) >= 3:
+                        results = kwd.sql_cmd_only(param1)
+                        if results is not None:
+                            text = u'SQL command result({len}): \n'.format(len=len(results))
+                            for result in results:
+                                text += u'{result}\n'.format(result=result)
+                                
+                    else:
+                        text = 'This is a restricted function.'
 
-                        api_reply(rep, TextSendMessage(text=text))
+                    api_reply(rep, TextSendMessage(text=text))
+                # CREATE kw_dict
+                elif cmd == 'C':
+                    text = 'Access denied. Insufficient permission.'
+
+                    if permission_level(param2) >= 3:
+                        text = 'Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'
+
+                    api_reply(rep, TextSendMessage(text=text))
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
                     max_param_count = 4
@@ -327,7 +335,7 @@ def handle_text_message(event):
                         results = kwd.search_keyword(param1)
 
                     if results is not None:
-                        q_list = kwd.list_keyword(results, 25)
+                        q_list = kw_dict_mgr.list_keyword(results)
                         text = q_list['limited']
                         text += '\n\nFull Query URL: {url}'.format(url=rec_query(q_list['full']))
                     else:
@@ -337,53 +345,29 @@ def handle_text_message(event):
                             text = 'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=param1)
 
                     api_reply(rep, TextSendMessage(text=text))
-                # CREATE kw_dict
-                elif cmd == 'C':
-                        text = 'Access denied. Insufficient permission.'
-
-                        if permission_level(param2) >= 3:
-                            text = 'Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'
-
-                        api_reply(rep, TextSendMessage(text=text))
                 # - INFO of keyword
                 elif cmd == 'I':
-                        text = u'Specified keyword({kw}) to get information returned no result.'.format(kw=param1)
-                        if len(param1.split(splitter)) > 1:
-                            extra_prm_count = 2
-                            paramI = split(param1, splitter, extra_prm_count)
-                            param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(extra_prm_count)]
-                            if param1 != 'ID':
-                                text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
-                                results = None
-                            else:
-                                results = kwd.get_info_id(param2)   
+                    if len(param1.split(splitter)) > 1:
+                        extra_prm_count = 2
+                        paramI = split(param1, splitter, extra_prm_count)
+                        param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(extra_prm_count)]
+                        if param1 != 'ID':
+                            text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
+                            results = None
                         else:
-                            results = kwd.get_info(param1)
+                            results = kwd.get_info_id(param2)   
+                    else:
+                        results = kwd.get_info(param1)
 
-                        if results is not None:
-                            if len(results) > 3:
-                                text = 'Because the limit of the single search has reached, data will be display in basic form.\n'
-                                text += 'To get more information, please input the ID of keyword.\n\n'
-                                for result in results:
-                                    text += u'ID: {id} - {kw}→{rep} ({ct})\n'.format(
-                                        id=result[kwdict_col.id],
-                                        kw=result[kwdict_col.keyword].decode('utf8'),
-                                        rep=result[kwdict_col.reply].decode('utf8'),
-                                        ct=result[kwdict_col.used_time])
-                            else:
-                                text = ''
-                                for result in results:
-                                    text += u'ID: {id}\n'.format(id=result[kwdict_col.id])
-                                    text += u'Keyword: {kw}\n'.format(kw=result[kwdict_col.keyword].decode('utf8'))
-                                    text += u'Reply: {rep}\n'.format(rep=result[kwdict_col.reply].decode('utf8'))
-                                    text += u'Deleted: {de}\n'.format(de=result[kwdict_col.deleted])
-                                    text += u'Override: {od}\n'.format(od=result[kwdict_col.override])
-                                    text += u'Admin Pair: {ap}\n'.format(ap=result[kwdict_col.admin])
-                                    text += u'Has been called {ut} time(s).\n'.format(ut=result[kwdict_col.used_time])
-                                    profile = api.get_profile(result[kwdict_col.creator])
-                                    text += u'Created by {name}.\n'.format(name=profile.display_name)
+                    if results is not None:
+                        text = kw_dict_mgr.list_keyword_info(api, results)
+                    else:
+                        if param2 is not None:
+                            text = 'Specified ID range to get INFORMATION ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
+                        else:
+                            text = 'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=param1)
 
-                        api_reply(rep, TextSendMessage(text=text))
+                    api_reply(rep, TextSendMessage(text=text))
                 # - RANKING
                 elif cmd == 'K':
                         try:
