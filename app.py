@@ -289,14 +289,14 @@ def handle_text_message(event):
                         paramQ = split(param1, splitter, extra_prm_count)
                         param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(extra_prm_count)]
                         try:
-                            num1 = int(param2)
-                            num2 = int(param1)
+                            begin_index = int(param1)
+                            end_index = int(param2)
 
-                            if num1 - num2 < 0:
+                            if end_index - begin_index < 0:
                                 results = None
                                 text = '2nd parameter must bigger than 1st parameter.'
                             else:
-                                results = kwd.search_keyword_index(num1, num2)
+                                results = kwd.search_keyword_index(begin_index, end_index)
                         except ValueError:
                             results = None
                             text = 'Illegal parameter. 1rd parameter and 2nd parameter must be integer.'
