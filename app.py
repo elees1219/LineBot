@@ -160,7 +160,7 @@ def handle_text_message(event):
                 rec['JC_called'] += 1
 
                 if cmd not in split_count:
-                        text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=ex.message)
+                        text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=cmd)
                         api_reply(rep, TextSendMessage(text=text))
                         return
 
