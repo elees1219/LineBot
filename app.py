@@ -147,7 +147,7 @@ def handle_text_message(event):
 
     try:
         if len(text.split(splitter)) > 1 and text.startswith('JC'):
-            head, oth = split(text, splitter, 2)
+            head, cmd, oth = split(text, splitter, 3)
 
             split_count = {'S': 4, 'A': 3, 'M': 3, 'D': 3, 'R': 3, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3, 
@@ -164,7 +164,7 @@ def handle_text_message(event):
                         api_reply(rep, TextSendMessage(text=text))
                         return
 
-                prm_count = split_count[oth.split(splitter)[0]]
+                prm_count = split_count[cmd]
                 params = split(text, splitter, prm_count)
 
                 if prm_count != len(params) - params.count(None):
