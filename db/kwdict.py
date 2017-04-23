@@ -225,8 +225,22 @@ class kw_dict_mgr(object):
         return text
     
     @staticmethod
-    def list_keyword(limit=3):
-        pass
+    def list_keyword(data, limit=3):
+        text = ''
+
+        for index, row in enumerate(data, start=1):
+            text += 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
+                id=row[kwdict_col.id],
+                kw='(Sticker {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
+                ovr='(OVR)' if row[kwdict_col.override] else '',
+                top='(TOP)' if row[kwdict_col.admin] else '',
+                delete='(DEL)' if row[kwdict_col.deleted] else '')
+            if index >= limit:
+                text += '...({num) more)'.format(num=len(data) - limit)
+                break
+
+        return text
+
 
 
     def _close_connection(self):

@@ -296,27 +296,14 @@ def handle_text_message(event):
                                 if num1 - num2 < 0:
                                     results = None
                                     text = '2nd parameter must bigger than 1st parameter.'
-                                elif num1 - num2 < 15:
-                                    results = kwd.search_keyword_index(param1, param2)
-                                else:
-                                    results = None
-                                    text = 'Maximum selecting range by ID is 15.'
                             except ValueError:
                                 results = None
-                                text = 'Illegal parameter. 2nd parameter and 3rd parameter can be numbers only.'
+                                text = 'Illegal parameter. 1rd parameter and 2nd parameter can be numbers only.'
                         else:
                             results = kwd.search_keyword(param1)
 
                         if results is not None:
-                            text = u'Keyword found. Total: {len}. Listed below.\n'.format(len=len(results))
-                            
-                            for result in results:
-                                text += u'ID: {id} - {kw} {od}{delete}{adm}\n'.format(
-                                    kw=result[kwdict_col.keyword].decode('utf8'),
-                                    od='(OVR)' if bool(result[kwdict_col.override]) == True else '',
-                                    delete='(DEL)' if bool(result[kwdict_col.deleted]) == True else '',
-                                    adm='(TOP)' if bool(result[kwdict_col.admin]) == True else '',
-                                    id=result[kwdict_col.id])
+                            text = kwd.list_keyword(results, 50)
 
                         api_reply(rep, TextSendMessage(text=text))
                 # CREATE kw_dict
