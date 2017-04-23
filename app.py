@@ -133,7 +133,7 @@ def get_error_message(timestamp):
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
     query = content['FullQuery'][timestamp]
-
+    
     if error_message is None:
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
     else:
@@ -888,12 +888,14 @@ def rec_error(details):
 
 
 def rec_query(full_query):
+    global content 
     timestamp = int(time.time())
     content['FullQuery'][timestamp] = full_query
     return request.url_root + url_for('full_query', timestamp=timestamp)[1:]
 
 
 def send_error_url_line(token, error_text):
+    global content 
     timestamp = rec_error(traceback.format_exc())
     err_detail = u'Detail URL: {url}'.format(url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:])
     print content['Error'][timestamp]
