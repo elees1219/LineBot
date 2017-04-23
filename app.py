@@ -38,7 +38,7 @@ from linebot.models import (
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
 rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
-report_content = {'Error': dict(), 'FullQuery': dict()}
+report_content = {'Error': dict(), 'FullQuery': dict(), 'FullInfo': dict()}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -137,6 +137,17 @@ def full_query(timestamp):
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
     else:
         content = query
+        
+    return html_paragraph(content)
+
+@app.route("/info/<timestamp>", methods=['GET'])
+def full_info(timestamp):
+    info = report_content['FullInfo'][timestamp]
+    
+    if info is None:
+        content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+    else:
+        content = info
         
     return html_paragraph(content)
 
@@ -345,7 +356,7 @@ def handle_text_message(event):
                             text = 'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=param1)
 
                     api_reply(rep, TextSendMessage(text=text))
-                # - INFO of keyword
+                # INFO of keyword
                 elif cmd == 'I':
                     if len(param1.split(splitter)) > 1:
                         extra_prm_count = 2
@@ -360,14 +371,15 @@ def handle_text_message(event):
                         results = kwd.get_info(param1)
 
                     if results is not None:
-                        text = kw_dict_mgr.list_keyword_info(api, results)
+                        i_object = kw_dict_mgr.list_keyword_info(api, results)
+                        text = i_object['limited']
+                        text += '\n\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
                     else:
                         if param2 is not None:
                             text = 'Specified ID range to get INFORMATION ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
                         else:
                             text = 'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=param1)
 
-                    print text
                     api_reply(rep, TextSendMessage(text=text))
                 # - RANKING
                 elif cmd == 'K':
@@ -875,6 +887,13 @@ def rec_query(full_query):
     timestamp = str(int(time.time()))
     report_content['FullQuery'][timestamp] = full_query
     return request.url_root + url_for('full_query', timestamp=timestamp)[1:]
+
+
+def rec_info(full_info):
+    timestamp = str(int(time.time()))
+    report_content['FullInfo'][timestamp] = full_info
+    return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
+
 
 
 def send_error_url_line(token, error_text):
