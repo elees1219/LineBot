@@ -71,8 +71,7 @@ class kw_dict_mgr(object):
 
     def get_reply(self, keyword, is_sticker):
         keyword = keyword.replace('%', '')
-        print keyword
-        keyword = keyword.replace('\'', '\\\'')
+        keyword = keyword.replace("'", r"\'")
         cmd = u'SELECT * FROM keyword_dict \
         WHERE keyword = \'{kw}\' AND deleted = FALSE AND is_sticker_kw = {stk_kw}\
         ORDER BY admin DESC, id DESC;'.format(
