@@ -84,40 +84,45 @@ class kw_dict_mgr(object):
             return None
 
     def search_keyword(self, keyword):
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE \'%%{kw}%%\' OR reply LIKE \'%%{kw}%%\' ORDER BY id DESC;'.format(kw=keyword)
-        result = self.sql_cmd_only(cmd)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE %(kw)s OR reply LIKE %(kw)s ORDER BY id DESC;'
+        cmd_dict = {'kw': '%' + keyword + '%'}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
             return None
 
     def search_keyword_index(self, startIndex, endIndex):
-        cmd = u'SELECT * FROM keyword_dict WHERE id >= {si} AND id <= {ei} ORDER BY id DESC;'.format(si=startIndex, ei=endIndex)
-        result = self.sql_cmd_only(cmd)
+        cmd = u'SELECT * FROM keyword_dict WHERE id >= %(si)i AND id <= %(ei)i ORDER BY id DESC;'
+        cmd_dict = {'si': startIndex, 'ei': endIndex}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
             return None
 
     def get_info(self, keyword):
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword = \'{kw}\' OR reply = \'{kw}\' ORDER BY id DESC;'.format(kw=keyword)
-        result = self.sql_cmd_only(cmd)
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = %(kw)s OR reply = %(kw)s ORDER BY id DESC;'
+        cmd_dict = {'kw': keyword}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
             return None
 
     def get_info_id(self, id):
-        cmd = u'SELECT * FROM keyword_dict WHERE id = \'{id}\' ORDER BY id DESC;'.format(id=id)
-        result = self.sql_cmd_only(cmd)
+        cmd = u'SELECT * FROM keyword_dict WHERE id = %(id)i ORDER BY id DESC;'
+        cmd_dict = {'id': id}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
             return None
 
     def order_by_usedtime(self, count):
-        cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT {ct};'.format(ct=count)
-        result = self.sql_cmd_only(cmd)
+        cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT %(ct)i;'
+        cmd_dict = {'ct': idcount}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
@@ -142,10 +147,10 @@ class kw_dict_mgr(object):
     def delete_keyword(self, keyword, is_top):
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE \
-                WHERE keyword = \'{kw}\' AND admin = {top} deleted = FALSE \
-                RETURNING *;'.format(kw=keyword, 
-                                     top=is_top)
-        result = self.sql_cmd_only(cmd)
+                WHERE keyword = %(kw)s AND admin = %(top) deleted = FALSE \
+                RETURNING *;'
+        cmd_dict = {'kw': keyword, 'top': is_top}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
@@ -154,10 +159,11 @@ class kw_dict_mgr(object):
     def delete_keyword_id(self, id, is_top):
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE \
-                WHERE id = \'{id}\' AND admin = {top} AND deleted = FALSE \
-                RETURNING *;'.format(id=id,
-                                     top=is_top)
-        result = self.sql_cmd_only(cmd)
+                WHERE id = %(id)i AND admin = %(top)s AND deleted = FALSE \
+                RETURNING *;'
+                
+        cmd_dict = {'id': id, 'top': is_top}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
