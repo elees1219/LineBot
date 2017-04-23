@@ -524,7 +524,7 @@ def handle_text_message(event):
                                             text = u'Group data registered.\n'
                                             text += u'Group ID: {gid}'.format(gid=param2)
                                             text += u'Admin ID: {uid}'.format(uid=param3)
-                                            text += u'Admin Name: {name}'.format(gid=api.get_profile(param3).display_name.decode('utf-8'))
+                                            text += u'Admin Name: {name}'.format(gid=api.get_profile(param3).display_name)
                                         else:
                                             text = 'Group data register failed.'
                         else:
