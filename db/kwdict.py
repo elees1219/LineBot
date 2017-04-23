@@ -18,7 +18,7 @@ class kw_dict_mgr(object):
 
 
     def sql_cmd_only(self, cmd):
-        return sql_cmd(cmd, None)
+        return self.sql_cmd(cmd, None)
 
     def sql_cmd(self, cmd, dict):
         self._set_connection()
