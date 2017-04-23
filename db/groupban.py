@@ -121,7 +121,7 @@ class group_ban(object):
         return self._set_moderator(self, groupId, 2, newModUID, key, newkey)
 
     def set_mod3(self, groupId, newModUID, key, newkey):
-        return self._set_moderator(self, groupId, 3, newModUID, key, newkey)
+        return self._set_moderator(groupId, 3, newModUID, key, newkey)
 
     def _set_moderator(self, groupId, moderator_pos, newModUID, key, newkey):
         if len(groupId) != self.id_length or len(newModUID) != self.id_length or moderator_count > 3 or moderator_count < 0:
