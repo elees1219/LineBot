@@ -227,16 +227,16 @@ class kw_dict_mgr(object):
     @staticmethod
     def entry_detailed_info(line_api, entry_row):
         basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
-        basic += 'Attribute: \n'
-        basic += '{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '',
+        basic += u'Attribute: \n'
+        basic += u'{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '',
                                                    ovr='[ OVERRIDE ]' if entry_row[kwdict_col.override] else '',
                                                    delete='[ DELETED ]' if entry_row[kwdict_col.deleted] else '')
-        basic += 'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_time])
+        basic += u'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_time])
 
         profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
-        basic += 'Creator Name: {name}\n'.format(name=profile.display_name)
-        basic += 'Creator user id: {uid}'.format(uid=entry_row[kwdict_col.creator])
+        basic += u'Creator Name: {name}\n'.format(name=profile.display_name)
+        basic += u'Creator user id: {uid}'.format(uid=entry_row[kwdict_col.creator])
 
         return basic
     
