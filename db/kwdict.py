@@ -230,7 +230,7 @@ class kw_dict_mgr(object):
         ret = {'limited': '', 'full': ''}
         limited = False
         count = len(data)
-        ret['full'] = 'Count of results: {num}'.format(num=count)
+        ret['full'] = 'Count of results: {num}\n\n'.format(num=count)
 
         for index, row in enumerate(data, start=1):
             text = 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
