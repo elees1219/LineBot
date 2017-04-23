@@ -277,7 +277,7 @@ class kw_dict_mgr(object):
 
         for index, row in enumerate(data, start=1):
             text = separator
-            text += entry_detailed_info(line_api, row)
+            text += kw_dict_mgr.entry_detailed_info(line_api, row)
             ret['full'] += text
 
             if not limited:
