@@ -22,15 +22,8 @@ class kw_dict_mgr(object):
 
     def sql_cmd(self, cmd, dict):
         self._set_connection()
-        try:
-            self.cur.execute(cmd, dict)
-            result = self.cur.fetchall()
-        except psycopg2.Error as ex:
-            self._close_connection()
-            return [[args for args in ex.args]]
-        except Exception as ex:
-            self._close_connection()
-            return [[args for args in ex.args]]
+        self.cur.execute(cmd, dict)
+        result = self.cur.fetchall()
         
         self._close_connection()
         return result
