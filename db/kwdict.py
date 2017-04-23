@@ -274,10 +274,10 @@ class kw_dict_mgr(object):
         count = len(data)
         separator = '====================\n'
         ret['full'] = 'Count of results: {num}'.format(num=count)
-        ret['full'] += separator
 
         for index, row in enumerate(data, start=1):
-            text = kw_dict_mgr.entry_detailed_info(line_api, row)
+            text = separator
+            text += kw_dict_mgr.entry_detailed_info(line_api, row)
             text += '\n'
             ret['full'] += text
 
