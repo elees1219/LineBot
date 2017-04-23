@@ -504,7 +504,7 @@ def handle_text_message(event):
                                         text += u'Group ID: {gid}\n\n'.format(gid=gid)
                                         text += u'New {pos} User ID: {uid}\n'.format(uid=uid, pos=position)
                                         text += u'New {pos} User Name: {unm}\n\n'.format(
-                                            unm=api.get_profile(uid).display_name.decode('utf-8'),
+                                            unm=api.get_profile(uid).display_name,
                                             pos=position)
                                         text += u'New {pos} Key: {npkey}\n'.format(npkey=npkey, pos=position)
                                         text += u'Please protect your key well!'
