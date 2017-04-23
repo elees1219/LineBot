@@ -57,30 +57,28 @@ class kw_dict_mgr(object):
         keyword = keyword.replace('  ', ' ')
         reply = reply.replace('  ', ' ')
         cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_kw, is_pic_reply) \
-               VALUES(\'{kw}\', \'{rep}\', \'{cid}\', 0, {sys}, {stk_kw}, {pic_rep}) \
-               RETURNING *;'.format(kw=keyword, 
-                                    rep=reply, 
-                                    cid=creator_id, 
-                                    sys=is_top,
-                                    pic_rep=is_pic_reply,
-                                    stk_kw=is_sticker_kw)
-        cmd_override = u'UPDATE keyword_dict SET override = TRUE WHERE keyword = \'{kw}\''.format(kw=keyword)
-        self.sql_cmd_only(cmd_override)
-        result = self.sql_cmd_only(cmd)
+                VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(pic_rep)s, %(stk_kw)s) \
+                RETURNING *;'
+        cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'pic_rep': is_pic_reply, 'stk_kw': is_sticker_kw}
+        cmd_override = u'UPDATE keyword_dict SET override = TRUE \
+                         WHERE keyword = %(kw)s'
+        cmd_override_dict = {'kw': keyword}
+        self.sql_cmd(cmd_override, cmd_override_dict)
+        result = self.sql_cmd(cmd, cmd_dict)
         return result
 
     def get_reply(self, keyword, is_sticker_kw):
         keyword = keyword.replace('%', '')
         keyword = keyword.replace("'", r"'")
         cmd = u'SELECT * FROM keyword_dict \
-        WHERE keyword = %(kw)s AND deleted = FALSE AND is_sticker_kw = %(stk_kw)s\
-        ORDER BY admin DESC, id DESC;'
+                WHERE keyword = %(kw)s AND deleted = FALSE AND is_sticker_kw = %(stk_kw)s\
+                ORDER BY admin DESC, id DESC;'
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
-        print result
         if len(result) > 0:
-            cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE id = \'{id}\' AND override = FALSE'.format(id=result[0][kwdict_col.id])
-            self.sql_cmd_only(cmd_update)
+            cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE id = %(id)s AND override = FALSE'
+            cmd_update_dict = {'id': result[0][kwdict_col.id]}
+            self.sql_cmd(cmd_update, cmd_update_dict)
             return result
         else:
             return None
