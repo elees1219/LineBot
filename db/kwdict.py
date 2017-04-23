@@ -73,7 +73,7 @@ class kw_dict_mgr(object):
         keyword = keyword.replace('%', '')
         keyword = keyword.replace("'", r"'")
         cmd = u'SELECT * FROM keyword_dict \
-        WHERE keyword = \'%(kw)s\' AND deleted = FALSE AND is_sticker_kw = %(stk_kw)s\
+        WHERE keyword = %(kw)s AND deleted = FALSE AND is_sticker_kw = %(stk_kw)s\
         ORDER BY admin DESC, id DESC;'
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
