@@ -75,10 +75,9 @@ class kw_dict_mgr(object):
         cmd = u'SELECT * FROM keyword_dict \
         WHERE keyword = \'{kw}\' AND deleted = FALSE AND is_sticker_kw = {stk_kw}\
         ORDER BY admin DESC, id DESC;'.format(
-            kw=keyword, 
             is_sticker=is_sticker,
             stk_kw=is_sticker)
-        result = self.sql_cmd(cmd)
+        result = self.sql_cmd(cmd, kw=keyword)
         print result
         if len(result) > 0:
             cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE id = \'{id}\' AND override = FALSE'.format(id=result[0][kwdict_col.id])
