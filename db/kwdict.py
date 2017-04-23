@@ -236,7 +236,7 @@ class kw_dict_mgr(object):
                 top='(TOP)' if row[kwdict_col.admin] else '',
                 delete='(DEL)' if row[kwdict_col.deleted] else '')
             if index >= limit:
-                text += '...({num) more)'.format(num=len(data) - limit)
+                text += '...({num} more)'.format(num=len(data) - limit)
                 break
 
         return text
