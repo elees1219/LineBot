@@ -871,7 +871,7 @@ def api_reply(reply_token, msgs):
             api.reply_message(reply_token, 
                               TextSendMessage(
                                   text='The content to reply is too long to be reply with LINE API.\n\n \
-                                        To view full reply text, please click the URL below:\n{url}').format(url=rec_text(msgs)))
+                                        To view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
             return
 
     api.reply_message(reply_token, msgs)
