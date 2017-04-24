@@ -870,8 +870,8 @@ def api_reply(reply_token, msgs):
         if len(msg.text) > 2000:
             api.reply_message(reply_token, 
                               TextSendMessage(
-                                  text='The content to reply is too long to be reply with LINE API.\n\n \
-                                        To view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
+                                  text='The content to reply is too long to be reply with LINE API. \
+                                        \n\nTo view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
             return
 
     api.reply_message(reply_token, msgs)
@@ -888,7 +888,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 
             if result[kwdict_col.is_pic_reply]:
                 api_reply(token, TemplateSendMessage(
-                    alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
+                    alt_text=u'Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
                     template=ButtonsTemplate(text=u'ID: {id}\nCreated by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name,
                                                                                             id=result[kwdict_col.id]), 
                                              thumbnail_image_url=reply,
@@ -896,7 +896,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
                                              ])))
             else:
-                api_reply(token, TextSendMessage(text='{rep}{id}'.format(rep=reply,
+                api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
                                                                          id='' if not is_sticker_kw else 'ID: {id}'.format(id=result[kwdict_col.id]))))
 
 
@@ -928,9 +928,9 @@ def rec_text(textmsg_list):
     timestamp = str(int(time.time()))
     report_content['Text'][timestamp] = ''
     for index, txt in enumerate(textmsg_list, start=1):
-        report_content['Text'][timestamp] += 'Message {index}\n'.format(index=index)
+        report_content['Text'][timestamp] += '==========Message {index}==========\n'.format(index=index)
         report_content['Text'][timestamp] += txt.text
-        report_content['Text'][timestamp] += '==============================='
+        report_content['Text'][timestamp] += '==================================='
     return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
 
 
