@@ -116,10 +116,10 @@ class kw_dict_mgr(object):
         if len(result) > 0:
             return result
         else:
-            return None
+            #return None
 
-    def order_by_usedtime(self, count):
-        cmd = u'SELECT * FROM keyword_dict ORDER BY used_time DESC LIMIT %(ct)s;'
+    def order_by_usedrank(self, count):
+        cmd = u'SELECT *, RANK() OVER (ORDER BY used_time DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT {ct};'
         cmd_dict = {'ct': count}
         result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
@@ -309,6 +309,6 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator', 'is_pic_reply', 'is_sticker_kw']
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator', 'is_pic_reply', 'is_sticker_kw', 'used_rank']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
-kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)

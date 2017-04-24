@@ -384,16 +384,15 @@ def handle_text_message(event):
                 # - RANKING
                 elif cmd == 'K':
                         try:
-                            results = kwd.order_by_usedtime(int(param1))
+                            results = kwd.order_by_usedrank(int(param1))
                             text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
-                            rank = 0
 
                             for result in results:
-                                rank += 1
-                                text += u'No.{rk} - {kw} (ID: {id}, {ct} times.)\n'.format(rk=rank, 
-                                                                          kw=result[kwdict_col.keyword].decode('utf8'), 
-                                                                          id=result[kwdict_col.id],
-                                                                          ct=result[kwdict_col.used_time])
+                                text += u'No.{rk} - {kw} (ID: {id}, {ct} times.)\n'.format(
+                                    rk=result[kwdict_col.used_rank], 
+                                    kw='(Sticker ID {id})'.format(id=result[kwdict_col.keyword]) if result[kwdict_col.is_sticker_kw] else result[kwdict_col.keyword].decode('utf8'), 
+                                    id=result[kwdict_col.id],
+                                    ct=result[kwdict_col.used_time])
                         except ValueError as err:
                             text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
                             text += u'Error message: {msg}'.format(msg=err.message)
@@ -871,7 +870,8 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
                                              ])))
             else:
-                api_reply(token, TextSendMessage(text=reply))
+                api_reply(token, TextSendMessage(text='{rep}{id}'.format(rep=reply,
+                                                                         id='' if not is_sticker_kw else 'ID: {id}'.format(id=result[kwdict_col.id]))))
 
 
 def rec_error(details):
