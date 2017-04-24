@@ -38,7 +38,10 @@ from linebot.models import (
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
 rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
-report_content = {'Error': dict(), 'FullQuery': dict(), 'FullInfo': dict()}
+report_content = {'Error': dict(), 
+                  'FullQuery': dict(), 
+                  'FullInfo': dict(),
+                  'Text': dict()}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -146,6 +149,17 @@ def full_info(timestamp):
     
     if info is None:
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+    else:
+        content = info
+        
+    return html_paragraph(content)
+
+@app.route("/full/<timestamp>", methods=['GET'])
+def full_content(timestamp):
+    info = report_content['Text'][timestamp]
+    
+    if info is None:
+        content = 'No full text recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
     else:
         content = info
         
@@ -397,6 +411,7 @@ def handle_text_message(event):
                             text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
                             text += u'Error message: {msg}'.format(msg=err.message)
                         
+                            print TextSendMessage(text=text)
                         api_reply(rep, TextSendMessage(text=text))
                 # - SPECIAL record
                 elif cmd == 'P':
@@ -849,6 +864,13 @@ def string_is_int(s):
 def api_reply(reply_token, msg):
     rec['Msg_Replied'] += 1
     api.reply_message(reply_token, msg)
+    # if len(msg) > 2000:
+    #     api.reply_message(reply_token, msg)
+    # else:
+    #     api.reply_message(reply_token, 
+    #                       TextSendMessage(
+    #                           text='The content to reply is too long to be reply with LINE API.\n\n \
+    #                                 To view full reply text, please click the URL below:\n{url}').format(url=rec_text(msg)))
 
 
 def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
@@ -893,6 +915,12 @@ def rec_info(full_info):
     timestamp = str(int(time.time()))
     report_content['FullInfo'][timestamp] = full_info
     return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
+
+
+def rec_text(text):
+    timestamp = str(int(time.time()))
+    report_content['Text'][timestamp] = text
+    return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
 
 
 
