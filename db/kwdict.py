@@ -116,7 +116,7 @@ class kw_dict_mgr(object):
         if len(result) > 0:
             return result
         else:
-            #return None
+            return None
 
     def order_by_usedrank(self, count):
         cmd = u'SELECT *, RANK() OVER (ORDER BY used_time DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT {ct};'
