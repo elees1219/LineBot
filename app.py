@@ -921,15 +921,15 @@ def rec_info(full_info):
     return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
 
 
-def rec_text(text):
-    if not isinstance(text, (list, tuple)):
-        text = [text]
+def rec_text(textmsg_list):
+    if not isinstance(textmsg_list, (list, tuple)):
+        textmsg_list = [textmsg_list]
 
     timestamp = str(int(time.time()))
     report_content['Text'][timestamp] = ''
-    for index, txt in enumerate(text, start=1):
+    for index, txt in enumerate(textmsg_list, start=1):
         report_content['Text'][timestamp] += 'Message {index}\n'.format(index=index)
-        report_content['Text'][timestamp] += txt
+        report_content['Text'][timestamp] += txt.text
         report_content['Text'][timestamp] += '==============================='
     return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
 
