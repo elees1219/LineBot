@@ -170,11 +170,12 @@ def full_content(timestamp):
 def full_ranking(type):
     content_text = report_content['Rank'].get(type)
 
-    data_output_dict = {'user': kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank()), 
-                        'used': kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())}
-
     if content_text is None:
-        content = data_output_dict.get(type)
+        if type == 'user':
+            content = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank())
+        elif type == 'used':
+            content = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())
+
         report_content['Rank'][type] = content
     else:
         content = content_text

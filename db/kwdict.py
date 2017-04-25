@@ -329,6 +329,7 @@ class kw_dict_mgr(object):
         text = 'Top {num} creative user: '.format(num=len(data))
 
         for index, row in enumerate(data, start=1):
+            print 'list_user_created_ranking - {}'.format(index)
             text += u'\nNo.{rk} - {name} ({ct})'.format(
                 rk=row[0],
                 name=line_api.get_profile(row[1]).display_name,
