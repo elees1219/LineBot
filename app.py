@@ -415,9 +415,9 @@ def handle_text_message(event):
                             text = 'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=param1)
 
                     api_reply(rep, TextSendMessage(text=text))
-                # - RANKING
+                # RANKING
                 elif cmd == 'K':
-                    data_dict = {'USER': kwd.order_by_usedrank(), 'KW': kwd.user_created_rank}
+                    data_dict = {'USER': kwd.user_created_rank, 'KW': kwd.order_by_usedrank}
 
                     try:
                         if param1 in data_dict:

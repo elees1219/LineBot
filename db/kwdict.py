@@ -307,7 +307,7 @@ class kw_dict_mgr(object):
     def list_keyword_ranking(data, limit=25):
         """return two object to access by [\'limited\'] and [\'full\']."""
         
-        title = 'Top {num} called pair: \n'.format(num=count)
+        title = 'Top {num} called pair: \n'.format(num=limit)
         ret = {'limited': title, 'full': title}
         limited = False
         count = len(data)
@@ -324,7 +324,6 @@ class kw_dict_mgr(object):
                 ret['limited'] += text
 
                 if index >= limit:
-                    ret['limited'] += '{num} not displayed.'.format(num=count - limit)
                     limited = True
 
         return ret
