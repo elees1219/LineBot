@@ -122,6 +122,18 @@ def callback():
     return 'OK'
 
 
+
+@app.route("/error", methods=['GET'])
+def get_error_list():
+    content = 'Boot up at {time}\n\nError list: '.format(time=boot_up)
+    error_timestamps = report_content['Error'].keys()
+
+    for timestamp in error_timestamps:
+        content += html_hyperlink(timestamp, request.url_root + url_for('get_error_message', timestamp=timestamp)[1:])
+        content += '\n'
+        
+    return content
+
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
     error_message = report_content['Error'].get(timestamp)
@@ -184,6 +196,9 @@ def full_ranking(type):
 
 def html_paragraph(content):
     return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
+
+def html_hyperlink(content, link):
+    return '<a href=\"{link}\">'.format(link=link) + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
 
 
 
@@ -661,13 +676,13 @@ def handle_text_message(event):
         for err in ex.error.details:
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
 
-        send_error_url_line(rep, text)
+        send_error_url_line(rep, text, get_source_channel_id(src))
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
 
-        send_error_url_line(rep, text)
+        send_error_url_line(rep, text, get_source_channel_id(src))
     return
 
     if text == 'confirm':
@@ -920,14 +935,15 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
                                              ])))
             else:
-                api_reply(token, TextSendMessage(text='{rep}{id}'.format(rep=reply,
+                api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
                                                                          id='' if not is_sticker_kw else 'ID: {id}'.format(id=result[kwdict_col.id]))))
 
 
-def rec_error(details):
+def rec_error(details, channel_id):
     if details is not None:
         timestamp = str(int(time.time()))
-        report_content['Error'][timestamp] = 'Error Occurred at {time}'.format(time=datetime.now() + timedelta(hours=8))
+        report_content['Error'][timestamp] = 'Error Occurred at {time}\n'.format(time=datetime.now() + timedelta(hours=8))
+        report_content['Error'][timestamp] = 'At channel ID: {cid}'.format(cid=channel_id)
         report_content['Error'][timestamp] += '\n\n'
         report_content['Error'][timestamp] += details  
         return timestamp
@@ -959,8 +975,8 @@ def rec_text(textmsg_list):
 
 
 
-def send_error_url_line(token, error_text):
-    timestamp = rec_error(traceback.format_exc())
+def send_error_url_line(token, error_text, channel_id):
+    timestamp = rec_error(traceback.format_exc(), channel_id)
     err_detail = u'Detail URL: {url}'.format(url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:])
     print report_content['Error'][timestamp]
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
