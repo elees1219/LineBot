@@ -124,7 +124,10 @@ class kw_dict_mgr(object):
     def order_by_usedrank(self, limit=1000):
         cmd = u'SELECT *, RANK() OVER (ORDER BY used_count DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT %(limit)s;'
         cmd_dict = {'limit': limit}
+        
+        print 'order_by_usedrank - 1'
         result = self.sql_cmd(cmd, cmd_dict)
+        print 'order_by_usedrank - 1'
         if len(result) > 0:
             return result
         else:
@@ -134,7 +137,9 @@ class kw_dict_mgr(object):
         """[0]=Rank, [1]=User ID, [2]=Count"""
         cmd = u'SELECT RANK() OVER (ORDER BY created_count DESC), * FROM (SELECT creator, COUNT(creator) AS created_count FROM keyword_dict GROUP BY creator ORDER BY created_count DESC) AS FOO LIMIT %(limit)s'
         cmd_dict = {'limit': limit}
+        print 'user_created_rank - 1'
         result = self.sql_cmd(cmd, cmd_dict)
+        print 'user_created_rank - 2'
         if len(result) > 0:
             return result
         else:
@@ -310,6 +315,7 @@ class kw_dict_mgr(object):
         text = 'Top {num} called pair: '.format(num=len(data))
 
         for index, row in enumerate(data, start=1):
+            print 'list_keyword_ranking - {}'.format(index)
             text += u'\nNo.{rk} - ID: {id} - {kw} ({ct})'.format(
                 rk=row[kwdict_col.used_rank], 
                 kw='(Sticker ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword].decode('utf8'), 
