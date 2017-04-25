@@ -418,10 +418,11 @@ def handle_text_message(event):
                 # RANKING
                 elif cmd == 'K':
                     data_dict = {'USER': kwd.user_created_rank, 'KW': kwd.order_by_usedrank}
+                    data_output_dict = {'USER': kw_dict_mgr.list_user_created_ranking, 'KW': kw_dict_mgr.list_keyword_ranking}
 
                     try:
                         if param1 in data_dict:
-                            k_object = kw_dict_mgr.list_keyword_ranking(data_dict[param1](), int(param2))
+                            k_object = data_output_dict[param1](data_dict[param1](), int(param2))
                             text = k_object['limited']
                             text += '\n\nFull Ranking URL: {url}'.format(url=rec_rank(k_object['full']))
                         else:

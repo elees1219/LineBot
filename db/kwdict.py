@@ -328,6 +328,30 @@ class kw_dict_mgr(object):
 
         return ret
 
+    @staticmethod
+    def list_user_created_ranking(line_api, data, limit=25):
+        """return two object to access by [\'limited\'] and [\'full\']."""
+        
+        title = 'Top {num} creative user: \n'.format(num=limit)
+        ret = {'limited': title, 'full': title}
+        limited = False
+        count = len(data)
+
+        for index, row in enumerate(data, start=1):
+            text = u'No.{rk} - {name} ({ct})\n'.format(
+                rk=row[0],
+                name=line_api.get_profile(row[1]).display_name,
+                ct=row[2])
+            ret['full'] += text
+
+            if not limited:
+                ret['limited'] += text
+
+                if index >= limit:
+                    limited = True
+
+        return ret
+
 
 
     def _close_connection(self):
