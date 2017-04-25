@@ -427,6 +427,7 @@ def handle_text_message(event):
                             data_output_dict[param1] += '\n\nFull Ranking(user created) URL: {url_u}\nFull Ranking(keyword used) URL: {url_k}'.format(
                                 url_u=request.url_root + url_for('full_ranking', type='user')[1:],
                                 url_k=request.url_root + url_for('full_ranking', type='used')[1:])
+                            text = data_output_dict[param1]
                         else:
                             text = 'Parameter 1 must be \'USER\'(to look up the ranking of pair created group by user) or \'KW\' (to look up the ranking of pair\'s used time'
                     except ValueError as err:
