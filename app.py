@@ -124,6 +124,7 @@ def callback():
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
     error_message = report_content['Error'].get(timestamp)
+    timestamp = float(timestamp)
 
     if error_message is None:
         content = 'No error recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -135,6 +136,7 @@ def get_error_message(timestamp):
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
     query = report_content['FullQuery'].get(timestamp)
+    timestamp = float(timestamp)
     
     if query is None:
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -146,6 +148,7 @@ def full_query(timestamp):
 @app.route("/info/<timestamp>", methods=['GET'])
 def full_info(timestamp):
     info = report_content['FullInfo'].get(timestamp)
+    timestamp = float(timestamp)
     
     if info is None:
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -157,7 +160,8 @@ def full_info(timestamp):
 @app.route("/full/<timestamp>", methods=['GET'])
 def full_content(timestamp):
     content_text = report_content['Text'].get(timestamp)
-    
+    timestamp = float(timestamp)
+
     if content_text is None:
         content = 'No full text recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
     else:
