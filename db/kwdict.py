@@ -55,16 +55,19 @@ class kw_dict_mgr(object):
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
         keyword = keyword.replace('  ', ' ')
         reply = reply.replace('  ', ' ')
-        cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_kw, is_pic_reply) \
-                VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
-                RETURNING *;'
-        cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
-        cmd_override = u'UPDATE keyword_dict SET override = TRUE \
-                         WHERE keyword = %(kw)s'
-        cmd_override_dict = {'kw': keyword}
-        self.sql_cmd(cmd_override, cmd_override_dict)
-        result = self.sql_cmd(cmd, cmd_dict)
-        return result
+        if keyword == '' or reply == '':
+            cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_kw, is_pic_reply) \
+                    VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
+                    RETURNING *;'
+            cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
+            cmd_override = u'UPDATE keyword_dict SET override = TRUE \
+                             WHERE keyword = %(kw)s'
+            cmd_override_dict = {'kw': keyword}
+            self.sql_cmd(cmd_override, cmd_override_dict)
+            result = self.sql_cmd(cmd, cmd_dict)
+            return result
+        else:
+            return None
 
     def get_reply(self, keyword, is_sticker_kw):
         keyword = keyword.replace('%', '')

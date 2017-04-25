@@ -123,7 +123,7 @@ def callback():
 
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
-    error_message = report_content['Error'][timestamp]
+    error_message = report_content['Error'].get(timestamp)
 
     if error_message is None:
         content = 'No error recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -134,7 +134,7 @@ def get_error_message(timestamp):
 
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
-    query = report_content['FullQuery'][timestamp]
+    query = report_content['FullQuery'].get(timestamp)
     
     if query is None:
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -145,7 +145,7 @@ def full_query(timestamp):
 
 @app.route("/info/<timestamp>", methods=['GET'])
 def full_info(timestamp):
-    info = report_content['FullInfo'][timestamp]
+    info = report_content['FullInfo'].get(timestamp)
     
     if info is None:
         content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
@@ -156,12 +156,12 @@ def full_info(timestamp):
 
 @app.route("/full/<timestamp>", methods=['GET'])
 def full_content(timestamp):
-    info = report_content['Text'][timestamp]
+    content_text = report_content['Text'].get(timestamp)
     
-    if info is None:
+    if content_text is None:
         content = 'No full text recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
     else:
-        content = info
+        content = content_text
         
     return html_paragraph(content)
 
@@ -225,7 +225,8 @@ def handle_text_message(event):
                             text = u'SQL command result({len}): \n'.format(len=len(results))
                             for result in results:
                                 text += u'{result}\n'.format(result=result)
-                                
+                        else:
+                            text = 'No results to fetch.'
                     else:
                         text = 'This is a restricted function.'
 
@@ -305,6 +306,8 @@ def handle_text_message(event):
                                                                  top='(top)' if is_top[cmd] else '')
                             for result in results:
                                 text += kw_dict_mgr.entry_basic_info(result)
+                        else:
+                            text = 'Pair adding failed. Ensure none of parameter is empty.'
 
                     api_reply(rep, TextSendMessage(text=text))
                 # DELETE keyword & DELETE top keyword
