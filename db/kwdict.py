@@ -307,7 +307,7 @@ class kw_dict_mgr(object):
 
     @staticmethod
     def list_keyword_ranking(data):
-        text = 'Top {num} called pair: '.format(num=limit)
+        text = 'Top {num} called pair: '.format(num=len(data))
 
         for index, row in enumerate(data, start=1):
             text += u'\nNo.{rk} - ID: {id} - {kw} ({ct})'.format(
@@ -320,7 +320,7 @@ class kw_dict_mgr(object):
 
     @staticmethod
     def list_user_created_ranking(line_api, data):
-        text = 'Top {num} creative user: '.format(num=limit)
+        text = 'Top {num} creative user: '.format(num=len(data))
 
         for index, row in enumerate(data, start=1):
             text += u'\nNo.{rk} - {name} ({ct})'.format(
