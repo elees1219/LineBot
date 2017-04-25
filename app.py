@@ -209,7 +209,6 @@ def html_hyperlink(content, link):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     rec['Msg_Received'] += 1
-    print api.get_profile('C11f852e4612807ab02bf9a6e7f102c74')
 
     rep = event.reply_token
     text = event.message.text
