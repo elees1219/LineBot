@@ -914,7 +914,7 @@ def api_reply(reply_token, msgs):
         if isinstance(msg, TextSendMessage) and len(msg.text) > 2000:
             api.reply_message(reply_token, 
                               TextSendMessage(
-                                  text='The content to reply is too long to be reply with LINE API.\n\nTo view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
+                                  text='The content to reply is too long that program is unavailable to reply with LINE API.\n\nTo view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
             return
 
     api.reply_message(reply_token, msgs)
