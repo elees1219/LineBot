@@ -202,7 +202,7 @@ def html_paragraph(content):
     return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
 
 def html_hyperlink(content, link):
-    return '<a href=\"{link}\">'.format(link=link) + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
+    return '<a href=\"{link}\">{content}</a>'.format(link=link, content=content)
 
 
 
