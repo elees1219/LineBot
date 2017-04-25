@@ -149,7 +149,7 @@ class kw_dict_mgr(object):
     def delete_keyword(self, keyword, is_top):
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE \
-                WHERE keyword = %(kw)s AND admin = %(top)s deleted = FALSE \
+                WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE \
                 RETURNING *;'
         cmd_dict = {'kw': keyword, 'top': is_top}
         result = self.sql_cmd(cmd, cmd_dict)
