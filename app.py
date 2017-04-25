@@ -424,7 +424,7 @@ def handle_text_message(event):
                                                                                int(param2))}
 
                     try:
-                        if param1 in data_dict:
+                        if param1 in data_output_dict:
                             k_object = data_output_dict[param1]
                             text = k_object['limited']
                             text += '\n\nFull Ranking URL: {url}'.format(url=rec_rank(k_object['full']))
