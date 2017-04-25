@@ -178,9 +178,11 @@ def full_ranking(type):
                         'used': kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())}
 
     if content_text is None:
+        print 'new'
         content = data_output_dict.get(type)
         report_content['Rank'][type] = content
     else:
+        print 'exist'
         content = content_text
         
     return html_paragraph(content)
