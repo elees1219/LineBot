@@ -41,7 +41,8 @@ rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
 report_content = {'Error': {}, 
                   'FullQuery': {}, 
                   'FullInfo': {},
-                  'Text': {}}
+                  'Text': {},
+                  'Ranking': {}}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -169,6 +170,18 @@ def full_content(timestamp):
         
     return html_paragraph(content)
 
+@app.route("/ranking/<timestamp>", methods=['GET'])
+def full_ranking(timestamp):
+    content_text = report_content['Ranking'].get(timestamp)
+    timestamp = float(timestamp)
+
+    if content_text is None:
+        content = 'No full text recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+    else:
+        content = content_text
+        
+    return html_paragraph(content)
+
 def html_paragraph(content):
     return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
 
@@ -195,7 +208,7 @@ def handle_text_message(event):
             head, cmd, oth = split(text, splitter, 3)
 
             split_count = {'S': 4, 'A': 3, 'M': 3, 'D': 3, 'R': 3, 'Q': 3, 
-                           'C': 2, 'I': 3, 'K': 3, 'P': 2, 'G': 2, 'GA': 3, 
+                           'C': 2, 'I': 3, 'K': 4, 'P': 2, 'G': 2, 'GA': 3, 
                            'H': 2, 'SHA': 3, 'O': 3, 'B': 3}
             is_top = {'S': True, 'A': False, 'M': True, 'D': False, 'R': True, 'Q': False, 
                       'C': True, 'I': False, 'K': False, 'P': False, 'G': False, 'GA': True, 
@@ -404,21 +417,20 @@ def handle_text_message(event):
                     api_reply(rep, TextSendMessage(text=text))
                 # - RANKING
                 elif cmd == 'K':
-                        try:
-                            results = kwd.order_by_usedrank(int(param1))
-                            text = u'KEYWORD CALLING RANKING (Top {rk})\n\n'.format(rk=param1)
+                    data_dict = {'USER': kwd.order_by_usedrank(), 'KW': kwd.user_created_rank}
 
-                            for result in results:
-                                text += u'No.{rk} - {kw} (ID: {id}, {ct} times.)\n'.format(
-                                    rk=result[kwdict_col.used_rank], 
-                                    kw='(Sticker ID {id})'.format(id=result[kwdict_col.keyword]) if result[kwdict_col.is_sticker_kw] else result[kwdict_col.keyword].decode('utf8'), 
-                                    id=result[kwdict_col.id],
-                                    ct=result[kwdict_col.used_time])
-                        except ValueError as err:
-                            text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
-                            text += u'Error message: {msg}'.format(msg=err.message)
-                        
-                        api_reply(rep, TextSendMessage(text=text))
+                    try:
+                        if param1 in data_dict:
+                            k_object = kw_dict_mgr.list_keyword_ranking(data_dict[param1](), int(param2))
+                            text = k_object['limited']
+                            text += '\n\nFull Ranking URL: {url}'.format(url=rec_rank(k_object['full']))
+                        else:
+                            text = 'Parameter 1 must be \'USER\'(to look up the ranking of pair created group by user) or \'KW\' (to look up the ranking of pair\'s used time'
+                    except ValueError as err:
+                        text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
+                        text += u'Error message: {msg}'.format(msg=err.message)
+                    
+                    api_reply(rep, TextSendMessage(text=text))
                 # - SPECIAL record
                 elif cmd == 'P':
                         kwpct = kwd.row_count()
@@ -939,6 +951,12 @@ def rec_text(textmsg_list):
         report_content['Text'][timestamp] += txt.text
         report_content['Text'][timestamp] += '==================================='
     return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
+
+
+def rec_rank(full_ranking):
+    timestamp = str(int(time.time()))
+    report_content['Ranking'][timestamp] = full_ranking
+    return request.url_root + url_for('full_ranking', timestamp=timestamp)[1:]
 
 
 

@@ -121,14 +121,23 @@ class kw_dict_mgr(object):
         else:
             return None
 
-    def order_by_usedrank(self, count):
-        cmd = u'SELECT *, RANK() OVER (ORDER BY used_time DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT %(ct)s;'
-        cmd_dict = {'ct': count}
-        result = self.sql_cmd(cmd, cmd_dict)
+    def order_by_usedrank(self):
+        cmd = u'SELECT *, RANK() OVER (ORDER BY used_time DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC;'
+        result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
         else:
             return None
+
+    def user_created_rank(self):
+        """[0]=Rank, [1]=User ID, [2]=Count"""
+        cmd = u'SELECT RANK() OVER (ORDER BY created_count DESC), * FROM (SELECT creator, COUNT(creator) AS created_count FROM keyword_dict GROUP BY creator ORDER BY created_count DESC) AS FOO'
+        result = self.sql_cmd_only(cmd)
+        if len(result) > 0:
+            return result
+        else:
+            return None
+
 
     def most_used(self):
         cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MAX(used_time) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
@@ -192,7 +201,7 @@ class kw_dict_mgr(object):
         result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
-    def picture_reply_count(self):
+    def sticker_keyword_count(self):
         cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_sticker_kw = TRUE;'
         result = self.sql_cmd_only(cmd)
         return int(result[0][0])
@@ -276,7 +285,7 @@ class kw_dict_mgr(object):
         limited = False
         count = len(data)
         separator = '====================\n'
-        ret['full'] = 'Count of results: {num}'.format(num=count)
+        ret['full'] = 'Count of results: {num}\n'.format(num=count)
 
         for index, row in enumerate(data, start=1):
             text = separator
@@ -289,6 +298,32 @@ class kw_dict_mgr(object):
 
                 if index >= limit:
                     ret['limited'] += separator
+                    ret['limited'] += '{num} not displayed.'.format(num=count - limit)
+                    limited = True
+
+        return ret
+
+    @staticmethod
+    def list_keyword_ranking(data, limit=25):
+        """return two object to access by [\'limited\'] and [\'full\']."""
+        
+        title = 'Top {num} called pair: \n'.format(num=count)
+        ret = {'limited': title, 'full': title}
+        limited = False
+        count = len(data)
+
+        for index, row in enumerate(data, start=1):
+            text = u'No.{rk} - ID: {id} - {kw} ({ct})\n'.format(
+                rk=row[kwdict_col.used_rank], 
+                kw='(Sticker ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword].decode('utf8'), 
+                id=row[kwdict_col.id],
+                ct=row[kwdict_col.used_time])
+            ret['full'] += text
+
+            if not limited:
+                ret['limited'] += text
+
+                if index >= limit:
                     ret['limited'] += '{num} not displayed.'.format(num=count - limit)
                     limited = True
 
