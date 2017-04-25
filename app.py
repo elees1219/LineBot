@@ -421,10 +421,10 @@ def handle_text_message(event):
 
                         if param1 == 'USER':
                             text = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank(int(param2)))
-                        elif param2 == 'KW':
+                        elif param1 == 'KW':
                             text = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(int(param2)))
                         else:
-                            text = 'Parameter 1 must be \'USER\'(to look up the ranking of pair created group by user) or \'KW\' (to look up the ranking of pair\'s used time'
+                            text = 'Parameter 1 must be \'USER\'(to look up the ranking of pair created group by user) or \'KW\' (to look up the ranking of pair\'s used time)'
                             Valid = False
 
                         if Valid:

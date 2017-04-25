@@ -127,7 +127,7 @@ class kw_dict_mgr(object):
         
         print 'order_by_usedrank - 1'
         result = self.sql_cmd(cmd, cmd_dict)
-        print 'order_by_usedrank - 1'
+        print 'order_by_usedrank - 2'
         if len(result) > 0:
             return result
         else:
