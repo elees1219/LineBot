@@ -121,18 +121,20 @@ class kw_dict_mgr(object):
         else:
             return None
 
-    def order_by_usedrank(self):
-        cmd = u'SELECT *, RANK() OVER (ORDER BY used_time DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC;'
-        result = self.sql_cmd_only(cmd)
+    def order_by_usedrank(self, limit=1000):
+        cmd = u'SELECT *, RANK() OVER (ORDER BY used_time DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT %(limit)s;'
+        cmd_dict = {'limit': limit}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
             return None
 
-    def user_created_rank(self):
+    def user_created_rank(self, limit=1000):
         """[0]=Rank, [1]=User ID, [2]=Count"""
-        cmd = u'SELECT RANK() OVER (ORDER BY created_count DESC), * FROM (SELECT creator, COUNT(creator) AS created_count FROM keyword_dict GROUP BY creator ORDER BY created_count DESC) AS FOO'
-        result = self.sql_cmd_only(cmd)
+        cmd = u'SELECT RANK() OVER (ORDER BY created_count DESC), * FROM (SELECT creator, COUNT(creator) AS created_count FROM keyword_dict GROUP BY creator ORDER BY created_count DESC) AS FOO LIMIT %(limit)s'
+        cmd_dict = {'limit': limit}
+        result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
             return result
         else:
@@ -304,53 +306,29 @@ class kw_dict_mgr(object):
         return ret
 
     @staticmethod
-    def list_keyword_ranking(data, limit=25):
-        """return two object to access by [\'limited\'] and [\'full\']."""
-        
-        title = 'Top {num} called pair: \n'.format(num=limit)
-        ret = {'limited': title, 'full': title}
-        limited = False
-        count = len(data)
+    def list_keyword_ranking(data):
+        text = 'Top {num} called pair: '.format(num=limit)
 
         for index, row in enumerate(data, start=1):
-            text = u'No.{rk} - ID: {id} - {kw} ({ct})\n'.format(
+            text += u'\nNo.{rk} - ID: {id} - {kw} ({ct})'.format(
                 rk=row[kwdict_col.used_rank], 
                 kw='(Sticker ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword].decode('utf8'), 
                 id=row[kwdict_col.id],
                 ct=row[kwdict_col.used_time])
-            ret['full'] += text
 
-            if not limited:
-                ret['limited'] += text
-
-                if index >= limit:
-                    limited = True
-
-        return ret
+        return text
 
     @staticmethod
-    def list_user_created_ranking(line_api, data, limit=25):
-        """return two object to access by [\'limited\'] and [\'full\']."""
-        
-        title = 'Top {num} creative user: \n'.format(num=limit)
-        ret = {'limited': title, 'full': title}
-        limited = False
-        count = len(data)
+    def list_user_created_ranking(line_api, data):
+        text = 'Top {num} creative user: '.format(num=limit)
 
         for index, row in enumerate(data, start=1):
-            text = u'No.{rk} - {name} ({ct})\n'.format(
+            text += u'\nNo.{rk} - {name} ({ct})'.format(
                 rk=row[0],
                 name=line_api.get_profile(row[1]).display_name,
                 ct=row[2])
-            ret['full'] += text
 
-            if not limited:
-                ret['limited'] += text
-
-                if index >= limit:
-                    limited = True
-
-        return ret
+        return text
 
 
 

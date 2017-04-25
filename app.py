@@ -42,7 +42,7 @@ report_content = {'Error': {},
                   'FullQuery': {}, 
                   'FullInfo': {},
                   'Text': {},
-                  'Ranking': {}}
+                  'Rank': {}}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -170,13 +170,15 @@ def full_content(timestamp):
         
     return html_paragraph(content)
 
-@app.route("/ranking/<timestamp>", methods=['GET'])
-def full_ranking(timestamp):
-    content_text = report_content['Ranking'].get(timestamp)
-    timestamp = float(timestamp)
+@app.route("/ranking/<type>", methods=['GET'])
+def full_ranking(type):
+    content_text = report_content['Ranking'].get(type)
+
+    data_output_dict = {'user': kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank()), 
+                        'used': kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())}
 
     if content_text is None:
-        content = 'No full text recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+        content = data_output_dict.get(type)
     else:
         content = content_text
         
@@ -417,17 +419,14 @@ def handle_text_message(event):
                     api_reply(rep, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
-                    data_output_dict = {'USER': kw_dict_mgr.list_user_created_ranking(api, 
-                                                                                      kwd.user_created_rank(), 
-                                                                                      int(param2)), 
-                                        'KW': kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(), 
-                                                                               int(param2))}
+                    data_output_dict = {'USER': kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank(int(param2))), 
+                                        'KW': kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(int(param2)))}
 
                     try:
                         if param1 in data_output_dict:
-                            k_object = data_output_dict[param1]
-                            text = k_object['limited']
-                            text += '\n\nFull Ranking URL: {url}'.format(url=rec_rank(k_object['full']))
+                            data_output_dict[param1] += '\n\nFull Ranking(user created) URL: {url_u}\nFull Ranking(keyword used) URL: {url_k}'.format(
+                                url_u=request.url_root + url_for('full_ranking', type='user')[1:],
+                                url_k=request.url_root + url_for('full_ranking', type='used')[1:])
                         else:
                             text = 'Parameter 1 must be \'USER\'(to look up the ranking of pair created group by user) or \'KW\' (to look up the ranking of pair\'s used time'
                     except ValueError as err:
@@ -955,12 +954,6 @@ def rec_text(textmsg_list):
         report_content['Text'][timestamp] += txt.text
         report_content['Text'][timestamp] += '==================================='
     return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
-
-
-def rec_rank(full_ranking):
-    timestamp = str(int(time.time()))
-    report_content['Ranking'][timestamp] = full_ranking
-    return request.url_root + url_for('full_ranking', timestamp=timestamp)[1:]
 
 
 
