@@ -416,17 +416,21 @@ def handle_text_message(event):
                     api_reply(rep, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
-                    data_output_dict = {'USER': kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank(int(param2))), 
-                                        'KW': kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(int(param2)))}
-
                     try:
-                        if param1 in data_output_dict:
-                            data_output_dict[param1] += '\n\nFull Ranking(user created) URL: {url_u}\nFull Ranking(keyword used) URL: {url_k}'.format(
-                                url_u=request.url_root + url_for('full_ranking', type='user')[1:],
-                                url_k=request.url_root + url_for('full_ranking', type='used')[1:])
-                            text = data_output_dict[param1]
+                        Valid = True
+
+                        if param1 == 'USER':
+                            text = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank(int(param2)))
+                        elif param2 == 'KW':
+                            text = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(int(param2)))
                         else:
                             text = 'Parameter 1 must be \'USER\'(to look up the ranking of pair created group by user) or \'KW\' (to look up the ranking of pair\'s used time'
+                            Valid = False
+
+                        if Valid:
+                            text += '\n\nFull Ranking(user created) URL: {url_u}\nFull Ranking(keyword used) URL: {url_k}'.format(
+                                url_u=request.url_root + url_for('full_ranking', type='user')[1:],
+                                url_k=request.url_root + url_for('full_ranking', type='used')[1:])
                     except ValueError as err:
                         text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
                         text += u'Error message: {msg}'.format(msg=err.message)
