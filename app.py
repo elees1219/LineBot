@@ -981,7 +981,9 @@ def rec_text(textmsg_list):
 
 def send_error_url_line(token, error_text, channel_id):
     timestamp = rec_error(traceback.format_exc(), channel_id)
-    err_detail = u'Detail URL: {url}'.format(url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:])
+    err_detail = u'Detail URL: {url}\nError list: {url_full}'.format(
+        url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
+        url_full=request.url_root + url_for('get_error_list')[1:])
     print report_content['Error'][timestamp]
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
 
