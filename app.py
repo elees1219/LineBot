@@ -417,9 +417,11 @@ def handle_text_message(event):
                     api_reply(rep, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
-                    data_dict = {'USER': kwd.user_created_rank, 'KW': kwd.order_by_usedrank}
-                    data_output_dict = {'USER': kw_dict_mgr.list_user_created_ranking(api, data_dict[param1](), int(param2)), 
-                                        'KW': kw_dict_mgr.list_keyword_ranking(data_dict[param1](), int(param2))}
+                    data_output_dict = {'USER': kw_dict_mgr.list_user_created_ranking(api, 
+                                                                                      kwd.user_created_rank(), 
+                                                                                      int(param2)), 
+                                        'KW': kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(), 
+                                                                               int(param2))}
 
                     try:
                         if param1 in data_dict:
