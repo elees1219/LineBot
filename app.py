@@ -444,7 +444,7 @@ def handle_text_message(event):
                         
                         text2 = u'Data Collected all the time\n\n'
                         text2 += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
-                        text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_time_sum())
+                        text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_count_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
                         text2 += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
                             name=api.get_profile(user_list_top[0]).display_name,
@@ -452,10 +452,10 @@ def handle_text_message(event):
                             pct=user_list_top[1] / float(kwpct) * 100)
 
                         first = kwd.most_used()
-                        text2 += u'Most Popular Keyword ({t} Time(s)):\n'.format(t=first[0][kwdict_col.used_time])
+                        text2 += u'Most Popular Keyword ({t} Time(s)):\n'.format(t=first[0][kwdict_col.used_count])
                         for entry in first:
                             text2 += u'{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
-                                                                           c=entry[kwdict_col.used_time],
+                                                                           c=entry[kwdict_col.used_count],
                                                                            id=entry[kwdict_col.id])
 
                         text2 += '\n'
@@ -463,10 +463,10 @@ def handle_text_message(event):
                         last = kwd.least_used()
                         last_count = len(last)
                         limit = 10
-                        text2 += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_time])
+                        text2 += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_count])
                         for entry in last:
                             text2 += u'{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
-                                                                           c=entry[kwdict_col.used_time],
+                                                                           c=entry[kwdict_col.used_count],
                                                                            id=entry[kwdict_col.id])
                             
                             last_count -= 1
@@ -890,8 +890,7 @@ def api_reply(reply_token, msgs):
         if isinstance(msg, TextSendMessage) and len(msg.text) > 2000:
             api.reply_message(reply_token, 
                               TextSendMessage(
-                                  text='The content to reply is too long to be reply with LINE API.\n\n \
-                                        To view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
+                                  text='The content to reply is too long to be reply with LINE API.\n\nTo view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
             return
 
     api.reply_message(reply_token, msgs)

@@ -56,7 +56,7 @@ class kw_dict_mgr(object):
         keyword = keyword.replace('  ', ' ')
         reply = reply.replace('  ', ' ')
         if keyword == '' or reply == '':
-            cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_time, admin, is_sticker_kw, is_pic_reply) \
+            cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply) \
                     VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                     RETURNING *;'
             cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
@@ -78,7 +78,7 @@ class kw_dict_mgr(object):
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
-            cmd_update = u'UPDATE keyword_dict SET used_time = used_time + 1 WHERE id = %(id)s AND override = FALSE'
+            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1 WHERE id = %(id)s AND override = FALSE'
             cmd_update_dict = {'id': result[0][kwdict_col.id]}
             self.sql_cmd(cmd_update, cmd_update_dict)
             return result
@@ -122,7 +122,7 @@ class kw_dict_mgr(object):
             return None
 
     def order_by_usedrank(self, limit=1000):
-        cmd = u'SELECT *, RANK() OVER (ORDER BY used_time DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT %(limit)s;'
+        cmd = u'SELECT *, RANK() OVER (ORDER BY used_count DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT %(limit)s;'
         cmd_dict = {'limit': limit}
         result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
@@ -142,7 +142,7 @@ class kw_dict_mgr(object):
 
 
     def most_used(self):
-        cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MAX(used_time) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
+        cmd = u'SELECT * FROM keyword_dict WHERE used_count = (SELECT MAX(used_count) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
         result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
@@ -150,7 +150,7 @@ class kw_dict_mgr(object):
             return None
 
     def least_used(self):
-        cmd = u'SELECT * FROM keyword_dict WHERE used_time = (SELECT MIN(used_time) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
+        cmd = u'SELECT * FROM keyword_dict WHERE used_count = (SELECT MIN(used_count) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
         result = self.sql_cmd_only(cmd)
         if len(result) > 0:
             return result
@@ -208,8 +208,8 @@ class kw_dict_mgr(object):
         result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
-    def used_time_sum(self):
-        cmd = u'SELECT SUM(used_time) FROM keyword_dict;'
+    def used_count_sum(self):
+        cmd = u'SELECT SUM(used_count) FROM keyword_dict;'
         result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
@@ -245,7 +245,7 @@ class kw_dict_mgr(object):
         basic += u'{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '[ - ]',
                                                    ovr='[ OVERRIDE ]' if entry_row[kwdict_col.override] else '[ - ]',
                                                    delete='[ DELETED ]' if entry_row[kwdict_col.deleted] else '[ - ]')
-        basic += u'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_time])
+        basic += u'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_count])
 
         profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
@@ -314,7 +314,7 @@ class kw_dict_mgr(object):
                 rk=row[kwdict_col.used_rank], 
                 kw='(Sticker ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword].decode('utf8'), 
                 id=row[kwdict_col.id],
-                ct=row[kwdict_col.used_time])
+                ct=row[kwdict_col.used_count])
 
         return text
 
@@ -348,6 +348,6 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_time', 'creator', 'is_pic_reply', 'is_sticker_kw', 'used_rank']
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'used_rank']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
 kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
