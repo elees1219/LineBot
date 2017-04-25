@@ -132,7 +132,7 @@ def get_error_list():
         content += html_hyperlink(timestamp, request.url_root + url_for('get_error_message', timestamp=timestamp)[1:])
         content += '\n'
         
-    return content.replace(' ', '&nbsp;').replace('\n', '<br/>')
+    return content.replace('\n', '<br/>')
 
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
