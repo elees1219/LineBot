@@ -56,6 +56,8 @@ class kw_dict_mgr(object):
         keyword = keyword.replace('  ', ' ')
         reply = reply.replace('  ', ' ')
         if keyword == '' or reply == '':
+            return None
+        else:
             cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply) \
                     VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                     RETURNING *;'
@@ -67,8 +69,6 @@ class kw_dict_mgr(object):
             result = self.sql_cmd(cmd, cmd_dict)
 
             return result
-        else:
-            return None
 
     def get_reply(self, keyword, is_sticker_kw):
         keyword = keyword.replace('%', '')

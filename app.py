@@ -286,11 +286,6 @@ def handle_text_message(event):
                     else:
                         param1, param2, param3, param4 = [paramA.pop(0) if len(paramA) > 0 else None for i in range(max_param_count)]
 
-                        print param1
-                        print param2
-                        print param3
-                        print param4
-
                         uid = src.user_id
                         if param4 is not None:
                             if param1 != 'STK':
