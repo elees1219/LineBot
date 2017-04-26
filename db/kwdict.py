@@ -325,7 +325,7 @@ class kw_dict_mgr(object):
         text = 'Top {num} creative user: '.format(num=len(data))
 
         for row in data:
-            text += u'\nNo.{rk} - {name} - Pair created: {ct} | Total used: {t_used} | Avg. used: {avg}'.format(
+            text += u'\nNo.{rk} - {name}\nPair created: {ct} | Total used: {t_used} | Avg. used: {avg}'.format(
                 rk=row[0],
                 name=line_api.get_profile(row[1]).display_name,
                 ct=row[2],
