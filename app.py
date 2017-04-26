@@ -342,8 +342,6 @@ def handle_text_message(event):
                                                                  top='(top)' if is_top[cmd] else '')
                             for result in results:
                                 text += kw_dict_mgr.entry_basic_info(result)
-                        else:
-                            text = 'Pair adding failed. Ensure none of parameter is empty.'
 
                     api_reply(rep, TextSendMessage(text=text))
                 # DELETE keyword & DELETE top keyword
@@ -939,7 +937,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
                                              ])))
             else:
-                api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
+                api_reply(token, TextSendMessage(text=u'{rep}\n\n{id}'.format(rep=reply,
                                                                          id='' if not is_sticker_kw else 'ID: {id}'.format(id=result[kwdict_col.id]))))
 
 
