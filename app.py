@@ -454,7 +454,7 @@ def handle_text_message(event):
                         text += u'Error message: {msg}'.format(msg=err.message)
                     
                     api_reply(rep, TextSendMessage(text=text))
-                # - SPECIAL record
+                # SPECIAL record
                 elif cmd == 'P':
                         kwpct = kwd.row_count()
 
@@ -468,7 +468,7 @@ def handle_text_message(event):
                         text2 += u'Count of Keyword Pair: {ct}\n'.format(ct=kwpct)
                         text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_count_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
-                        text2 += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n'.format(
+                        text2 += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(
                             name=api.get_profile(user_list_top[0]).display_name,
                             num=user_list_top[1],
                             pct=user_list_top[1] / float(kwpct) * 100)
@@ -476,9 +476,8 @@ def handle_text_message(event):
                         first = kwd.most_used()
                         text2 += u'Most Popular Keyword ({t} Time(s)):\n'.format(t=first[0][kwdict_col.used_count])
                         for entry in first:
-                            text2 += u'{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
-                                                                           c=entry[kwdict_col.used_count],
-                                                                           id=entry[kwdict_col.id])
+                            text2 += u'{kw} (ID: {id})\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
+                                                                 id=entry[kwdict_col.id])
 
                         text2 += '\n'
 
@@ -487,9 +486,8 @@ def handle_text_message(event):
                         limit = 10
                         text2 += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_count])
                         for entry in last:
-                            text2 += u'{kw} (ID: {id}, {c} Time(s))\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
-                                                                           c=entry[kwdict_col.used_count],
-                                                                           id=entry[kwdict_col.id])
+                            text2 += u'{kw} (ID: {id})\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'),
+                                                                 id=entry[kwdict_col.id])
                             
                             last_count -= 1
                             if len(last) - last_count >= limit:
