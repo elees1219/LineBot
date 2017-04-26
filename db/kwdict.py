@@ -65,6 +65,7 @@ class kw_dict_mgr(object):
             cmd_override_dict = {'kw': keyword}
             self.sql_cmd(cmd_override, cmd_override_dict)
             result = self.sql_cmd(cmd, cmd_dict)
+
             return result
         else:
             return None
