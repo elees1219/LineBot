@@ -133,8 +133,8 @@ class kw_dict_mgr(object):
             return None
 
     def user_created_rank(self, limit=1000):
-        """[0]=Rank, [1]=User ID, [2]=Count"""
-        cmd = u'SELECT RANK() OVER (ORDER BY created_count DESC), * FROM (SELECT creator, COUNT(creator) AS created_count FROM keyword_dict GROUP BY creator ORDER BY created_count DESC) AS FOO LIMIT %(limit)s'
+        """[0]=Rank, [1]=User ID, [2]=Count, [3]=Total Used Count, [4]=Used Count per Pair"""
+        cmd = u' SELECT RANK() OVER (ORDER BY created_count DESC), *, ROUND(total_used / CAST(created_count as NUMERIC), 2) FROM (SELECT creator, COUNT(creator) AS created_count, SUM(used_count) AS total_used FROM keyword_dict GROUP BY creator ORDER BY created_count DESC) AS FOO LIMIT %(limit)s'
         cmd_dict = {'limit': limit}
         result = self.sql_cmd(cmd, cmd_dict)
         if len(result) > 0:
@@ -325,10 +325,12 @@ class kw_dict_mgr(object):
         text = 'Top {num} creative user: '.format(num=len(data))
 
         for row in data:
-            text += u'\nNo.{rk} - {name} ({ct})'.format(
+            text += u'\nNo.{rk} - {name} - Pair created: {ct} | Total used: {t_used} | Avg. used: {avg}'.format(
                 rk=row[0],
                 name=line_api.get_profile(row[1]).display_name,
-                ct=row[2])
+                ct=row[2],
+                t_used=row[3],
+                avg=row[4])
 
         return text
 
