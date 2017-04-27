@@ -940,8 +940,8 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
                                              ])))
             else:
-                api_reply(token, TextSendMessage(text=u'{rep}\n\n{id}'.format(rep=reply,
-                                                                         id='' if not is_sticker_kw else 'ID: {id}'.format(id=result[kwdict_col.id]))))
+                api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
+                                                                         id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))))
 
 
 def rec_error(details, channel_id):
