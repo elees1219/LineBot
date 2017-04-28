@@ -404,7 +404,7 @@ def handle_text_message(event):
                         if param2 is not None:
                             text = 'Specified ID range to QUERY ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
                         else:
-                            text = 'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=param1)
+                            text = u'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=param1)
 
                     api_reply(rep, TextSendMessage(text=text))
                 # INFO of keyword
