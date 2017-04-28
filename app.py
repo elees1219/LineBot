@@ -429,7 +429,7 @@ def handle_text_message(event):
                         if param2 is not None:
                             text = 'Specified ID range to get INFORMATION ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
                         else:
-                            text = 'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=param1)
+                            text = u'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=param1)
 
                     api_reply(rep, TextSendMessage(text=text))
                 # RANKING
@@ -940,8 +940,8 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
                                              ])))
             else:
-                api_reply(token, TextSendMessage(text=u'{rep}\n\n{id}'.format(rep=reply,
-                                                                         id='' if not is_sticker_kw else 'ID: {id}'.format(id=result[kwdict_col.id]))))
+                api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
+                                                                         id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))))
 
 
 def rec_error(details, channel_id):
