@@ -484,7 +484,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
-                    type = params[1]
+                    ranking_type = params[1]
                     limit = params[2]
 
                     try:
@@ -495,9 +495,9 @@ def handle_text_message(event):
                     else:
                         Valid = True
 
-                        if type == 'USER':
+                        if ranking_type == 'USER':
                             text = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank(limit))
-                        elif type == 'KW':
+                        elif ranking_type == 'KW':
                             text = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(limit))
                         else:
                             text = 'Parameter 1 must be \'USER\'(to look up the ranking of pair created group by user) or \'KW\' (to look up the ranking of pair\'s used time)'
