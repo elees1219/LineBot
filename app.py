@@ -520,7 +520,6 @@ def handle_text_message(event):
                     line_profile = profile(user_list_top[0])
                     
                     first = kwd.most_used()
-
                     last = kwd.least_used()
                     last_count = len(last)
                     limit = 10
@@ -555,7 +554,7 @@ def handle_text_message(event):
                     text2 += u'\n\nMost Unpopular Keyword ({t} Time(s)):'.format(t=last[0][kwdict_col.used_count])
                     for entry in last:
                         text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
-                                                             id=entry[kwdict_col.id])
+                                                             id=entry[kwdict_col.id].decode('utf-8'))
                         
                         last_count -= 1
                         if len(last) - last_count >= limit:

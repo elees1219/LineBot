@@ -78,7 +78,7 @@ class kw_dict_mgr(object):
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
-            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1 WHERE id = %(id)s AND override = FALSE'
+            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1 WHERE id = %(id)s'
             cmd_update_dict = {'id': result[0][kwdict_col.id]}
             self.sql_cmd(cmd_update, cmd_update_dict)
             return result
@@ -89,74 +89,49 @@ class kw_dict_mgr(object):
         cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE %(kw)s OR reply LIKE %(kw)s ORDER BY id DESC;'
         cmd_dict = {'kw': '%' + keyword + '%'}
         result = self.sql_cmd(cmd, cmd_dict)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def search_keyword_index(self, startIndex, endIndex):
         cmd = u'SELECT * FROM keyword_dict WHERE id >= %(si)s AND id <= %(ei)s ORDER BY id DESC;'
         cmd_dict = {'si': startIndex, 'ei': endIndex}
         result = self.sql_cmd(cmd, cmd_dict)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def get_info(self, keyword):
         cmd = u'SELECT * FROM keyword_dict WHERE keyword = %(kw)s OR reply = %(kw)s ORDER BY id DESC;'
         cmd_dict = {'kw': keyword}
         result = self.sql_cmd(cmd, cmd_dict)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def get_info_id(self, id):
         cmd = u'SELECT * FROM keyword_dict WHERE id = %(id)s ORDER BY id DESC;'
         cmd_dict = {'id': id}
         result = self.sql_cmd(cmd, cmd_dict)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def order_by_usedrank(self, limit=1000):
         cmd = u'SELECT *, RANK() OVER (ORDER BY used_count DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT %(limit)s;'
         cmd_dict = {'limit': limit}
         
         result = self.sql_cmd(cmd, cmd_dict)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def user_created_rank(self, limit=1000):
         """[0]=Rank, [1]=User ID, [2]=Count, [3]=Total Used Count, [4]=Used Count per Pair"""
         cmd = u' SELECT RANK() OVER (ORDER BY created_count DESC), *, ROUND(total_used / CAST(created_count as NUMERIC), 2) FROM (SELECT creator, COUNT(creator) AS created_count, SUM(used_count) AS total_used FROM keyword_dict GROUP BY creator ORDER BY created_count DESC) AS FOO LIMIT %(limit)s'
         cmd_dict = {'limit': limit}
         result = self.sql_cmd(cmd, cmd_dict)
-        if len(result) > 0:
-            return result
-        else:
-            return None
-
+        return result
 
     def most_used(self):
         cmd = u'SELECT * FROM keyword_dict WHERE used_count = (SELECT MAX(used_count) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
         result = self.sql_cmd_only(cmd)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def least_used(self):
         cmd = u'SELECT * FROM keyword_dict WHERE used_count = (SELECT MIN(used_count) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
         result = self.sql_cmd_only(cmd)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def delete_keyword(self, keyword, is_top):
         cmd = u'UPDATE keyword_dict \
@@ -165,10 +140,7 @@ class kw_dict_mgr(object):
                 RETURNING *;'
         cmd_dict = {'kw': keyword, 'top': is_top}
         result = self.sql_cmd(cmd, cmd_dict)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def delete_keyword_id(self, id, is_top):
         cmd = u'UPDATE keyword_dict \
@@ -178,18 +150,12 @@ class kw_dict_mgr(object):
                 
         cmd_dict = {'id': id, 'top': is_top}
         result = self.sql_cmd(cmd, cmd_dict)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
     def user_sort_by_created_pair(self):
         cmd = u'SELECT creator, COUNT(creator) FROM keyword_dict GROUP BY creator ORDER BY COUNT(creator) DESC;'
         result = self.sql_cmd_only(cmd)
-        if len(result) > 0:
-            return result
-        else:
-            return None
+        return result
 
 
 
@@ -216,8 +182,6 @@ class kw_dict_mgr(object):
 
 
 
-
-    
 
     @staticmethod
     def sticker_png_url(sticker_id):
