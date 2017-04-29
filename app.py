@@ -460,9 +460,11 @@ def handle_text_message(event):
                         text2 += u'Count of Keyword Pair: {ct}\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(ct=kwpct,
                                                                                                                 stk_kw=kwd.sticker_keyword_count(),
                                                                                                                 pic_rep=kwd.picture_reply_count())
-                        text2 += u'Count of Active Keyword Pair: {ct}\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(ct=kwd.row_count(True),
-                                                                                                                       stk_kw=kwd.sticker_keyword_count(True),
-                                                                                                                       pic_rep=kwd.picture_reply_count(True))
+                        text2 += u'Count of Active Keyword Pair: {ct} ({pct:.2f}%)\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(
+                            ct=kwd.row_count(True),
+                            stk_kw=kwd.sticker_keyword_count(True),
+                            pic_rep=kwd.picture_reply_count(True),
+                            pct=kwd.row_count(True) / float(kwpct) * 100)
                         text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_count_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
                         text2 += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(

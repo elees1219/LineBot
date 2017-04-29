@@ -196,17 +196,17 @@ class kw_dict_mgr(object):
 
 
     def row_count(self, is_active_only=False):
-        cmd = u'SELECT COUNT(id) FROM keyword_dict{active};'.format(active=' WHERE deleted = FALSE' if is_active_only else '')
+        cmd = u'SELECT COUNT(id) FROM keyword_dict{active};'.format(active=' WHERE deleted = FALSE AND override = FALSE' if is_active_only else '')
         result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
     def picture_reply_count(self, is_active_only=False):
-        cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_pic_reply = TRUE{active};'.format(active=' AND deleted = FALSE' if is_active_only else '')
+        cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_pic_reply = TRUE{active};'.format(active=' AND deleted = FALSE AND override = FALSE' if is_active_only else '')
         result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
     def sticker_keyword_count(self, is_active_only=False):
-        cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_sticker_kw = TRUE{active};'.format(active=' AND deleted = FALSE' if is_active_only else '')
+        cmd = u'SELECT COUNT(id) FROM keyword_dict WHERE is_sticker_kw = TRUE{active};'.format(active=' AND deleted = FALSE AND override = FALSE' if is_active_only else '')
         result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
