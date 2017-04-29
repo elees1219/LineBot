@@ -679,22 +679,25 @@ def handle_text_message(event):
                     paramU = split(oth, splitter, max_param_count)
                     param1 = [paramU.pop(0) if len(paramU) > 0 else None for i in range(max_param_count)]
 
-                    if param1 is not None:
-                        if len(param1) == 33:
-                            try:
-                                line_profile = api.get_profile(param1)
-                            except exceptions.LineBotApiError as ex:
-                                if ex.status_code == 404:
-                                    text = 'User profile not found.'
+                    Valid = True
 
-                            text = 'User ID: {uid}\nUser name: {name}\nProfile Picture URL: {url}\nStatus Message: {msg}'.format(
+                    if param1 is not None:
+                        if len(param1) != 33:
+                            text = 'The length of user id must be 33 characters.'
+                            Valid = False
+                    
+                    if Valid:
+                        try:
+                            line_profile = api.get_profile(param1 if param1 is not None else src.sender_id)
+                        except exceptions.LineBotApiError as ex:
+                            if ex.status_code == 404:
+                                text = 'User profile not found.'
+                        text = 'User ID: {uid}\nUser name: {name}\nProfile Picture URL: {url}\nStatus Message: {msg}'.format(
                                 uid=line_profile.user_id,
                                 name=line_profile.display_name,
                                 url=line_profile.picture_url,
                                 msg=line_profile.status_message)
-                    else:
-                        text = 'The length of user id must be 33 characters.'
-                        
+
                     api_reply(rep, TextSendMessage(text=text))
                 else:
                     cmd_called_time[cmd] -= 1
@@ -915,16 +918,7 @@ def sticker_png_url(sticker_id):
 
 
 def get_source_channel_id(source_event):
-    if isinstance(source_event, SourceGroup):
-        id = source_event.group_id
-    elif isinstance(source_event, SourceRoom):
-        id = source_event.room_id
-    elif isinstance(source_event, SourceUser):
-        id = source_event.user_id
-    else:
-        id = None
-       
-    return id
+    return source_event.sender_id
 
 
 def string_is_int(s):
