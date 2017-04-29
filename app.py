@@ -44,7 +44,7 @@ report_content = {'Error': {},
                   'Text': {}}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
-                   'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
+                   'H': 0, 'SHA': 0, 'O': 0, 'B': 0, 'U': 0}
 
 # Line Bot Environment initializing
 MAIN_UID = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
