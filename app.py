@@ -675,14 +675,7 @@ def handle_text_message(event):
                             api.leave_group(cid)
                 # User profile
                 elif cmd == 'U':
-                    max_param_count = 1
-                    paramU = split(oth, splitter, max_param_count)
-                    param1 = [paramU.pop(0) if len(paramU) > 0 else None for i in range(max_param_count)]
-
-                    print head
-                    print cmd
-                    print oth
-                    print param1
+                    param1 = oth
 
                     Valid = True
 
