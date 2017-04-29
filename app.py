@@ -279,7 +279,7 @@ def handle_text_message(event):
                 elif cmd == 'A' or cmd == 'M':
                     max_param_count = 4
                     paramA = split(param1, splitter, max_param_count)
-                    if is_top[cmd] and permission_level(paramA.pop(0)) < 3:
+                    if is_top[cmd] and permission_level(paramA.pop(0)) < 1:
                         text = 'Insufficient Permission.'
                     elif not isinstance(src, SourceUser):
                         text = 'Unable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
