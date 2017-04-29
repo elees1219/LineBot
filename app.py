@@ -42,9 +42,23 @@ report_content = {'Error': {},
                   'FullQuery': {}, 
                   'FullInfo': {},
                   'Text': {}}
-cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
-                   'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
-                   'H': 0, 'SHA': 0, 'O': 0, 'B': 0, 'U': 0}
+cmd_dict = {'S': command(1, 1, True), 
+            'A': command(2, 4, False), 
+            'M': command(2, 4, True), 
+            'D': command(2, 4, False), 
+            'R': command(2, 4, True), 
+            'Q': command(1, 2, False), 
+            'C': command(0, 0, True), 
+            'I': command(1, 2, False), 
+            'K': command(2, 2, False), 
+            'P': command(0, 0, False), 
+            'G': command(0, 0, False), 
+            'GA': command(1, 5, True), 
+            'H': command(0, 0, False), 
+            'SHA': command(1, 1, False), 
+            'O': command(1, 1, False), 
+            'B': command(0, 0, False), 
+            'U': command(0, 1, False)}
 
 # Line Bot Environment initializing
 MAIN_UID = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
@@ -196,7 +210,32 @@ def html_paragraph(content):
 def html_hyperlink(content, link):
     return '<a href=\"{link}\">{content}</a>'.format(link=link, content=content)
 
+class command(object):
+    def __init__(self, min_split=2, max_split=2, non_user_permission_required=False):
+        self._split_max = max_split
+        self._split_min = min_split
+        self._count = 0
+        self._non_user_permission_required = non_user_permission_required
 
+    @property
+    def split_max(self):
+        """Maximum split count."""
+        return self._split_max
+
+    @property
+    def split_min(self):
+        """Minimum split count."""
+        return self._split_min
+
+    @property
+    def count(self):
+        """Called count."""
+        return self._count
+
+    @property
+    def non_user_permission_required(self):
+        """Required Permission"""
+        return self._non_user_permission_required
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
@@ -215,41 +254,36 @@ def handle_text_message(event):
         return
 
     try:
-        if len(text.split(splitter)) > 1 and text.startswith('JC'):
+        if len(text.split(splitter)) > 2 and text.startswith('JC'):
             head, cmd, oth = split(text, splitter, 3)
-
-            split_count = {'S': 4, 'A': 3, 'M': 3, 'D': 3, 'R': 3, 'Q': 3, 
-                           'C': 2, 'I': 3, 'K': 4, 'P': 2, 'G': 2, 'GA': 3, 
-                           'H': 2, 'SHA': 3, 'O': 3, 'B': 3, 'U': 3}
-
-            is_top = {'S': True, 'A': False, 'M': True, 'D': False, 'R': True, 'Q': False, 
-                      'C': True, 'I': False, 'K': False, 'P': False, 'G': False, 'GA': True, 
-                      'H': False, 'SHA': False, 'O': False, 'B': False, 'U': False}
 
             if head == 'JC':
                 rec['JC_called'] += 1
 
-                if cmd not in split_count:
-                        text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=cmd)
-                        api_reply(rep, TextSendMessage(text=text))
-                        return
+                if cmd not in cmd_dict:
+                    text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=cmd)
+                    api_reply(rep, TextSendMessage(text=text))
+                    return
 
-                prm_count = split_count[cmd]
-                params = split(text, splitter, prm_count)
+                max_prm = cmd_dict[cmd].split_max
+                min_prm = cmd_dict[cmd].split_min
+                params = split(oth, splitter, max_prm)
 
-                if prm_count != len(params) - params.count(None):
-                        text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
-                        api_reply(rep, TextSendMessage(text=text))
-                        return
+                if min_prm > len(params) - params.count(None):
+                    text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
+                    api_reply(rep, TextSendMessage(text=text))
+                    return
 
-                head, cmd, param1, param2 = [params.pop(0) if len(params) > 0 else None for i in range(max(split_count.values()))]
-
-                cmd_called_time[cmd] += 1
+                params.insert(0, None)
+                cmd_dict[cmd].count += 1
                 
                 # SQL Command
                 if cmd == 'S':
-                    if isinstance(src, SourceUser) and permission_level(param1) >= 3:
-                        results = kwd.sql_cmd_only(param2)
+                    key = params.pop(1)
+                    sql = params[1]
+
+                    if isinstance(src, SourceUser) and permission_level(key) >= 3:
+                        results = kwd.sql_cmd_only(sql)
                         if results is not None:
                             text = u'SQL command result({len}): \n'.format(len=len(results))
                             for result in results:
@@ -260,77 +294,88 @@ def handle_text_message(event):
                         text = 'This is a restricted function.'
 
                     api_reply(rep, TextSendMessage(text=text))
-                # CREATE kw_dict
-                elif cmd == 'C':
-                    text = 'Access denied. Insufficient permission.'
-
-                    if permission_level(param2) >= 3:
-                        text = 'Successfully Created.' if kwd.create_kwdict() == True else 'Creating failure.'
-
-                    api_reply(rep, TextSendMessage(text=text))
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
-                    max_param_count = 4
-                    paramA = split(param1, splitter, max_param_count)
-                    if is_top[cmd] and permission_level(paramA.pop(0)) < 1:
+                    key = params.pop(1)
+
+                    pinned = cmd_dict[cmd].non_user_permission_required
+                    if pinned and permission_level(params.pop(1)) < 1:
                         text = 'Insufficient Permission.'
                     elif not isinstance(src, SourceUser):
                         text = 'Unable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
                     else:
-                        param1, param2, param3, param4 = [paramA.pop(0) if len(paramA) > 0 else None for i in range(max_param_count)]
+                        new_uid = src.sender_id
 
-                        uid = src.user_id
-                        if param4 is not None:
-                            if param1 != 'STK':
+                        if params[4] is not None:
+                            action_kw = params[1]
+                            kw = params[2]
+                            action_rep = params[3]
+                            rep = params[4]
+                             
+                            if action_kw != 'STK':
                                 results = None
                                 text = 'To use sticker-received-picture-or-sticker-reply function, the 1st parameter must be \'STK\'.'
-                            elif not string_is_int(param2):
+                            elif not string_is_int(kw):
                                 results = None
                                 text = 'The 2nd parameter must be integer to represent sticker ID.'
-                            elif param3 != 'PIC':
+                            elif action_rep != 'PIC':
                                 results = None
                                 text = 'To use sticker-received-picture-or-sticker-reply function, the 3rd parameter must be \'PIC\'.'
                             else:
-                                if string_is_int(param4):
-                                    param4 = sticker_png_url(param4)
+                                if string_is_int(rep):
+                                    rep = sticker_png_url(rep)
+                                    url_val_result = True
+                                else:
+                                    url_val_result = validators.url(rep)
 
-                                url_val_result = validators.url(param4)
                                 if type(url_val_result) is bool and url_val_result:
-                                    results = kwd.insert_keyword(param2, param4, uid, is_top[cmd], True, True)
+                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, True)
                                 else:
                                     results = None
                                     text = 'URL(parameter 4) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
                                             {error}'.format(error=url_val_result)
-                        elif param3 is not None:
-                            if param2 == 'PIC':
-                                if string_is_int(param3):
-                                    param3 = sticker_png_url(param3)
-                                    
-                                    url_val_result = validators.url(param3)
+                        elif params[3] is not None:
+                            rep = params[3]
+
+                            if params[2] == 'PIC':
+                                kw = params[1]
+
+                                if string_is_int(rep):
+                                    if string_is_int(rep):
+                                        rep = sticker_png_url(rep)
+                                        url_val_result = True
+                                    else:
+                                        url_val_result = validators.url(rep)
+
                                     if type(url_val_result) is bool and url_val_result:
-                                        results = kwd.insert_keyword(param1, param3, uid, is_top[cmd], False, True)
+                                        results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
                                     else:
                                         results = None
                                         text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
                                                 {error}'.format(error=url_val_result)
-                            elif param1 == 'STK':
-                                if string_is_int(param2):
-                                    results = kwd.insert_keyword(param2, param3, uid, is_top[cmd], True, False)
+                            elif params[1] == 'STK':
+                                kw = params[2]
+
+                                if string_is_int(kw):
+                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
                                 else:
                                     results = None
                                     text = 'The 2nd parameter must be integer to represent sticker ID.'
                             else:
                                 text = 'Unable to determine the function to use. parameter 1 must be \'STK\' or parameter 2 must be \'PIC\'. Check the user manual to get more details.'
                                 results = None
-                        elif param2 is not None:
-                             results = kwd.insert_keyword(param1, param2, uid, is_top[cmd], False, False)
+                        elif params[2] is not None:
+                            kw = params[1]
+                            rep = params[2]
+
+                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False)
                         else:
                             results = None
                             text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
 
                         if results is not None:
                             text = u'Pair Added. {top}\n'.format(len=len(results), 
-                                                                 top='(top)' if is_top[cmd] else '')
+                                                                 top='(top)' if pinned else '')
                             for result in results:
                                 text += kw_dict_mgr.entry_basic_info(result)
                         else:
@@ -339,44 +384,48 @@ def handle_text_message(event):
                     api_reply(rep, TextSendMessage(text=text))
                 # DELETE keyword & DELETE top keyword
                 elif cmd == 'D' or cmd == 'R':
-                    extra_prm_count = 2
-                    paramD = split(param1, splitter, extra_prm_count)
-
-                    if is_top[cmd] and permission_level(paramA.pop(0)) < 2:
+                    pinned = cmd_dict[cmd].non_user_permission_required
+                    if pinned and permission_level(paramA.pop(1)) < 2:
                         text = 'Insufficient Permission.'
                     else:
-                        param1, param2 = [paramD.pop(0) if len(paramD) > 0 else None for i in range(extra_prm_count)]
+                        if params[2] is None:
+                            kw = params[1]
 
-                        if param2 is None:
-                            results = kwd.delete_keyword(param1, is_top[cmd])
+                            results = kwd.delete_keyword(kw, pinned)
                         else:
-                            if param1 == 'ID':
-                                 if string_is_int(param2):
-                                     results = kwd.delete_keyword_id(param2, is_top[cmd])
-                                 else:
-                                     results = None
-                                     text = 'Illegal parameter 2. Parameter 2 need to be integer to delete keyword by ID.'
+                            action = params[1]
+
+                            if action == 'ID':
+                                id = params[2]
+
+                                if string_is_int(id):
+                                    results = kwd.delete_keyword_id(id, pinned)
+                                else:
+                                    results = None
+                                    text = 'Illegal parameter 2. Parameter 2 need to be integer to delete keyword by ID.'
                             else:
                                 results = None
                                 text = 'Incorrect 1st parameter to delete keyword pair. To use ID to delete keyword, 1st parameter needs to be \'ID\'.'
 
                     if results is not None:
                         for result in results:
-                            text = 'Pair Deleted. {top}\n'.format(top='(top)' if is_top[cmd] else '')
+                            line_profile = profile(result[kwdict_col.creator])
+
+                            text = 'Pair Deleted. {top}\n'.format(top='(top)' if pinned else '')
                             text += kw_dict_mgr.entry_basic_info(result)
-                            profile = api.get_profile(result[kwdict_col.creator])
-                            text += u'\nThis pair is created by {name}.'.format(name=profile.display_name)
+                            text += u'\nThis pair is created by {name}.'.format(
+                                name='(LINE account data not found)' if line_profile is None else line_profile.display_name)
 
                     api_reply(rep, TextSendMessage(text=text))
                 # QUERY keyword
                 elif cmd == 'Q':
-                    if len(param1.split(splitter)) > 1:
-                        extra_prm_count = 2
-                        paramQ = split(param1, splitter, extra_prm_count)
-                        param1, param2 = [paramQ.pop(0) if len(paramQ) > 0 else None for i in range(extra_prm_count)]
+                    if params[2] is not None:
+                        si = params[1]
+                        ei = params[2]
+
                         try:
-                            begin_index = int(param1)
-                            end_index = int(param2)
+                            begin_index = int(si)
+                            end_index = int(ei)
 
                             if end_index - begin_index < 0:
                                 results = None
@@ -387,53 +436,66 @@ def handle_text_message(event):
                             results = None
                             text = 'Illegal parameter. 1rd parameter and 2nd parameter must be integer.'
                     else:
-                        results = kwd.search_keyword(param1)
+                        kw = params[1]
+
+                        results = kwd.search_keyword(kw)
 
                     if results is not None:
                         q_list = kw_dict_mgr.list_keyword(results)
                         text = q_list['limited']
                         text += '\n\nFull Query URL: {url}'.format(url=rec_query(q_list['full']))
                     else:
-                        if param2 is not None:
-                            text = 'Specified ID range to QUERY ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
+                        if params[2] is not None:
+                            text = 'Specified ID range to QUERY ({si}~{ei}) returned no data.'.format(si=si, ei=ei)
                         else:
-                            text = u'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=param1)
+                            text = u'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=kw)
 
                     api_reply(rep, TextSendMessage(text=text))
                 # INFO of keyword
                 elif cmd == 'I':
-                    if len(param1.split(splitter)) > 1:
-                        extra_prm_count = 2
-                        paramI = split(param1, splitter, extra_prm_count)
-                        param1, param2 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(extra_prm_count)]
-                        if param1 != 'ID':
+                    if params[2] is not None:
+                        action = params[1]
+
+                        if action != 'ID':
                             text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
                             results = None
                         else:
-                            results = kwd.get_info_id(param2)   
+                            id = params[2]
+
+                            results = kwd.get_info_id(id)   
                     else:
-                        results = kwd.get_info(param1)
+                        kw = params[1]
+
+                        results = kwd.get_info(kw)
 
                     if results is not None:
                         i_object = kw_dict_mgr.list_keyword_info(api, results)
                         text = i_object['limited']
                         text += '\n\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
                     else:
-                        if param2 is not None:
-                            text = 'Specified ID range to get INFORMATION ({si}~{ei}) returned no data.'.format(si=param1, ei=param2)
+                        if params[2] is not None:
+                            text = 'Specified ID to get INFORMATION (ID: {id}) returned no data.'.format(id=id)
                         else:
-                            text = u'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=param1)
+                            text = u'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=kw)
 
                     api_reply(rep, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
+                    type = params[1]
+                    limit = params[2]
+
                     try:
+                        limit = int(limit)
+                    except ValueError as err:
+                        text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
+                        text += u'Error message: {msg}'.format(msg=err.message)
+                    else:
                         Valid = True
 
-                        if param1 == 'USER':
-                            text = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank(int(param2)))
-                        elif param1 == 'KW':
-                            text = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(int(param2)))
+                        if type == 'USER':
+                            text = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank(limit))
+                        elif type == 'KW':
+                            text = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(limit))
                         else:
                             text = 'Parameter 1 must be \'USER\'(to look up the ranking of pair created group by user) or \'KW\' (to look up the ranking of pair\'s used time)'
                             Valid = False
@@ -442,171 +504,177 @@ def handle_text_message(event):
                             text += '\n\nFull Ranking(user created) URL: {url_u}\nFull Ranking(keyword used) URL: {url_k}'.format(
                                 url_u=request.url_root + url_for('full_ranking', type='user')[1:],
                                 url_k=request.url_root + url_for('full_ranking', type='used')[1:])
-                    except ValueError as err:
-                        text = u'Invalid parameter. The 1st parameter of \'K\' function can be number only.\n\n'
-                        text += u'Error message: {msg}'.format(msg=err.message)
                     
                     api_reply(rep, TextSendMessage(text=text))
                 # SPECIAL record
                 elif cmd == 'P':
-                        kwpct = kwd.row_count()
+                    kwpct = kwd.row_count()
 
-                        text = u'Data Recorded since booted up\n'
-                        text += u'Boot up Time: {bt} (UTC+8)\n\n'.format(bt=boot_up)
-                        text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
-                        text += u'Message Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
-                        text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_called_time)
+                    user_list_top = kwd.user_sort_by_created_pair()[0]
+                    line_profile = profile(user_list_top[0])
+                    
+                    first = kwd.most_used()
+
+                    last = kwd.least_used()
+                    last_count = len(last)
+                    limit = 10
+
+                    text = u'Data Recorded since booted up\n'
+                    text += u'Boot up Time: {bt} (UTC+8)\n\n'.format(bt=boot_up)
+                    text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
+                    text += u'Message Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
+                    text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_dict)
+                    
+                    text2 = u'Data Collected Full Time\n\n'
+                    text2 += u'Count of Keyword Pair: {ct}\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(ct=kwpct,
+                                                                                                            stk_kw=kwd.sticker_keyword_count(),
+                                                                                                            pic_rep=kwd.picture_reply_count())
+                    text2 += u'Count of Active Keyword Pair: {ct} ({pct:.2f}%)\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(
+                        ct=kwd.row_count(True),
+                        stk_kw=kwd.sticker_keyword_count(True),
+                        pic_rep=kwd.picture_reply_count(True),
+                        pct=kwd.row_count(True) / float(kwpct) * 100)
+                    text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_count_sum())
+
+                    text2 += u'The User who Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(
+                        name='(LINE account data not found)' if line_profile is None else line_profile.display_name,
+                        num=user_list_top[1],
+                        pct=user_list_top[1] / float(kwpct) * 100)
+
+                    text2 += u'Most Popular Keyword ({t} Time(s)):'.format(t=first[0][kwdict_col.used_count])
+                    for entry in first:
+                        text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
+                                                             id=entry[kwdict_col.id])
+
+                    text2 += u'\n\nMost Unpopular Keyword ({t} Time(s)):'.format(t=last[0][kwdict_col.used_count])
+                    for entry in last:
+                        text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
+                                                             id=entry[kwdict_col.id])
                         
-                        text2 = u'Data Collected Full Time\n\n'
-                        text2 += u'Count of Keyword Pair: {ct}\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(ct=kwpct,
-                                                                                                                stk_kw=kwd.sticker_keyword_count(),
-                                                                                                                pic_rep=kwd.picture_reply_count())
-                        text2 += u'Count of Active Keyword Pair: {ct} ({pct:.2f}%)\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(
-                            ct=kwd.row_count(True),
-                            stk_kw=kwd.sticker_keyword_count(True),
-                            pic_rep=kwd.picture_reply_count(True),
-                            pct=kwd.row_count(True) / float(kwpct) * 100)
-                        text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_count_sum())
-                        user_list_top = kwd.user_sort_by_created_pair()[0]
-                        text2 += u'The User who Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(
-                            name=api.get_profile(user_list_top[0]).display_name,
-                            num=user_list_top[1],
-                            pct=user_list_top[1] / float(kwpct) * 100)
+                        last_count -= 1
+                        if len(last) - last_count >= limit:
+                            text2 += '\n...({left} more)'.format(left=last_count)
+                            break
 
-                        first = kwd.most_used()
-                        text2 += u'Most Popular Keyword ({t} Time(s)):\n'.format(t=first[0][kwdict_col.used_count])
-                        for entry in first:
-                            text2 += u'{kw} (ID: {id})\n'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
-                                                                 id=entry[kwdict_col.id])
-
-                        text2 += '\n'
-
-                        last = kwd.least_used()
-                        last_count = len(last)
-                        limit = 10
-                        text2 += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_count])
-                        for entry in last:
-                            text2 += u'{kw} (ID: {id})\n'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
-                                                                 id=entry[kwdict_col.id])
-                            
-                            last_count -= 1
-                            if len(last) - last_count >= limit:
-                                text2 += '...({left} more)'.format(left=last_count)
-                                break
-
-                        api_reply(rep, [TextSendMessage(text=text), TextMessage(text=text2)])
+                    api_reply(rep, [TextSendMessage(text=text), TextMessage(text=text2)])
                 # GROUP ban basic (info)
                 elif cmd == 'G':
-                        if not isinstance(src, SourceUser):
-                            gid = get_source_channel_id(src)
+                    if not isinstance(src, SourceUser):
+                        group_detail = gb.get_group_by_id(gid)
+                        gid = get_source_channel_id(src)
+                        uid = group_detail[gb_col.admin]
+                        admin_profile = profile(uid)
 
-                            group_detail = gb.get_group_by_id(gid)
-                            if group_detail is not None:
-                                text = u'Chat Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
-                                text += u'Silence: {sl}\n\n'.format(sl=group_detail[gb_col.silence])
-                                text += u'Admin: {name}\n'.format(name=api.get_profile(group_detail[gb_col.admin]).display_name)
-                                text += u'Admin User ID: {name}'.format(name=api.get_profile(group_detail[gb_col.admin]).user_id)
-                            else:
-                                text = u'Chat Group ID: {id}\n'.format(id=gid)
-                                text += u'Silence: False'
+                        if group_detail is not None:
+                            text = u'Chat Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
+                            text += u'Silence: {sl}\n\n'.format(sl=group_detail[gb_col.silence])
+                            text += u'Admin: {name}\n'.format(name='(LINE account data not found)' if admin_profile is None else admin_profile.display_name)
+                            text += u'Admin User ID: {name}'.format(name=group_detail[gb_col.admin])
                         else:
-                            text = 'This function can be only execute in GROUP or ROOM.'
-                        
-                        api_reply(rep, TextSendMessage(text=text))
+                            text = u'Chat Group ID: {id}\n'.format(id=gid)
+                            text += u'Silence: False'
+                    else:
+                        text = 'This function can be only execute in GROUP or ROOM.'
+                    
+                    api_reply(rep, TextSendMessage(text=text))
                 # GROUP ban advance
                 elif cmd == 'GA':
-                        max_param_count = 6
-                        paramI = split(param1, splitter, max_param_count)
-                        param_count = len(paramI) - paramI.count(None)
-                        param1, param2, param3, param4, param5, param6 = [paramI.pop(0) if len(paramI) > 0 else None for i in range(max_param_count)]
-                        public_key = param1
+                    error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
+                    illegal_source = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
+                    
+                    perm_dict = {3: 'Permission: Bot Administrator',
+                                 2: 'Permission: Group Admin',
+                                 1: 'Permission: Group Moderator',
+                                 0: 'Permission: User'}
+                    perm = permission_level(params.pop(1))
+                    pert = perm_dict[perm]
 
-                        error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
-                        illegal_type = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
+                    param_count = len(params) - params.count(None) - 1
 
-                        perm = permission_level(public_key)
-                        pert_dict = {3: 'Permission: Bot Administrator',
-                                     2: 'Permission: Group Admin',
-                                     1: 'Permission: Group Moderator',
-                                     0: 'Permission: User'}
-                        pert = pert_dict[perm]
+                    if isinstance(src, SourceUser):
+                        text = error
 
-                        if isinstance(src, SourceUser):
-                            text = error
+                        if perm >= 1 and param_count == 3:
+                            action = params[1]
+                            gid = params[2]
+                            pw = params[3]
 
-                            try:
-                                if perm >= 1 and param_count == 4:
-                                    cmd_dict = {'SF': True, 'ST': False}
-                                    status_silence = {True: 'disabled', False: 'enabled'}
+                            action_dict = {'SF': True, 'ST': False}
+                            status_silence = {True: 'disabled', False: 'enabled'}
 
-                                    if param2 in cmd_dict:
-                                        settarget = cmd_dict[param2]
+                            if action in action_dict:
+                                settarget = action_dict[action]
 
-                                        if gb.set_silence(param3, str(settarget) , param4):
-                                            text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
-                                            text += 'GID: {gid}'.format(gid=param3)
-                                        else:
-                                            text = 'Group auto reply setting not changed.\n\n'
-                                            text += 'GID: {gid}'.format(gid=param3)
+                                if gb.set_silence(params[2], str(settarget), pw):
+                                    text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
+                                    text += 'GID: {gid}'.format(gid=gid)
+                                else:
+                                    text = 'Group auto reply setting not changed.\n\n'
+                                    text += 'GID: {gid}'.format(gid=gid)
+                            else:
+                                text = 'Invalid action: {action}. Recheck User Manual.'.format(action=action)
+                        elif perm >= 2 and param_count == 5:
+                            action = params[1]
+                            gid = params[2]
+                            new_uid = params[3]
+                            pw = params[4]
+                            new_pw = params[5]
+
+                            action_dict = {'SA': gb.change_admin, 
+                                           'SM1': gb.set_mod1,
+                                           'SM2': gb.set_mod2,
+                                           'SM3': gb.set_mod3}
+                            pos_name = {'SA': 'Administrator',
+                                        'SM1': 'Moderator 1',
+                                        'SM2': 'Moderator 2',
+                                        'SM3': 'Moderator 3'}
+
+                            line_profile = profile(new_uid)
+
+                            if line_profile is not None:
+                                try:
+                                    if action_dict[action](gid, new_uid, pw, new_pw):
+                                        position = pos_name[action]
+
+                                        text = u'Group administrator has been changed.\n'
+                                        text += u'Group ID: {gid}\n\n'.format(gid=gid)
+                                        text += u'New {pos} User ID: {uid}\n'.format(uid=new_uid, pos=position)
+                                        text += u'New {pos} User Name: {unm}\n\n'.format(
+                                            unm=line_profile.display_name,
+                                            pos=position)
+                                        text += u'New {pos} Key: {npkey}\n'.format(npkey=new_pw, pos=position)
+                                        text += u'Please protect your key well!'
                                     else:
-                                        text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                                elif perm >= 2 and param_count == 6:
-                                    cmd_dict = {'SA': gb.change_admin, 
-                                                'SM1': gb.set_mod1,
-                                                'SM2': gb.set_mod2,
-                                                'SM3': gb.set_mod3}
-                                    pos_dict = {'SA': 'Administrator',
-                                                'SM1': 'Moderator 1',
-                                                'SM2': 'Moderator 2',
-                                                'SM3': 'Moderator 3'}
+                                        text = '{pos} changing process failed.'
+                                except KeyError as Ex:
+                                    text = 'Invalid action: {action}. Recheck User Manual.'.format(action=action)
+                            else:
+                                text = 'Profile of \'User ID: {uid}\' not found.'.format(uid=new_uid)
+                        elif perm >= 3 and param_count == 4:
+                            action = params[1]
+                            gid = params[2]
+                            uid = params[3]
+                            pw = params[4]
+                            
+                            if action != 'N':
+                                text = 'Illegal action: {action}'.format(action=action)
+                            else:
+                                line_profile = profile(uid)
 
-                                    gid = param3
-                                    uid = param4
-                                    pkey = param5
-                                    npkey = param6
+                                if line_profile is not None:
+                                    if gb.new_data(gid, uid, pw):
+                                        text = u'Group data registered.\n'
+                                        text += u'Group ID: {gid}'.format(gid=gid)
+                                        text += u'Admin ID: {uid}'.format(uid=uid)
+                                        text += u'Admin Name: {name}'.format(gid=line_profile.display_name)
+                                    else:
+                                        text = 'Group data register failed.'
+                                else:
+                                    text = 'Profile of \'User ID: {uid}\' not found.'.format(uid=new_uid)
+                    else:
+                        text = illegal_source
 
-                                    line_profile = api.get_profile(uid)
-
-                                    try:
-                                        if cmd_dict[param2](gid, uid, pkey, npkey):
-                                            position = pos_dict[param2]
-
-                                            text = u'Group administrator has been changed.\n'
-                                            text += u'Group ID: {gid}\n\n'.format(gid=gid)
-                                            text += u'New {pos} User ID: {uid}\n'.format(uid=uid, pos=position)
-                                            text += u'New {pos} User Name: {unm}\n\n'.format(
-                                                unm=line_profile.display_name,
-                                                pos=position)
-                                            text += u'New {pos} Key: {npkey}\n'.format(npkey=npkey, pos=position)
-                                            text += u'Please protect your key well!'
-                                        else:
-                                            text = '{pos} changing process failed.'
-                                    except KeyError as Ex:
-                                        text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                                elif perm >= 3 and (param_count == 2 or param_count == 5):
-                                    if param2 == 'C' and param_count == 2:
-                                        if gb.create_ban():
-                                            text = 'Group Ban table successfully created.'
-                                        else:
-                                            text = 'Group Ban table creating failed.'
-                                    elif param_count == 5:
-                                        line_profile = api.get_profile(param3)
-
-                                        if param2 == 'N':
-                                            if gb.new_data(param3, param4, param5):
-                                                text = u'Group data registered.\n'
-                                                text += u'Group ID: {gid}'.format(gid=param2)
-                                                text += u'Admin ID: {uid}'.format(uid=param3)
-                                                text += u'Admin Name: {name}'.format(gid=line_profile.display_name)
-                                            else:
-                                                text = 'Group data register failed.'
-                            except exceptions.LineBotApiError as e:
-                                if e.status_code == 404:
-                                    text = 'User id not found. Process failed.'
-                        else:
-                            text = illegal_type
-
-                        api_reply(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
+                    api_reply(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
                 # get CHAT id
                 elif cmd == 'H':
                     text = get_source_channel_id(src)
@@ -623,42 +691,44 @@ def handle_text_message(event):
                     api_reply(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
-                    if param1 != None:
-                        text = hashlib.sha224(param1.encode('utf-8')).hexdigest()
+                    target = params[1]
+
+                    if target != None:
+                        text = hashlib.sha224(target.encode('utf-8')).hexdigest()
                     else:
                         text = 'Illegal Parameter to generate SHA224 hash.'
 
                     api_reply(rep, TextSendMessage(text=text))
                 # Look up vocabulary in OXFORD Dictionary
                 elif cmd == 'O':
-                        if oxford_disabled:
-                            text = 'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
+                    voc = params[1]
+
+                    if oxford_disabled:
+                        text = 'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
+                    else:
+                        j = oxford_json(voc)
+
+                        if type(j) is int:
+                            code = j
+
+                            text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
+                                status_code=code,
+                                explanation=httplib.responses[code])
                         else:
-                            j = oxford_json(param1)
+                            text = 'Powered by Oxford Dictionary.\n'
 
-                            if type(j) is int:
-                                code = j
+                            lexents = j['results'][0]['lexicalEntries']
+                            for lexent in lexents:
+                                text += '\n{text} ({lexCat})'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
+                                
+                                sens = lexent['entries'][0]['senses']
+                                
+                                text += '\nDefinition:'
+                                for index, sen in enumerate(sens):
+                                    for de in sen['definitions']:
+                                        text += '\n{count}. {de}'.format(count=index+1, de=de)
 
-                                text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
-                                    status_code=code,
-                                    explanation=httplib.responses[code])
-                            else:
-                                text = 'Powered by Oxford Dictionary.\n\n'
-
-                                lexents = j['results'][0]['lexicalEntries']
-                                for lexent in lexents:
-                                    text += '{text} ({lexCat})\n'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
-                                    
-                                    sens = lexent['entries'][0]['senses']
-                                    
-                                    text += 'Definition: \n'
-                                    for index, sen in enumerate(sens):
-                                        for de in sen['definitions']:
-                                            text += '{count}. {de}\n'.format(count=index+1, de=de)
-                                            
-                                    text += '\n'
-
-                        api_reply(rep, TextSendMessage(text=text))
+                    api_reply(rep, TextSendMessage(text=text))
                 # Leave group or room
                 elif cmd == 'B':
                     cid = get_source_channel_id(src)
@@ -676,22 +746,14 @@ def handle_text_message(event):
                             api.leave_group(cid)
                 # User profile
                 elif cmd == 'U':
-                    param1 = oth
+                    uid = params[1]
 
-                    Valid = True
+                    if uid is not None and len(uid) != 33:
+                        text = 'The length of user id must be 33 characters.'   
+                    else:
+                        line_profile = profile(uid if uid is not None else src.sender_id)
 
-                    if param1 is not None:
-                        if len(param1) != 33:
-                            text = 'The length of user id must be 33 characters.'
-                            Valid = False
-                    
-                    if Valid:
-                        try:
-                            line_profile = api.get_profile(param1 if param1 is not None else src.sender_id)
-                        except exceptions.LineBotApiError as ex:
-                            if ex.status_code == 404:
-                                text = 'User profile not found.'
-                        text = u'User ID: {uid}\nUser name: {name}\nProfile Picture URL: {url}\nStatus Message: {msg}'.format(
+                        text = u'User ID:\n{uid}\nUser name:\n{name}\nProfile Picture URL:\n{url}\nStatus Message:\n{msg}'.format(
                                 uid=line_profile.user_id,
                                 name=line_profile.display_name,
                                 url=line_profile.picture_url,
@@ -699,7 +761,7 @@ def handle_text_message(event):
 
                     api_reply(rep, TextSendMessage(text=text))
                 else:
-                    cmd_called_time[cmd] -= 1
+                    cmd_dict[cmd].count -= 1
         else:
             reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
     except exceptions.LineBotApiError as ex:
@@ -954,10 +1016,13 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
             reply = result[kwdict_col.reply].decode('utf-8')
 
             if result[kwdict_col.is_pic_reply]:
+                line_profile = profile(result[kwdict_col.creator])
+
                 api_reply(token, TemplateSendMessage(
                     alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
-                    template=ButtonsTemplate(text=u'ID: {id}\nCreated by {creator}.'.format(creator=api.get_profile(result[kwdict_col.creator]).display_name,
-                                                                                            id=result[kwdict_col.id]), 
+                    template=ButtonsTemplate(text=u'ID: {id}\nCreated by {creator}.'.format(
+                        creator='(LINE account data not found)' if line_profile is None else line_profile.display_name,
+                        id=result[kwdict_col.id]), 
                                              thumbnail_image_url=reply,
                                              actions=[
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
@@ -1010,6 +1075,14 @@ def send_error_url_line(token, error_text, channel_id):
         url_full=request.url_root + url_for('get_error_list')[1:])
     print report_content['Error'][timestamp]
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
+
+
+def profile(uid):
+    try:
+        return api.get_profile(uid)
+    except exceptions.LineBotApiError as ex:
+        if ex.status_code == 404:
+            return None
 
 
 if __name__ == "__main__":

@@ -39,8 +39,8 @@ class group_ban(object):
 
 
 
-
-    def create_ban(self):
+    @property
+    def table_structure(self):
         cmd = u'CREATE TABLE group_ban( \
                     {} VARCHAR(33) PRIMARY KEY, \
                     {} BOOLEAN NOT NULL DEFAULT FALSE, \
@@ -52,8 +52,7 @@ class group_ban(object):
                     {} VARCHAR(56), \
                     {} VARCHAR(33), \
                     {} VARCHAR(56));'.format(*_col_list)
-        result = self.sql_cmd_only(cmd)
-        return True if len(result) <= 1 else False
+        return cmd
 
     def new_data(self, groupId, adminUID, key_for_admin):
         if len(adminUID) != self.id_length or len(groupId) != self.id_length:

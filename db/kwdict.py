@@ -36,8 +36,8 @@ class kw_dict_mgr(object):
 
 
 
-
-    def create_kwdict(self):
+    @property
+    def table_structure(self):
         cmd = u'CREATE TABLE keyword_dict( \
                     {} SERIAL, \
                     {} VARCHAR(500), \
@@ -49,8 +49,7 @@ class kw_dict_mgr(object):
                     {} VARCHAR(33) NOT NULL), \
                     {} BOOLEAN DEFAULT FALSE, \
                     {} BOOLEAN DEFAULT FALSE;'.format(*_col_list)
-        result = self.sql_cmd_only(cmd)
-        return True if len(result) <= 1 else False
+        return cmd
 
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
         keyword = keyword.replace('  ', ' ')
