@@ -41,8 +41,7 @@ rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
 report_content = {'Error': {}, 
                   'FullQuery': {}, 
                   'FullInfo': {},
-                  'Text': {},
-                  'Rank': {}}
+                  'Text': {}}
 cmd_called_time = {'S': 0, 'A': 0, 'M': 0, 'D': 0, 'R': 0, 'Q': 0, 
                    'C': 0, 'I': 0, 'K': 0, 'P': 0, 'G': 0, 'GA': 0, 
                    'H': 0, 'SHA': 0, 'O': 0, 'B': 0}
@@ -184,17 +183,10 @@ def full_content(timestamp):
 
 @app.route("/ranking/<type>", methods=['GET'])
 def full_ranking(type):
-    content_text = report_content['Rank'].get(type)
-
-    if content_text is None:
-        if type == 'user':
-            content = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank())
-        elif type == 'used':
-            content = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())
-
-        report_content['Rank'][type] = content
-    else:
-        content = content_text
+    if type == 'user':
+        content = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank())
+    elif type == 'used':
+        content = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())
         
     return html_paragraph(content)
 
