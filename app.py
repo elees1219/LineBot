@@ -550,7 +550,8 @@ def handle_text_message(event):
                         print entry[kwdict_col.id]
 
                         text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
-                                                             id=entry[kwdict_col.id])
+                                                             id=
+                                                             entry[kwdict_col.id])
                         
                         last_count -= 1
                         if len(last) - last_count >= limit:
