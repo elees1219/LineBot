@@ -720,6 +720,8 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
+    rec['Msg_Received'] += 1
+
     package_id = event.message.package_id
     sticker_id = event.message.sticker_id
     rep = event.reply_token
@@ -754,6 +756,7 @@ def handle_sticker_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
+    rec['Msg_Received'] += 1
     return
 
     api_reply(
@@ -768,6 +771,7 @@ def handle_location_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
+    rec['Msg_Received'] += 1
     return
 
     if isinstance(event.message, ImageMessage):
