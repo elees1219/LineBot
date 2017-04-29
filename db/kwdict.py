@@ -245,7 +245,7 @@ class kw_dict_mgr(object):
         basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
         basic += u'Attribute: \n'
         basic += u'{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '[ - ]',
-                                                   ovr='[ OVERRIDE ]' if entry_row[kwdict_col.override] else '[ - ]',
+                                                   ovr='[ OVERRIDDEN ]' if entry_row[kwdict_col.override] else '[ - ]',
                                                    delete='[ DELETED ]' if entry_row[kwdict_col.deleted] else '[ - ]')
         basic += u'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_count])
 
