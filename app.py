@@ -220,7 +220,7 @@ def handle_text_message(event):
 
             split_count = {'S': 4, 'A': 3, 'M': 3, 'D': 3, 'R': 3, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 4, 'P': 2, 'G': 2, 'GA': 3, 
-                           'H': 2, 'SHA': 3, 'O': 3, 'B': 3}
+                           'H': 2, 'SHA': 3, 'O': 3, 'B': 3, 'U': 2}
             is_top = {'S': True, 'A': False, 'M': True, 'D': False, 'R': True, 'Q': False, 
                       'C': True, 'I': False, 'K': False, 'P': False, 'G': False, 'GA': True, 
                       'H': False, 'SHA': False, 'O': False, 'B': False}
@@ -673,6 +673,29 @@ def handle_text_message(event):
                             api.leave_room(cid)
                         elif isinstance(src, SourceGroup):
                             api.leave_group(cid)
+                # User profile
+                elif cmd == 'U':
+                    max_param_count = 1
+                    paramU = split(oth, splitter, max_param_count)
+                    param1 = [paramU.pop(0) if len(paramU) > 0 else None for i in range(max_param_count)]
+
+                    if param1 is not None:
+                        if len(param1) == 33:
+                            try:
+                                line_profile = api.get_profile(param1)
+                            except exceptions.LineBotApiError as ex:
+                                if ex.status_code == 404:
+                                    text = 'User profile not found.'
+
+                            text = 'User ID: {uid}\nUser name: {name}\nProfile Picture URL: {url}\nStatus Message: {msg}'.format(
+                                uid=line_profile.user_id,
+                                name=line_profile.display_name,
+                                url=line_profile.picture_url,
+                                msg=line_profile.status_message)
+                    else:
+                        text = 'The length of user id must be 33 characters.'
+                        
+                    api_reply(rep, TextSendMessage(text=text))
                 else:
                     cmd_called_time[cmd] -= 1
         else:
@@ -839,12 +862,13 @@ def handle_join(event):
 def split(text, splitter, size):
     list = []
   
-    for i in range(size):
-        if splitter not in text or i == size - 1:
-            list.append(text)
-            break
-        list.append(text[0:text.index(splitter)])
-        text = text[text.index(splitter)+len(splitter):]
+    if text is not None:
+        for i in range(size):
+            if splitter not in text or i == size - 1:
+                list.append(text)
+                break
+            list.append(text[0:text.index(splitter)])
+            text = text[text.index(splitter)+len(splitter):]
   
     while len(list) < size:
         list.append(None)
