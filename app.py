@@ -302,8 +302,6 @@ def handle_text_message(event):
                     api_reply(rep, TextSendMessage(text=text))
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
-                    key = params.pop(1)
-
                     pinned = cmd_dict[cmd].non_user_permission_required
                     if pinned and permission_level(params.pop(1)) < 1:
                         text = 'Insufficient Permission.'
@@ -311,10 +309,6 @@ def handle_text_message(event):
                         text = 'Unable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
                     else:
                         new_uid = src.sender_id
-
-                        
-                        print pinned
-                        print params
 
                         if params[4] is not None:
                             action_kw = params[1]
