@@ -522,7 +522,11 @@ def handle_text_message(event):
                     text += u'Boot up Time: {bt} (UTC+8)\n\n'.format(bt=boot_up)
                     text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
                     text += u'Message Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
-                    text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_dict)
+                    cmd_dict_text = ''
+                    for cmd, cmd_obj in cmd_dict.iteritems():
+                        cmd_dict_text += ',{}[{}]'.format(cmd, cmd_obj.count)
+                    cmd_dict_text = cmd_dict_text[:-1]
+                    text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
                     
                     text2 = u'Data Collected Full Time\n\n'
                     text2 += u'Count of Keyword Pair: {ct}\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(ct=kwpct,
