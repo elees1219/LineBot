@@ -65,6 +65,11 @@ class command(object):
         """Called count."""
         return self._count
 
+    @count.setter
+    def count(self, value):
+        """Called count."""
+        self._count = value 
+
     @property
     def non_user_permission_required(self):
         """Required Permission"""
