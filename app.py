@@ -739,13 +739,12 @@ def handle_text_message(event):
                 elif cmd == 'B':
                     cid = get_source_channel_id(src)
 
-                    api_reply(rep, TextSendMessage(text='Channel ID: {cid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(
-                        cid=cid)))
-
                     if isinstance(src, SourceUser):
                         text = 'Unable to leave 1v1 chat.'
                         api_reply(rep, TextSendMessage(text=text))
                     else:
+                        api_reply(rep, TextSendMessage(text='Channel ID: {cid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(cid=cid)))
+
                         if isinstance(src, SourceRoom):
                             api.leave_room(cid)
                         elif isinstance(src, SourceGroup):
