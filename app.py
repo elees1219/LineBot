@@ -475,7 +475,7 @@ def handle_text_message(event):
                         first = kwd.most_used()
                         text2 += u'Most Popular Keyword ({t} Time(s)):\n'.format(t=first[0][kwdict_col.used_count])
                         for entry in first:
-                            text2 += u'{kw} (ID: {id})\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'), 
+                            text2 += u'{kw} (ID: {id})\n'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
                                                                  id=entry[kwdict_col.id])
 
                         text2 += '\n'
@@ -485,7 +485,7 @@ def handle_text_message(event):
                         limit = 10
                         text2 += u'Most Unpopular Keyword ({t} Time(s)):\n'.format(t=last[0][kwdict_col.used_count])
                         for entry in last:
-                            text2 += u'{kw} (ID: {id})\n'.format(kw=entry[kwdict_col.keyword].decode('utf-8'),
+                            text2 += u'{kw} (ID: {id})\n'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
                                                                  id=entry[kwdict_col.id])
                             
                             last_count -= 1
