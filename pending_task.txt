@@ -1,3 +1,4 @@
 Integrate error messages
+Modulize main code in TextSendMessage event
 
 OVERRIDE¡÷RANDOM REPLY

@@ -307,6 +307,7 @@ def handle_text_message(event):
                     key = params.pop(1)
 
                     pinned = cmd_dict[cmd].non_user_permission_required
+                    print pinned
                     if pinned and permission_level(params.pop(1)) < 1:
                         text = 'Insufficient Permission.'
                     elif not isinstance(src, SourceUser):
