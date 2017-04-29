@@ -467,7 +467,7 @@ def handle_text_message(event):
                             pct=kwd.row_count(True) / float(kwpct) * 100)
                         text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_count_sum())
                         user_list_top = kwd.user_sort_by_created_pair()[0]
-                        text2 += u'The User Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(
+                        text2 += u'The User who Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(
                             name=api.get_profile(user_list_top[0]).display_name,
                             num=user_list_top[1],
                             pct=user_list_top[1] / float(kwpct) * 100)
