@@ -836,7 +836,7 @@ def handle_sticker_message(event):
             result = results[0]
             kwdata = 'Associated Keyword ID: {id}\n'.format(id=result[kwdict_col.id])
         else:
-            kwdata = 'No associated keyword pair.\n'
+            kwdata = 'No associated keyword.\n'
 
         api_reply(
             rep,
