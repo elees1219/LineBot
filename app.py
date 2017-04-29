@@ -220,10 +220,15 @@ def handle_text_message(event):
 
             split_count = {'S': 4, 'A': 3, 'M': 3, 'D': 3, 'R': 3, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 4, 'P': 2, 'G': 2, 'GA': 3, 
-                           'H': 2, 'SHA': 3, 'O': 3, 'B': 3, 'U': 2}
+                           'H': 2, 'SHA': 3, 'O': 3, 'B': 3, 'U': 3}
+
+            print head
+            print cmd
+            print oth
+
             is_top = {'S': True, 'A': False, 'M': True, 'D': False, 'R': True, 'Q': False, 
                       'C': True, 'I': False, 'K': False, 'P': False, 'G': False, 'GA': True, 
-                      'H': False, 'SHA': False, 'O': False, 'B': False}
+                      'H': False, 'SHA': False, 'O': False, 'B': False, 'U': False}
 
             if head == 'JC':
                 rec['JC_called'] += 1
