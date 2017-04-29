@@ -524,7 +524,7 @@ def handle_text_message(event):
                     text += u'Message Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.iteritems():
-                        cmd_dict_text += ',{}[{}]'.format(cmd, cmd_obj.count)
+                        cmd_dict_text += '{} - {}, '.format(cmd, cmd_obj.count)
                     cmd_dict_text = cmd_dict_text[:-1]
                     text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
                     
