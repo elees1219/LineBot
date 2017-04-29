@@ -255,7 +255,7 @@ def handle_text_message(event):
         return
 
     try:
-        if len(text.split(splitter)) > 2 and text.startswith('JC'):
+        if len(text.split(splitter)) >= 2 and text.startswith('JC'):
             head, cmd, oth = split(text, splitter, 3)
 
             if head == 'JC':
