@@ -462,7 +462,11 @@ def handle_text_message(event):
                         else:
                             pair_id = params[2]
 
-                            results = kwd.get_info_id(pair_id)   
+                            if string_is_int(pair_id):
+                                results = kwd.get_info_id(pair_id)   
+                            else:
+                                results = None
+                                text = 'Parameter 2 must be integer to represent pair ID.'
                     else:
                         kw = params[1]
 
@@ -525,7 +529,7 @@ def handle_text_message(event):
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.iteritems():
                         cmd_dict_text += '{} - {}, '.format(cmd, cmd_obj.count)
-                    cmd_dict_text = cmd_dict_text[:-1]
+                    cmd_dict_text = cmd_dict_text[:-2]
                     text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
                     
                     text2 = u'Data Collected Full Time\n\n'
