@@ -42,6 +42,34 @@ report_content = {'Error': {},
                   'FullQuery': {}, 
                   'FullInfo': {},
                   'Text': {}}
+
+class command(object):
+    def __init__(self, min_split=2, max_split=2, non_user_permission_required=False):
+        self._split_max = max_split
+        self._split_min = min_split
+        self._count = 0
+        self._non_user_permission_required = non_user_permission_required
+
+    @property
+    def split_max(self):
+        """Maximum split count."""
+        return self._split_max
+
+    @property
+    def split_min(self):
+        """Minimum split count."""
+        return self._split_min
+
+    @property
+    def count(self):
+        """Called count."""
+        return self._count
+
+    @property
+    def non_user_permission_required(self):
+        """Required Permission"""
+        return self._non_user_permission_required
+
 cmd_dict = {'S': command(1, 1, True), 
             'A': command(2, 4, False), 
             'M': command(2, 4, True), 
@@ -209,33 +237,6 @@ def html_paragraph(content):
 
 def html_hyperlink(content, link):
     return '<a href=\"{link}\">{content}</a>'.format(link=link, content=content)
-
-class command(object):
-    def __init__(self, min_split=2, max_split=2, non_user_permission_required=False):
-        self._split_max = max_split
-        self._split_min = min_split
-        self._count = 0
-        self._non_user_permission_required = non_user_permission_required
-
-    @property
-    def split_max(self):
-        """Maximum split count."""
-        return self._split_max
-
-    @property
-    def split_min(self):
-        """Minimum split count."""
-        return self._split_min
-
-    @property
-    def count(self):
-        """Called count."""
-        return self._count
-
-    @property
-    def non_user_permission_required(self):
-        """Required Permission"""
-        return self._non_user_permission_required
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
