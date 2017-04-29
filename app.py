@@ -53,7 +53,7 @@ class command(object):
     @property
     def split_max(self):
         """Maximum split count."""
-        return self._split_max + (1 if non_user_permission_required else 0) 
+        return self._split_max + (1 if self._non_user_permission_required else 0) 
 
     @property
     def split_min(self):
