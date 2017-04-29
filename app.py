@@ -286,6 +286,7 @@ def handle_text_message(event):
                 # SQL Command
                 if cmd == 'S':
                     key = params.pop(1)
+                    print params
                     sql = params[1]
 
                     if isinstance(src, SourceUser) and permission_level(key) >= 3:
@@ -552,6 +553,8 @@ def handle_text_message(event):
                     for entry in last:
                         text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
                                                              id=entry[kwdict_col.id])
+
+                        print entry[kwdict_col.id]
                         
                         last_count -= 1
                         if len(last) - last_count >= limit:
