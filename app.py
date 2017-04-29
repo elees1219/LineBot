@@ -679,11 +679,6 @@ def handle_text_message(event):
                     paramU = split(oth, splitter, max_param_count)
                     param1 = [paramU.pop(0) if len(paramU) > 0 else None for i in range(max_param_count)]
 
-                    print head
-                    print cmd
-                    print oth
-                    print param1
-
                     Valid = True
 
                     if param1 is not None:
