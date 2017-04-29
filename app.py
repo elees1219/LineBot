@@ -247,14 +247,14 @@ def html_hyperlink(content, link):
 def handle_text_message(event):
     rec['Msg_Received'] += 1
 
-    rep = event.reply_token
+    token = event.reply_token
     text = event.message.text
     src = event.source
     splitter = '  '
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
-        api.reply_message(rep, TextSendMessage(text='Set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
+        api.reply_message(token, TextSendMessage(text='Set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
         return
     elif rec['Silence']:
         return
@@ -268,7 +268,7 @@ def handle_text_message(event):
 
                 if cmd not in cmd_dict:
                     text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=cmd)
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                     return
 
                 max_prm = cmd_dict[cmd].split_max
@@ -277,7 +277,7 @@ def handle_text_message(event):
 
                 if min_prm > len(params) - params.count(None):
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                     return
 
                 params.insert(0, None)
@@ -299,7 +299,7 @@ def handle_text_message(event):
                     else:
                         text = 'This is a restricted function.'
 
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
                     pinned = cmd_dict[cmd].non_user_permission_required
@@ -345,18 +345,17 @@ def handle_text_message(event):
                                 kw = params[1]
 
                                 if string_is_int(rep):
-                                    if string_is_int(rep):
-                                        rep = sticker_png_url(rep)
-                                        url_val_result = True
-                                    else:
-                                        url_val_result = validators.url(rep)
+                                    rep = sticker_png_url(rep)
+                                    url_val_result = True
+                                else:
+                                    url_val_result = validators.url(rep)
 
-                                    if type(url_val_result) is bool and url_val_result:
-                                        results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
-                                    else:
-                                        results = None
-                                        text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
-                                                {error}'.format(error=url_val_result)
+                                if type(url_val_result) is bool and url_val_result:
+                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
+                                else:
+                                    results = None
+                                    text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
+                                            {error}'.format(error=url_val_result) 
                             elif params[1] == 'STK':
                                 kw = params[2]
 
@@ -385,7 +384,7 @@ def handle_text_message(event):
                         else:
                             text = 'Pair adding failed. Ensure none of parameter is empty.'
 
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # DELETE keyword & DELETE top keyword
                 elif cmd == 'D' or cmd == 'R':
                     pinned = cmd_dict[cmd].non_user_permission_required
@@ -420,7 +419,7 @@ def handle_text_message(event):
                             text += u'\nThis pair is created by {name}.'.format(
                                 name='(LINE account data not found)' if line_profile is None else line_profile.display_name)
 
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # QUERY keyword
                 elif cmd == 'Q':
                     if params[2] is not None:
@@ -454,7 +453,7 @@ def handle_text_message(event):
                         else:
                             text = u'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=kw)
 
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # INFO of keyword
                 elif cmd == 'I':
                     if params[2] is not None:
@@ -482,7 +481,7 @@ def handle_text_message(event):
                         else:
                             text = u'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=kw)
 
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # RANKING
                 elif cmd == 'K':
                     type = params[1]
@@ -509,7 +508,7 @@ def handle_text_message(event):
                                 url_u=request.url_root + url_for('full_ranking', type='user')[1:],
                                 url_k=request.url_root + url_for('full_ranking', type='used')[1:])
                     
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # SPECIAL record
                 elif cmd == 'P':
                     kwpct = kwd.row_count()
@@ -559,7 +558,7 @@ def handle_text_message(event):
                             text2 += '\n...({left} more)'.format(left=last_count)
                             break
 
-                    api_reply(rep, [TextSendMessage(text=text), TextMessage(text=text2)])
+                    api_reply(token, [TextSendMessage(text=text), TextMessage(text=text2)])
                 # GROUP ban basic (info)
                 elif cmd == 'G':
                     if not isinstance(src, SourceUser):
@@ -579,7 +578,7 @@ def handle_text_message(event):
                     else:
                         text = 'This function can be only execute in GROUP or ROOM.'
                     
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # GROUP ban advance
                 elif cmd == 'GA':
                     error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
@@ -677,7 +676,7 @@ def handle_text_message(event):
                     else:
                         text = illegal_source
 
-                    api_reply(rep, [TextSendMessage(text=pert), TextSendMessage(text=text)])
+                    api_reply(token, [TextSendMessage(text=pert), TextSendMessage(text=text)])
                 # get CHAT id
                 elif cmd == 'H':
                     text = get_source_channel_id(src)
@@ -691,7 +690,7 @@ def handle_text_message(event):
                     else:
                         text = 'Unknown chatting type.'
 
-                    api_reply(rep, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
+                    api_reply(token, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
                 # SHA224 generator
                 elif cmd == 'SHA':
                     target = params[1]
@@ -701,7 +700,7 @@ def handle_text_message(event):
                     else:
                         text = 'Illegal Parameter to generate SHA224 hash.'
 
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # Look up vocabulary in OXFORD Dictionary
                 elif cmd == 'O':
                     voc = params[1]
@@ -731,16 +730,16 @@ def handle_text_message(event):
                                     for de in sen['definitions']:
                                         text += '\n{count}. {de}'.format(count=index+1, de=de)
 
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 # Leave group or room
                 elif cmd == 'B':
                     cid = get_source_channel_id(src)
 
                     if isinstance(src, SourceUser):
                         text = 'Unable to leave 1v1 chat.'
-                        api_reply(rep, TextSendMessage(text=text))
+                        api_reply(token, TextSendMessage(text=text))
                     else:
-                        api_reply(rep, TextSendMessage(text='Channel ID: {cid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(cid=cid)))
+                        api_reply(token, TextSendMessage(text='Channel ID: {cid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(cid=cid)))
 
                         if isinstance(src, SourceRoom):
                             api.leave_room(cid)
@@ -764,24 +763,24 @@ def handle_text_message(event):
                         else:
                             text = 'Unable to use this function in Group or Room.'
 
-                    api_reply(rep, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text))
                 else:
                     cmd_dict[cmd].count -= 1
         else:
-            reply_message_by_keyword(get_source_channel_id(src), rep, text, False)
+            reply_message_by_keyword(get_source_channel_id(src), token, text, False)
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
         for err in ex.error.details:
             text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
 
-        send_error_url_line(rep, text, get_source_channel_id(src))
+        send_error_url_line(token, text, get_source_channel_id(src))
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
 
-        send_error_url_line(rep, text, get_source_channel_id(src))
+        send_error_url_line(token, text, get_source_channel_id(src))
     return
 
     if text == 'confirm':
