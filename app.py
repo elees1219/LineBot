@@ -274,6 +274,7 @@ def handle_text_message(event):
                 max_prm = cmd_dict[cmd].split_max
                 min_prm = cmd_dict[cmd].split_min
                 params = split(oth, splitter, max_prm)
+                print params
 
                 if min_prm > len(params) - params.count(None):
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
