@@ -692,7 +692,7 @@ def handle_text_message(event):
                         except exceptions.LineBotApiError as ex:
                             if ex.status_code == 404:
                                 text = 'User profile not found.'
-                        text = 'User ID: {uid}\nUser name: {name}\nProfile Picture URL: {url}\nStatus Message: {msg}'.format(
+                        text = u'User ID: {uid}\nUser name: {name}\nProfile Picture URL: {url}\nStatus Message: {msg}'.format(
                                 uid=line_profile.user_id,
                                 name=line_profile.display_name,
                                 url=line_profile.picture_url,
