@@ -756,13 +756,16 @@ def handle_text_message(event):
                     if uid is not None and len(uid) != 33:
                         text = 'The length of user id must be 33 characters.'   
                     else:
-                        line_profile = profile(uid if uid is not None else src.sender_id)
+                        if isinstance(src, SourceUser):
+                            line_profile = profile(uid if uid is not None else src.sender_id)
 
-                        text = u'User ID:\n{uid}\nUser name:\n{name}\nProfile Picture URL:\n{url}\nStatus Message:\n{msg}'.format(
-                                uid=line_profile.user_id,
-                                name=line_profile.display_name,
-                                url=line_profile.picture_url,
-                                msg=line_profile.status_message)
+                            text = u'User ID:\n{uid}\nUser name:\n{name}\nProfile Picture URL:\n{url}\nStatus Message:\n{msg}'.format(
+                                    uid=line_profile.user_id,
+                                    name=line_profile.display_name,
+                                    url=line_profile.picture_url,
+                                    msg=line_profile.status_message)
+                        else:
+                            text = 'Unable to use this function in Group or Room.'
 
                     api_reply(rep, TextSendMessage(text=text))
                 else:
