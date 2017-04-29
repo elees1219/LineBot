@@ -302,7 +302,7 @@ class kw_dict_mgr(object):
 
                 if index >= limit:
                     ret['limited'] += separator
-                    ret['limited'] += '{num} not displayed.'.format(num=count - limit)
+                    ret['limited'] += '{num} data not displayed.'.format(num=count - limit)
                     limited = True
 
         return ret
