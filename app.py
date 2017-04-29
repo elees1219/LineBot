@@ -4,6 +4,7 @@ import errno, os, sys, tempfile
 import traceback
 import validators
 import time
+from urlparse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
 
@@ -330,7 +331,7 @@ def handle_text_message(event):
                                     rep = sticker_png_url(rep)
                                     url_val_result = True
                                 else:
-                                    url_val_result = validators.url(rep)
+                                    url_val_result = url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
 
                                 if type(url_val_result) is bool and url_val_result:
                                     results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, True)
@@ -348,13 +349,13 @@ def handle_text_message(event):
                                     rep = sticker_png_url(rep)
                                     url_val_result = True
                                 else:
-                                    url_val_result = validators.url(rep)
+                                    url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
 
                                 if type(url_val_result) is bool and url_val_result:
                                     results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
                                 else:
                                     results = None
-                                    text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).\n \
+                                    text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(https://) and the URL scheme is HTTPS.\n \
                                             {error}'.format(error=url_val_result) 
                             elif params[1] == 'STK':
                                 kw = params[2]
