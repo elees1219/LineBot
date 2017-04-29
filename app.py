@@ -282,8 +282,6 @@ def handle_text_message(event):
 
                 params.insert(0, None)
                 cmd_dict[cmd].count += 1
-
-                print params
                 
                 # SQL Command
                 if cmd == 'S':
@@ -307,13 +305,16 @@ def handle_text_message(event):
                     key = params.pop(1)
 
                     pinned = cmd_dict[cmd].non_user_permission_required
-                    print pinned
                     if pinned and permission_level(params.pop(1)) < 1:
                         text = 'Insufficient Permission.'
                     elif not isinstance(src, SourceUser):
                         text = 'Unable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
                     else:
                         new_uid = src.sender_id
+
+                        
+                        print pinned
+                        print params
 
                         if params[4] is not None:
                             action_kw = params[1]
