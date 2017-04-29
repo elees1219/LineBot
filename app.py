@@ -274,7 +274,6 @@ def handle_text_message(event):
                 max_prm = cmd_dict[cmd].split_max
                 min_prm = cmd_dict[cmd].split_min
                 params = split(oth, splitter, max_prm)
-                print params
 
                 if min_prm > len(params) - params.count(None):
                     text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
@@ -283,13 +282,10 @@ def handle_text_message(event):
 
                 params.insert(0, None)
                 cmd_dict[cmd].count += 1
-                print params
                 
                 # SQL Command
                 if cmd == 'S':
-                    print params
                     key = params.pop(1)
-                    print params
                     sql = params[1]
 
                     if isinstance(src, SourceUser) and permission_level(key) >= 3:
@@ -554,10 +550,10 @@ def handle_text_message(event):
 
                     text2 += u'\n\nMost Unpopular Keyword ({t} Time(s)):'.format(t=last[0][kwdict_col.used_count])
                     for entry in last:
+                        print entry[kwdict_col.id]
+
                         text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword],
                                                              id=entry[kwdict_col.id])
-
-                        print entry[kwdict_col.id]
                         
                         last_count -= 1
                         if len(last) - last_count >= limit:
@@ -1039,7 +1035,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                              ])))
             else:
                 api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
-                                                                         id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))))
+                                                                          id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))))
 
 
 def rec_error(details, channel_id):
