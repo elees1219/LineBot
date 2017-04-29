@@ -399,10 +399,10 @@ def handle_text_message(event):
                             action = params[1]
 
                             if action == 'ID':
-                                id = params[2]
+                                pair_id = params[2]
 
-                                if string_is_int(id):
-                                    results = kwd.delete_keyword_id(id, pinned)
+                                if string_is_int(pair_id):
+                                    results = kwd.delete_keyword_id(pair_id, pinned)
                                 else:
                                     results = None
                                     text = 'Illegal parameter 2. Parameter 2 need to be integer to delete keyword by ID.'
@@ -463,9 +463,9 @@ def handle_text_message(event):
                             text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
                             results = None
                         else:
-                            id = params[2]
+                            pair_id = params[2]
 
-                            results = kwd.get_info_id(id)   
+                            results = kwd.get_info_id(pair_id)   
                     else:
                         kw = params[1]
 
@@ -477,7 +477,7 @@ def handle_text_message(event):
                         text += '\n\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
                     else:
                         if params[2] is not None:
-                            text = 'Specified ID to get INFORMATION (ID: {id}) returned no data.'.format(id=id)
+                            text = 'Specified ID to get INFORMATION (ID: {id}) returned no data.'.format(id=pair_id)
                         else:
                             text = u'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=kw)
 
