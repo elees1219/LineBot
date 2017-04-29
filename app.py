@@ -382,8 +382,6 @@ def handle_text_message(event):
                                                                  top='(top)' if pinned else '')
                             for result in results:
                                 text += kw_dict_mgr.entry_basic_info(result)
-                        else:
-                            text = 'Pair adding failed. Ensure none of parameter is empty.'
 
                     api_reply(token, TextSendMessage(text=text))
                 # DELETE keyword & DELETE top keyword
