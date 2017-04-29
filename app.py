@@ -533,67 +533,75 @@ def handle_text_message(event):
                         if isinstance(src, SourceUser):
                             text = error
 
-                            if perm >= 1 and param_count == 4:
-                                cmd_dict = {'SF': True, 'ST': False}
-                                status_silence = {True: 'disabled', False: 'enabled'}
+                            try:
+                                if perm >= 1 and param_count == 4:
+                                    cmd_dict = {'SF': True, 'ST': False}
+                                    status_silence = {True: 'disabled', False: 'enabled'}
 
-                                if param2 in cmd_dict:
-                                    settarget = cmd_dict[param2]
+                                    if param2 in cmd_dict:
+                                        settarget = cmd_dict[param2]
 
-                                    if gb.set_silence(param3, str(settarget) , param4):
-                                        text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
-                                        text += 'GID: {gid}'.format(gid=param3)
-                                    else:
-                                        text = 'Group auto reply setting not changed.\n\n'
-                                        text += 'GID: {gid}'.format(gid=param3)
-                                else:
-                                    text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                            elif perm >= 2 and param_count == 6:
-                                cmd_dict = {'SA': gb.change_admin, 
-                                            'SM1': gb.set_mod1,
-                                            'SM2': gb.set_mod2,
-                                            'SM3': gb.set_mod3}
-                                pos_dict = {'SA': 'Administrator',
-                                            'SM1': 'Moderator 1',
-                                            'SM2': 'Moderator 2',
-                                            'SM3': 'Moderator 3'}
-
-                                gid = param3
-                                uid = param4
-                                pkey = param5
-                                npkey = param6
-
-                                try:
-                                    if cmd_dict[param2](gid, uid, pkey, npkey):
-                                        position = pos_dict[param2]
-
-                                        text = u'Group administrator has been changed.\n'
-                                        text += u'Group ID: {gid}\n\n'.format(gid=gid)
-                                        text += u'New {pos} User ID: {uid}\n'.format(uid=uid, pos=position)
-                                        text += u'New {pos} User Name: {unm}\n\n'.format(
-                                            unm=api.get_profile(uid).display_name,
-                                            pos=position)
-                                        text += u'New {pos} Key: {npkey}\n'.format(npkey=npkey, pos=position)
-                                        text += u'Please protect your key well!'
-                                    else:
-                                        text = '{pos} changing process failed.'
-                                except KeyError as Ex:
-                                    text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
-                            elif perm >= 3 and (param_count == 2 or param_count == 5):
-                                if param2 == 'C' and param_count == 2:
-                                    if gb.create_ban():
-                                        text = 'Group Ban table successfully created.'
-                                    else:
-                                        text = 'Group Ban table creating failed.'
-                                elif param_count == 5:
-                                    if param2 == 'N':
-                                        if gb.new_data(param3, param4, param5):
-                                            text = u'Group data registered.\n'
-                                            text += u'Group ID: {gid}'.format(gid=param2)
-                                            text += u'Admin ID: {uid}'.format(uid=param3)
-                                            text += u'Admin Name: {name}'.format(gid=api.get_profile(param3).display_name)
+                                        if gb.set_silence(param3, str(settarget) , param4):
+                                            text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
+                                            text += 'GID: {gid}'.format(gid=param3)
                                         else:
-                                            text = 'Group data register failed.'
+                                            text = 'Group auto reply setting not changed.\n\n'
+                                            text += 'GID: {gid}'.format(gid=param3)
+                                    else:
+                                        text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
+                                elif perm >= 2 and param_count == 6:
+                                    cmd_dict = {'SA': gb.change_admin, 
+                                                'SM1': gb.set_mod1,
+                                                'SM2': gb.set_mod2,
+                                                'SM3': gb.set_mod3}
+                                    pos_dict = {'SA': 'Administrator',
+                                                'SM1': 'Moderator 1',
+                                                'SM2': 'Moderator 2',
+                                                'SM3': 'Moderator 3'}
+
+                                    gid = param3
+                                    uid = param4
+                                    pkey = param5
+                                    npkey = param6
+
+                                    line_profile = api.get_profile(uid)
+
+                                    try:
+                                        if cmd_dict[param2](gid, uid, pkey, npkey):
+                                            position = pos_dict[param2]
+
+                                            text = u'Group administrator has been changed.\n'
+                                            text += u'Group ID: {gid}\n\n'.format(gid=gid)
+                                            text += u'New {pos} User ID: {uid}\n'.format(uid=uid, pos=position)
+                                            text += u'New {pos} User Name: {unm}\n\n'.format(
+                                                unm=line_profile.display_name,
+                                                pos=position)
+                                            text += u'New {pos} Key: {npkey}\n'.format(npkey=npkey, pos=position)
+                                            text += u'Please protect your key well!'
+                                        else:
+                                            text = '{pos} changing process failed.'
+                                    except KeyError as Ex:
+                                        text = 'Invalid command: {cmd}. Recheck User Manual.'.format(cmd=param2)
+                                elif perm >= 3 and (param_count == 2 or param_count == 5):
+                                    if param2 == 'C' and param_count == 2:
+                                        if gb.create_ban():
+                                            text = 'Group Ban table successfully created.'
+                                        else:
+                                            text = 'Group Ban table creating failed.'
+                                    elif param_count == 5:
+                                        line_profile = api.get_profile(param3)
+
+                                        if param2 == 'N':
+                                            if gb.new_data(param3, param4, param5):
+                                                text = u'Group data registered.\n'
+                                                text += u'Group ID: {gid}'.format(gid=param2)
+                                                text += u'Admin ID: {uid}'.format(uid=param3)
+                                                text += u'Admin Name: {name}'.format(gid=line_profile.display_name)
+                                            else:
+                                                text = 'Group data register failed.'
+                            except exceptions.LineBotApiError as e:
+                                if e.status_code == 404:
+                                    text = 'User id not found. Process failed.'
                         else:
                             text = illegal_type
 
