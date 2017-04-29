@@ -220,7 +220,7 @@ def handle_text_message(event):
 
             split_count = {'S': 4, 'A': 3, 'M': 3, 'D': 3, 'R': 3, 'Q': 3, 
                            'C': 2, 'I': 3, 'K': 4, 'P': 2, 'G': 2, 'GA': 3, 
-                           'H': 2, 'SHA': 3, 'O': 3, 'B': 3, 'U': 3}
+                           'H': 2, 'SHA': 3, 'O': 3, 'B': 3, 'U': 2}
             is_top = {'S': True, 'A': False, 'M': True, 'D': False, 'R': True, 'Q': False, 
                       'C': True, 'I': False, 'K': False, 'P': False, 'G': False, 'GA': True, 
                       'H': False, 'SHA': False, 'O': False, 'B': False}
@@ -678,6 +678,11 @@ def handle_text_message(event):
                     max_param_count = 1
                     paramU = split(oth, splitter, max_param_count)
                     param1 = [paramU.pop(0) if len(paramU) > 0 else None for i in range(max_param_count)]
+
+                    print head
+                    print cmd
+                    print oth
+                    print param1
 
                     Valid = True
 
