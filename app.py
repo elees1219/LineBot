@@ -975,7 +975,7 @@ def introduction_template():
     buttons_template = ButtonsTemplate(
             title='Introduction', text='Welcome to use the shadow of JELLYFISH!', 
             actions=[
-                URITemplateAction(label=u'點此開啟使用說明', uri='https://github.com/RaenonX/LineBot/blob/master/README.md'),
+                URITemplateAction(label=u'點此開啟使用說明', uri='https://sites.google.com/view/jellybot'),
                 URITemplateAction(label=u'點此導向開發者LINE帳號', uri='http://line.me/ti/p/~chris80124')
             ])
     template_message = TemplateSendMessage(
