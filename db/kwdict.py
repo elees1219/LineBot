@@ -227,14 +227,17 @@ class kw_dict_mgr(object):
         count = len(data)
         ret['full'] = 'Count of results: {num}\n\n'.format(num=count)
 
-        for index, row in enumerate(data, start=1):
-            text = 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
-                id=row[kwdict_col.id],
-                kw='(Sticker {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
-                ovr='(OVR)' if row[kwdict_col.override] else '',
-                top='(TOP)' if row[kwdict_col.admin] else '',
-                delete='(DEL)' if row[kwdict_col.deleted] else '')
-            ret['full'] += text
+        if count <= 0:
+            ret['limited'] = 'No results'
+        else:
+            for index, row in enumerate(data, start=1):
+                text = 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
+                    id=row[kwdict_col.id],
+                    kw='(Sticker {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
+                    ovr='(OVR)' if row[kwdict_col.override] else '',
+                    top='(TOP)' if row[kwdict_col.admin] else '',
+                    delete='(DEL)' if row[kwdict_col.deleted] else '')
+                ret['full'] += text
 
             if not limited:
                 ret['limited'] += text
