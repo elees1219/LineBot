@@ -39,7 +39,7 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
-rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, 'Intercept': False}
+rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, 'Intercept': True}
 report_content = {'Error': {}, 
                   'FullQuery': {}, 
                   'FullInfo': {},
@@ -245,7 +245,6 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    intercept_text(event)
     rec['Msg_Received'] += 1
 
     token = event.reply_token
@@ -255,10 +254,18 @@ def handle_text_message(event):
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
-        api.reply_message(token, TextSendMessage(text='Set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
+        api.reply_message(token, TextSendMessage(text='Bot set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
         return
     elif rec['Silence']:
         return
+
+    if hashlib.sha224(text).hexdigest() == '561563ed706e6f696abbe050ad79cf334b9262da6f83bc1dcf7328f2':
+        rec['Intercept'] = not rec['Intercept']
+        api.reply_message(token, TextSendMessage(text='Bot {}.'.format(
+            'start to intercept messages.' if rec['Intercept'] else 'stop intercepting messages.')))
+        return
+    elif rec['Intercept']:
+        intercept_text(event)
 
     try:
         if len(text.split(splitter)) >= 2 and text.startswith('JC'):
@@ -1024,7 +1031,7 @@ def api_reply(reply_token, msgs):
 def intercept_text(event):
     print '==========================================='
     print 'From Channel ID \'{}\''.format(get_source_channel_id(event.source))
-    print 'Message \'{}\''.format(event.message.text)
+    print u'Message \'{}\''.format(event.message.text)
     print '==========================================='
 
 
