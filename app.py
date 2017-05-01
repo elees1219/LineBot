@@ -351,7 +351,7 @@ def handle_text_message(event):
                                     url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
 
                                 if type(url_val_result) is bool and url_val_result:
-                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True, kw[0] == ' ')
+                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True, kw[1] == ' ')
                                 else:
                                     results = None
                                     text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(https://) and the URL scheme is HTTPS.\n'
@@ -370,7 +370,7 @@ def handle_text_message(event):
                             kw = params[1]
                             rep = params[2]
 
-                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, kw[0] == ' ')
+                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, kw[1] == ' ')
                         else:
                             results = None
                             text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
