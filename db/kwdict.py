@@ -54,7 +54,7 @@ class kw_dict_mgr(object):
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply, is_like_pattern=False):
         keyword = keyword.replace('  ', ' ')
         reply = reply.replace('  ', ' ')
-        if keyword == '' or reply == '' or len(keyword.replace('%', '').replace('_', '')) <= 2:
+        if keyword == '' or reply == '' or len(keyword.replace('%', '').replace('_', '')) < 2:
             return None
         else:
             cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply, is_like_pattern) \
@@ -138,7 +138,7 @@ class kw_dict_mgr(object):
         return result
 
     def delete_keyword(self, keyword, is_top):
-        if keyword == '' or len(keyword.replace('%', '').replace('_', '')) <= 2:
+        if keyword == '' or len(keyword.replace('%', '').replace('_', '')) < 2:
             return None
         else:
             cmd = u'UPDATE keyword_dict \
