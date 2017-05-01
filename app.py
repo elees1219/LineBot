@@ -343,9 +343,6 @@ def handle_text_message(event):
 
                             if params[2] == 'PIC':
                                 kw = params[1]
-                                like_ptn = kw[0] == ' '
-                                if like_ptn:
-                                    kw = kw[1:]
 
                                 if string_is_int(rep):
                                     rep = sticker_png_url(rep)
@@ -354,7 +351,7 @@ def handle_text_message(event):
                                     url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
 
                                 if type(url_val_result) is bool and url_val_result:
-                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True, like_ptn)
+                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True, kw[0] == ' ')
                                 else:
                                     results = None
                                     text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(https://) and the URL scheme is HTTPS.\n'
@@ -371,12 +368,9 @@ def handle_text_message(event):
                                 results = None
                         elif params[2] is not None:
                             kw = params[1]
-                            like_ptn = kw[0] == ' '
-                            if like_ptn:
-                                kw = kw[1:]
                             rep = params[2]
 
-                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, like_ptn)
+                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, kw[0] == ' ')
                         else:
                             results = None
                             text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
