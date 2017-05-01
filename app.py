@@ -357,9 +357,10 @@ def handle_text_message(event):
                                     text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(https://) and the URL scheme is HTTPS.\n'
                             elif params[1] == 'STK':
                                 kw = params[2]
+                                like_ptn = kw[0] == '%'
 
                                 if string_is_int(kw):
-                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
+                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, False, like_ptn)
                                 else:
                                     results = None
                                     text = 'The 2nd parameter must be integer to represent sticker ID.'
@@ -368,9 +369,10 @@ def handle_text_message(event):
                                 results = None
                         elif params[2] is not None:
                             kw = params[1]
+                            like_ptn = kw[0] == '%'
                             rep = params[2]
 
-                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False)
+                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, like_ptn)
                         else:
                             results = None
                             text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
@@ -1019,9 +1021,8 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
         if gb.is_group_set_to_silence(channel_id):
             return
 
-        res = kwd.get_reply(keyword, is_sticker_kw)
-        if res is not None:
-            result = res[0]
+        result = kwd.get_reply(keyword, is_sticker_kw)
+        if result is not None:
             reply = result[kwdict_col.reply].decode('utf-8')
 
             if result[kwdict_col.is_pic_reply]:
