@@ -343,21 +343,23 @@ def handle_text_message(event):
 
                             if params[2] == 'PIC':
                                 kw = params[1]
+                                like_ptn = kw[0] == '%'
+                                if like_ptn:
+                                    kw = kw[1:]
 
                                 if string_is_int(rep):
                                     rep = sticker_png_url(rep)
-                                    url_val_result = True
-                                else:
-                                    url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
 
-                                if type(url_val_result) is bool and url_val_result:
-                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
+                                if like_ptn and len(kw) <= 1:
+                                    results = None
+                                    text = 'To use string containing condition reply, please input at least 2 characters as keyword.'
+                                elif validators.url(rep) and urlparse(rep).scheme == 'https':
+                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True, like_ptn)
                                 else:
                                     results = None
                                     text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(https://) and the URL scheme is HTTPS.\n'
                             elif params[1] == 'STK':
                                 kw = params[2]
-                                like_ptn = kw[0] == '%'
 
                                 if string_is_int(kw):
                                     results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, False, like_ptn)
@@ -370,9 +372,15 @@ def handle_text_message(event):
                         elif params[2] is not None:
                             kw = params[1]
                             like_ptn = kw[0] == '%'
+                            if like_ptn:
+                                kw = kw[1:]
                             rep = params[2]
 
-                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, like_ptn)
+                            if like_ptn and len(kw) <= 1:
+                                results = None
+                                text = 'To use string containing condition reply, please input at least 2 characters as keyword.'
+                            else:
+                                results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, like_ptn)
                         else:
                             results = None
                             text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
@@ -392,8 +400,11 @@ def handle_text_message(event):
                     else:
                         if params[2] is None:
                             kw = params[1]
+                            like_ptn = kw[0] == '%'
+                            if like_ptn:
+                                kw = kw[1:]
 
-                            results = kwd.delete_keyword(kw, pinned)
+                            results = kwd.delete_keyword(kw, pinned, like_ptn)
                         else:
                             action = params[1]
 
@@ -1039,7 +1050,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                              ])))
             else:
                 api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
-                                                                          id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))))
+                                                                          id='\n\nID: {id}'.format(id=result[kwdict_col.id]) if is_sticker_kw or result[kwdict_col.is_contain] else '')))
 
 
 def rec_error(details, channel_id):
