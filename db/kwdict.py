@@ -51,19 +51,16 @@ class kw_dict_mgr(object):
                     {} BOOLEAN DEFAULT FALSE;'.format(*_col_list)
         return cmd
 
-    def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply, like_pattern=False):
+    def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
         keyword = keyword.replace('  ', ' ')
         reply = reply.replace('  ', ' ')
         if keyword == '' or reply == '':
             return None
         else:
-            cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply, is_contain) \
-                    VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s, %(cnt)s) \
+            cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply) \
+                    VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                     RETURNING *;'
-            cmd_dict = {'kw': keyword, 'rep': reply, 
-                        'cid': creator_id, 'sys': is_top, 
-                        'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply,
-                        'cnt': like_pattern}
+            cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
             cmd_override = u'UPDATE keyword_dict SET override = TRUE \
                              WHERE keyword = %(kw)s AND deleted = FALSE AND override = FALSE'
             cmd_override_dict = {'kw': keyword}
@@ -73,21 +70,20 @@ class kw_dict_mgr(object):
             return result
 
     def get_reply(self, keyword, is_sticker_kw):
-        keyword = self._like_escape(keyword)
+        keyword = keyword.replace('%', '')
+        keyword = keyword.replace("'", r"'")
         cmd = u'SELECT * FROM keyword_dict \
-                WHERE keyword LIKE %(kw)s AND deleted = FALSE AND is_sticker_kw = %(stk_kw)s\
-                ORDER BY admin DESC, is_contain DESC, id DESC;'
-        db_dict = {'kw': '%' + keyword + '%', 'stk_kw': is_sticker_kw}
+                WHERE keyword = %(kw)s AND deleted = FALSE AND is_sticker_kw = %(stk_kw)s\
+                ORDER BY admin DESC, id DESC;'
+        db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
-            for res in result:
-                if not (res[kwdict_col.is_contain] and not result[kwdict_col.keyword] in keyword):
-                    cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1 WHERE id = %(id)s'
-                    cmd_update_dict = {'id': res[kwdict_col.id]}
-                    self.sql_cmd(cmd_update, cmd_update_dict)
-                    return res
-
-        return None
+            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1 WHERE id = %(id)s'
+            cmd_update_dict = {'id': result[0][kwdict_col.id]}
+            self.sql_cmd(cmd_update, cmd_update_dict)
+            return result
+        else:
+            return None
 
     def search_keyword(self, keyword):
         cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE %(kw)s OR reply LIKE %(kw)s ORDER BY id DESC;'
@@ -137,12 +133,12 @@ class kw_dict_mgr(object):
         result = self.sql_cmd_only(cmd)
         return result
 
-    def delete_keyword(self, keyword, is_top, is_contain=False):
+    def delete_keyword(self, keyword, is_top):
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE \
-                WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE AND is_contain = %(cnt)s \
+                WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE \
                 RETURNING *;'
-        cmd_dict = {'kw': keyword, 'top': is_top, 'cnt': is_contain}
+        cmd_dict = {'kw': keyword, 'top': is_top}
         result = self.sql_cmd(cmd, cmd_dict)
         return result
 
@@ -305,10 +301,6 @@ class kw_dict_mgr(object):
         return text
 
 
-    def _like_escape(self, keyword):
-        keyword = keyword.replace('%', r'\\%')
-        keyword = keyword.replace('_', r'\\_')
-        return keyword
 
     def _close_connection(self):
         self.conn.commit()
@@ -326,6 +318,6 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'is_contain', 'used_rank']
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'used_rank']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
-kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
