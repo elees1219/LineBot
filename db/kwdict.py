@@ -23,6 +23,9 @@ class kw_dict_mgr(object):
     def sql_cmd(self, cmd, dict):
         self._set_connection()
         self.cur.execute(cmd, dict)
+
+        print self.cur.query
+
         try:
             result = self.cur.fetchall()
         except psycopg2.ProgrammingError as ex:
