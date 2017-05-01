@@ -259,7 +259,7 @@ def handle_text_message(event):
     elif rec['Silence']:
         return
 
-    if hashlib.sha224(text).hexdigest() == '561563ed706e6f696abbe050ad79cf334b9262da6f83bc1dcf7328f2':
+    if text == '561563ed706e6f696abbe050ad79cf334b9262da6f83bc1dcf7328f2':
         rec['Intercept'] = not rec['Intercept']
         api.reply_message(token, TextSendMessage(text='Bot {}.'.format(
             'start to intercept messages.' if rec['Intercept'] else 'stop intercepting messages.')))
