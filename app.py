@@ -39,7 +39,7 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
-rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False}
+rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, 'Intercept': False}
 report_content = {'Error': {}, 
                   'FullQuery': {}, 
                   'FullInfo': {},
@@ -245,6 +245,7 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
+    intercept_text(event)
     rec['Msg_Received'] += 1
 
     token = event.reply_token
@@ -1001,17 +1002,30 @@ def string_is_int(s):
 def api_reply(reply_token, msgs):
     rec['Msg_Replied'] += 1
 
-    if not isinstance(msgs, (list, tuple)):
-        msgs = [msgs]
+    if not rec['Silence']:
+        if not isinstance(msgs, (list, tuple)):
+            msgs = [msgs]
 
-    for msg in msgs:
-        if isinstance(msg, TextSendMessage) and len(msg.text) > 2000:
-            api.reply_message(reply_token, 
-                              TextSendMessage(
-                                  text='The content to reply is too long that program is unavailable to reply with LINE API.\n\nTo view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
-            return
+        for msg in msgs:
+            if isinstance(msg, TextSendMessage) and len(msg.text) > 2000:
+                api.reply_message(reply_token, 
+                                  TextSendMessage(
+                                      text='The content to reply is too long that program is unavailable to reply with LINE API.\n\nTo view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
+                return
 
-    api.reply_message(reply_token, msgs)
+        api.reply_message(reply_token, msgs)
+    else:
+        print '=================================================================='
+        print 'Bot set to silence. Expected message to reply will display below: '
+        print msgs
+        print '=================================================================='
+
+
+def intercept_text(event):
+    print '==========================================='
+    print 'From Channel ID \'{}\''.format(get_source_channel_id(event.source))
+    print 'Message \'{}\''.format(event.message.text)
+    print '==========================================='
 
 
 def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
