@@ -7,6 +7,7 @@ import time
 from urlparse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
+from error import error
 
 # import for 'SHA'
 import hashlib 
@@ -184,10 +185,9 @@ def get_error_list():
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
     error_message = report_content['Error'].get(timestamp)
-    timestamp = float(timestamp)
 
     if error_message is None:
-        content = 'No error recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+        content = error.webpage.no_content_at_time('error', float(timestamp))
     else:
         content = error_message
         
@@ -196,10 +196,9 @@ def get_error_message(timestamp):
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
     query = report_content['FullQuery'].get(timestamp)
-    timestamp = float(timestamp)
     
     if query is None:
-        content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+        content = error.webpage.no_content_at_time('query', float(timestamp))
     else:
         content = query
         
@@ -208,10 +207,9 @@ def full_query(timestamp):
 @app.route("/info/<timestamp>", methods=['GET'])
 def full_info(timestamp):
     info = report_content['FullInfo'].get(timestamp)
-    timestamp = float(timestamp)
     
     if info is None:
-        content = 'No query at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+        content = error.webpage.no_content_at_time('info query', float(timestamp))
     else:
         content = info
         
@@ -220,10 +218,9 @@ def full_info(timestamp):
 @app.route("/full/<timestamp>", methods=['GET'])
 def full_content(timestamp):
     content_text = report_content['Text'].get(timestamp)
-    timestamp = float(timestamp)
     
     if content_text is None:
-        content = 'No full text recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+        content = error.webpage.no_content_at_time('full text', float(timestamp))
     else:
         content = content_text
         
@@ -235,6 +232,8 @@ def full_ranking(type):
         content = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank())
     elif type == 'used':
         content = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())
+    else:
+        content = error.webpage.no_content()
         
     return html_paragraph(content)
 
@@ -268,7 +267,7 @@ def handle_text_message(event):
                 rec['JC_called'] += 1
 
                 if cmd not in cmd_dict:
-                    text = u'Invalid Command: {cmd}. Please recheck the user manual.'.format(cmd=cmd)
+                    text = error.main.invalid_thing('command', cmd)
                     api_reply(token, TextSendMessage(text=text))
                     return
 
@@ -277,7 +276,7 @@ def handle_text_message(event):
                 params = split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
-                    text = u'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
+                    text = error.main.lack_of_thing('parameter')
                     api_reply(token, TextSendMessage(text=text))
                     return
 
@@ -296,18 +295,18 @@ def handle_text_message(event):
                             for result in results:
                                 text += u'{result}\n'.format(result=result)
                         else:
-                            text = 'No results to fetch.'
+                            text = error.main.no_result()
                     else:
-                        text = 'This is a restricted function.'
+                        text = error.main.restricted(3)
 
                     api_reply(token, TextSendMessage(text=text))
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
                     pinned = cmd_dict[cmd].non_user_permission_required
                     if pinned and permission_level(params.pop(1)) < 1:
-                        text = 'Insufficient Permission.'
+                        text = error.main.restricted(1)
                     elif not isinstance(src, SourceUser):
-                        text = 'Unable to add keyword pair in GROUP or ROOM. Please go to 1v1 CHAT to execute this command.'
+                        text = error.main.incorrect_channel()
                     else:
                         new_uid = src.sender_id
 
@@ -586,7 +585,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text))
                 # GROUP ban advance
                 elif cmd == 'GA':
-                    error = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
+                    error_no_action_fetch = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
                     illegal_source = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
                     
                     perm_dict = {3: 'Permission: Bot Administrator',
@@ -599,7 +598,7 @@ def handle_text_message(event):
                     param_count = len(params) - params.count(None) - 1
 
                     if isinstance(src, SourceUser):
-                        text = error
+                        text = error_no_action_fetch
 
                         if perm >= 1 and param_count == 3:
                             action = params[1]
