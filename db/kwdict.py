@@ -325,7 +325,7 @@ class kw_dict_mgr(object):
         )
         self.cur = self.conn.cursor()
 
-    def _like_escape(self, str):
+    def _like_escape(str):
         str = str.replace('_', r'\\_')
         str = str.replace('%', r'\\%')
         return str
