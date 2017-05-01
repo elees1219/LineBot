@@ -51,18 +51,22 @@ class kw_dict_mgr(object):
                     {} BOOLEAN DEFAULT FALSE;'.format(*_col_list)
         return cmd
 
-    def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
+    def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply, is_like_pattern=False):
         keyword = keyword.replace('  ', ' ')
         reply = reply.replace('  ', ' ')
-        if keyword == '' or reply == '':
+        if keyword == '' or reply == '' or len(keyword.replace('%', '').replace('_', '')) <= 2:
             return None
         else:
-            cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply) \
-                    VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
+            cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply, is_like_pattern) \
+                    VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s, %(like_ptn)s) \
                     RETURNING *;'
-            cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
+            cmd_dict = {
+                'kw': keyword, 'rep': reply, 
+                'cid': creator_id, 'sys': is_top, 
+                'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply,
+                'like_ptn': is_like_pattern}
             cmd_override = u'UPDATE keyword_dict SET override = TRUE \
-                             WHERE keyword = %(kw)s AND deleted = FALSE AND override = FALSE'
+                             WHERE keyword LIKE %(kw)s AND deleted = FALSE AND override = FALSE'
             cmd_override_dict = {'kw': keyword}
             self.sql_cmd(cmd_override, cmd_override_dict)
             result = self.sql_cmd(cmd, cmd_dict)
@@ -70,11 +74,10 @@ class kw_dict_mgr(object):
             return result
 
     def get_reply(self, keyword, is_sticker_kw):
-        keyword = keyword.replace('%', '')
         keyword = keyword.replace("'", r"'")
         cmd = u'SELECT * FROM keyword_dict \
-                WHERE keyword = %(kw)s AND deleted = FALSE AND is_sticker_kw = %(stk_kw)s\
-                ORDER BY admin DESC, id DESC;'
+                WHERE keyword LIKE %(kw)s AND deleted = FALSE AND override = FALSE AND is_sticker_kw = %(stk_kw)s\
+                ORDER BY admin DESC, is_like_pattern DESC, id DESC;'
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
@@ -87,7 +90,7 @@ class kw_dict_mgr(object):
 
     def search_keyword(self, keyword):
         cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE %(kw)s OR reply LIKE %(kw)s ORDER BY id DESC;'
-        cmd_dict = {'kw': '%' + keyword + '%'}
+        cmd_dict = {'kw': '%' + self._like_escape(keyword) + '%'}
         result = self.sql_cmd(cmd, cmd_dict)
         return result
 
@@ -98,6 +101,7 @@ class kw_dict_mgr(object):
         return result
 
     def get_info(self, keyword):
+        keyword = self._like_escape(keyword)
         cmd = u'SELECT * FROM keyword_dict WHERE keyword = %(kw)s OR reply = %(kw)s ORDER BY id DESC;'
         cmd_dict = {'kw': keyword}
         result = self.sql_cmd(cmd, cmd_dict)
@@ -134,13 +138,16 @@ class kw_dict_mgr(object):
         return result
 
     def delete_keyword(self, keyword, is_top):
-        cmd = u'UPDATE keyword_dict \
-                SET deleted = TRUE \
-                WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE \
-                RETURNING *;'
-        cmd_dict = {'kw': keyword, 'top': is_top}
-        result = self.sql_cmd(cmd, cmd_dict)
-        return result
+        if keyword == '' or len(keyword.replace('%', '').replace('_', '')) <= 2:
+            return None
+        else:
+            cmd = u'UPDATE keyword_dict \
+                    SET deleted = TRUE \
+                    WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE \
+                    RETURNING *;'
+            cmd_dict = {'kw': keyword, 'top': is_top}
+            result = self.sql_cmd(cmd, cmd_dict)
+            return result
 
     def delete_keyword_id(self, id, is_top):
         cmd = u'UPDATE keyword_dict \
@@ -196,7 +203,8 @@ class kw_dict_mgr(object):
         text = u'ID: {id}\n'.format(id=entry_row[kwdict_col.id])
         kw = entry_row[kwdict_col.keyword].decode('utf8')
         if not entry_row[kwdict_col.is_sticker_kw]:
-            text += u'Keyword: {kw}\n'.format(kw=kw)
+            text += u'Keyword{like_ptn}: {kw}\n'.format(kw=kw,
+                                                        like_ptn=' Pattern' if entry_row[kwdict_col.is_like_pattern] else '')
         else:
             text += u'Keyword: (Sticker ID: {kw})\n'.format(kw=kw)
         text += u'Reply {rep_type}: {rep}'.format(rep=entry_row[kwdict_col.reply].decode('utf8'),
@@ -317,7 +325,12 @@ class kw_dict_mgr(object):
         )
         self.cur = self.conn.cursor()
 
+    def _like_escape(str):
+        str = str.replace('_', r'\\_')
+        str = str.replace('%', r'\\%')
+        return str
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'used_rank']
+
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'is_like_pattern', 'used_rank']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
 kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)

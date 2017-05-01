@@ -79,8 +79,8 @@ class command(object):
 cmd_dict = {'S': command(1, 1, True), 
             'A': command(2, 4, False), 
             'M': command(2, 4, True), 
-            'D': command(2, 4, False), 
-            'R': command(2, 4, True), 
+            'D': command(1, 2, False), 
+            'R': command(1, 2, True), 
             'Q': command(1, 2, False), 
             'C': command(0, 0, True), 
             'I': command(1, 2, False), 
@@ -351,7 +351,7 @@ def handle_text_message(event):
                                     url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
 
                                 if type(url_val_result) is bool and url_val_result:
-                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
+                                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True, kw[1] == ' ')
                                 else:
                                     results = None
                                     text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(https://) and the URL scheme is HTTPS.\n'
@@ -370,7 +370,7 @@ def handle_text_message(event):
                             kw = params[1]
                             rep = params[2]
 
-                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False)
+                            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, kw[1] == ' ')
                         else:
                             results = None
                             text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
@@ -1038,7 +1038,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                              ])))
             else:
                 api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
-                                                                          id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))))
+                                                                          id='' if not is_sticker_kw or result[kwdict_col.is_like_pattern] else '\n\nID: {id}'.format(id=result[kwdict_col.id]))))
 
 
 def rec_error(details, channel_id):
