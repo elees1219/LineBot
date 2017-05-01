@@ -4,6 +4,7 @@ import errno, os, sys, tempfile
 import traceback
 import validators
 import time
+from collections import defaultdict
 from urlparse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
@@ -39,7 +40,7 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
-rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': 0, 'Silence': False, 'Intercept': True}
+rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': defaultdict(int), 'Silence': False, 'Intercept': True}
 report_content = {'Error': {}, 
                   'FullQuery': {}, 
                   'FullInfo': {},
@@ -245,12 +246,12 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    rec['Msg_Received'] += 1
-
     token = event.reply_token
     text = event.message.text
     src = event.source
     splitter = '  '
+
+    rec['Msg_Received'][get_source_channel_id(src)] += 1
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
@@ -530,9 +531,11 @@ def handle_text_message(event):
                     limit = 10
 
                     text = u'Data Recorded since booted up\n'
-                    text += u'Boot up Time: {bt} (UTC+8)\n\n'.format(bt=boot_up)
-                    text += u'Message Received: {recv}\n'.format(recv=rec['Msg_Received'])
-                    text += u'Message Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
+                    text += u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up)
+                    text += u'\nMessage Received: {recv}'.format(recv=sum(rec['Msg_Received'].values))
+                    for channel, count in rec['Msg_Received'].iteritems():
+                        text = '{} - {}'.format(channel, count)
+                    text += u'\nMessage Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.iteritems():
                         cmd_dict_text += '{} - {}, '.format(cmd, cmd_obj.count)
@@ -833,12 +836,12 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
-    rec['Msg_Received'] += 1
-
     package_id = event.message.package_id
     sticker_id = event.message.sticker_id
     rep = event.reply_token
     src = event.source
+
+    rec['Msg_Received'][get_source_channel_id(src)] += 1
 
     if isinstance(event.source, SourceUser):
         results = kwd.get_reply(sticker_id, True)
@@ -869,7 +872,7 @@ def handle_sticker_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
-    rec['Msg_Received'] += 1
+    rec['Msg_Received'][get_source_channel_id(event.source)] += 1
     return
 
     api_reply(
@@ -884,7 +887,7 @@ def handle_location_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
-    rec['Msg_Received'] += 1
+    rec['Msg_Received'][get_source_channel_id(event.source)] += 1
     return
 
     if isinstance(event.message, ImageMessage):
@@ -916,7 +919,6 @@ def handle_content_message(event):
 @handler.add(FollowEvent)
 def handle_follow(event):
     api_reply(event.reply_token, introduction_template())
-
 
 # Incomplete
 @handler.add(UnfollowEvent)

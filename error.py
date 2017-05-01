@@ -15,8 +15,7 @@ class error(object):
         
         @staticmethod
         def invalid_thing(name_of_thing, thing):
-            return u'Invalid {nm}: {thg}. Please recheck the user manual.'.format(thg=thing,
-                                                                                  nm=name_of_thing)
+            return u'Invalid {}: {}. Please recheck the user manual.'.format(name_of_thing, thing)
 
         @staticmethod
         def lack_of_thing(name_of_thing):
@@ -33,7 +32,7 @@ class error(object):
 
         @staticmethod
         def incorrect_channel(available_in_1v1=True, available_in_room=False, available_in_group=False):
-            return 'This is not available in this channel. Valid channel to execute below:\n{chat} {group} {room}'.format(
-                chat='[ CHAT ]' if available_in_1v1 else '[ - ]',
-                group='[ GROUP ]' if available_in_group else '[ - ]',
-                room='[ ROOM ]' if available_in_room else '[ - ]')
+            return 'This is not available in this channel. Valid channel to execute below:\n{} {} {}'.format(
+                '[ CHAT ]' if available_in_1v1 else '[ - ]',
+                '[ GROUP ]' if available_in_group else '[ - ]',
+                '[ ROOM ]' if available_in_room else '[ - ]')
