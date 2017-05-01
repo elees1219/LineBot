@@ -343,7 +343,7 @@ def handle_text_message(event):
 
                             if params[2] == 'PIC':
                                 kw = params[1]
-                                like_ptn = kw[0] == ' '
+                                like_ptn = '%' in kw or '_' in kw
                                 if like_ptn:
                                     kw = kw[1:]
 
@@ -371,9 +371,9 @@ def handle_text_message(event):
                                 results = None
                         elif params[2] is not None:
                             kw = params[1]
-                            like_ptn = kw[0] == ' '
+                            like_ptn = '%' in kw or '_' in kw
                             if like_ptn:
-                                kw = kw[1:]
+                                kw = kw.replace('%', '').replace('_', '')
                             rep = params[2]
 
                             results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False, like_ptn)
