@@ -81,8 +81,7 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
             for res in result:
-                kw_in_db = res[kwdict_col.keyword].decode('utf-8')
-                if (res[kwdict_col.is_contain] and kw_in_db in keyword) or kw_in_db == keyword:
+                if not (res[kwdict_col.is_contain] and not result[kwdict_col.keyword].decode('utf-8') in keyword):
                     cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1 WHERE id = %(id)s'
                     cmd_update_dict = {'id': res[kwdict_col.id]}
                     self.sql_cmd(cmd_update, cmd_update_dict)
