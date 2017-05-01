@@ -532,7 +532,7 @@ def handle_text_message(event):
 
                     text = u'Data Recorded since booted up\n'
                     text += u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up)
-                    text += u'\nMessage Received: {recv}'.format(recv=sum(rec['Msg_Received'].values))
+                    text += u'\nMessage Received: {recv}'.format(recv=sum(rec['Msg_Received'].values()))
                     for channel, count in rec['Msg_Received'].iteritems():
                         text = '{} - {}'.format(channel, count)
                     text += u'\nMessage Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
