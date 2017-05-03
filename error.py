@@ -17,7 +17,7 @@ class error(object):
         
         @staticmethod
         def invalid_thing(name_of_thing, thing):
-            return u'不合法的{}: {}. 請檢閱使用說明書。'.format(name_of_thing, thing)
+            return u'不合法的{}: {}。請檢閱使用說明書。'.format(name_of_thing, thing)
 
         @staticmethod
         def lack_of_thing(name_of_thing):
@@ -30,11 +30,11 @@ class error(object):
         @staticmethod
         def restricted(permission=None):
             return u'限制功能。{}'.format(
-                '\n\n需求最低權限: {}'.format(permission) if permission is not None else '')
+                u'\n\n需求最低權限: {}'.format(permission) if permission is not None else '')
 
         @staticmethod
         def incorrect_channel(available_in_1v1=True, available_in_room=False, available_in_group=False):
             return u'無法在此類型的頻道使用。以下列出可使用的頻道:\n{} {} {}'.format(
-                '[ 私訊 ]' if available_in_1v1 else '[ - ]',
-                '[ 群組 ]' if available_in_group else '[ - ]',
-                '[ 房間 ]' if available_in_room else '[ - ]')
+                u'[ 私訊 ]' if available_in_1v1 else '[ - ]',
+                u'[ 群組 ]' if available_in_group else '[ - ]',
+                u'[ 房間 ]' if available_in_room else '[ - ]')
