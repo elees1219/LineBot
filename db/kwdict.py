@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
 import os
 
 import urlparse
@@ -197,26 +196,26 @@ class kw_dict_mgr(object):
         text = u'ID: {id}\n'.format(id=entry_row[kwdict_col.id])
         kw = entry_row[kwdict_col.keyword].decode('utf8')
         if not entry_row[kwdict_col.is_sticker_kw]:
-            text += u'關鍵字: {kw}\n'.format(kw=kw)
+            text += u'Keyword: {kw}\n'.format(kw=kw)
         else:
-            text += u'關鍵字: (貼圖ID: {kw})\n'.format(kw=kw)
-        text += u'回覆 {rep_type}: {rep}'.format(rep=entry_row[kwdict_col.reply].decode('utf-8'),
-                                                  rep_type=u'圖片URL' if entry_row[kwdict_col.is_pic_reply] else 'Text')
+            text += u'Keyword: (Sticker ID: {kw})\n'.format(kw=kw)
+        text += u'Reply {rep_type}: {rep}'.format(rep=entry_row[kwdict_col.reply].decode('utf8'),
+                                                  rep_type='Picture URL' if entry_row[kwdict_col.is_pic_reply] else 'Text')
         return text
 
     @staticmethod
     def entry_detailed_info(line_api, entry_row):
         basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
-        basic += u'屬性: \n'
-        basic += u'{top} {ovr} {delete}\n\n'.format(top=u'[ 置頂 ]' if entry_row[kwdict_col.admin] else '[ - ]',
-                                                   ovr=u'[ 已覆蓋 ]' if entry_row[kwdict_col.override] else '[ - ]',
-                                                   delete=u'[ 已刪除 ]' if entry_row[kwdict_col.deleted] else '[ - ]')
-        basic += u'呼叫次數: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_count])
+        basic += u'Attribute: \n'
+        basic += u'{top} {ovr} {delete}\n\n'.format(top='[ PINNED ]' if entry_row[kwdict_col.admin] else '[ - ]',
+                                                   ovr='[ OVERRIDDEN ]' if entry_row[kwdict_col.override] else '[ - ]',
+                                                   delete='[ DELETED ]' if entry_row[kwdict_col.deleted] else '[ - ]')
+        basic += u'Called count: {ct}\n\n'.format(ct=entry_row[kwdict_col.used_count])
 
         profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
-        basic += u'製作者LINE名稱: {name}\n'.format(name=profile.display_name)
-        basic += u'製作者LINE UUID: {uid}'.format(uid=entry_row[kwdict_col.creator])
+        basic += u'Creator Name: {name}\n'.format(name=profile.display_name)
+        basic += u'Creator user id: {uid}'.format(uid=entry_row[kwdict_col.creator])
 
         return basic
     
@@ -226,25 +225,25 @@ class kw_dict_mgr(object):
         ret = {'limited': '', 'full': ''}
         limited = False
         count = len(data)
-        ret['full'] = u'共有{num}筆結果\n\n'.format(num=count)
+        ret['full'] = 'Count of results: {num}\n\n'.format(num=count)
 
         if count <= 0:
-            ret['limited'] = u'無結果'
+            ret['limited'] = 'No results'
         else:
             for index, row in enumerate(data, start=1):
-                text = u'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
+                text = 'ID: {id} - {kw} {ovr}{top}{delete}\n'.format(
                     id=row[kwdict_col.id],
-                    kw=u'(貼圖ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
-                    ovr=u'(覆)' if row[kwdict_col.override] else '',
-                    top=u'(頂)' if row[kwdict_col.admin] else '',
-                    delete=u'(刪)' if row[kwdict_col.deleted] else '')
+                    kw='(Sticker {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
+                    ovr='(OVR)' if row[kwdict_col.override] else '',
+                    top='(TOP)' if row[kwdict_col.admin] else '',
+                    delete='(DEL)' if row[kwdict_col.deleted] else '')
                 ret['full'] += text
 
                 if not limited:
                     ret['limited'] += text
 
                     if index >= limit:
-                        ret['limited'] += u'...(還有{num}筆)'.format(num=count - limit)
+                        ret['limited'] += '...({num} more)'.format(num=count - limit)
                         limited = True
 
         return ret
@@ -256,7 +255,7 @@ class kw_dict_mgr(object):
         limited = False
         count = len(data)
         separator = '====================\n'
-        ret['full'] = u'共有{num}筆結果\n'.format(num=count)
+        ret['full'] = 'Count of results: {num}\n'.format(num=count)
 
         for index, row in enumerate(data, start=1):
             text = separator
@@ -269,31 +268,30 @@ class kw_dict_mgr(object):
 
                 if index >= limit:
                     ret['limited'] += separator
-                    ret['limited'] += u'還有{num}筆資料沒有顯示。'.format(num=count - limit)
+                    ret['limited'] += '{num} data not displayed.'.format(num=count - limit)
                     limited = True
 
         return ret
 
     @staticmethod
     def list_keyword_ranking(data):
-        text = u'回覆組呼叫次數排行(前{num}名): '.format(num=len(data))
+        text = 'Top {num} called pair: '.format(num=len(data))
 
         for row in data:
-            text += u'\n第{rk}名 - ID: {id} - {kw} ({ct}{dsb})'.format(
+            text += u'\nNo.{rk} - ID: {id} - {kw} ({ct})'.format(
                 rk=row[kwdict_col.used_rank], 
-                kw=u'(貼圖ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword].decode('utf8'), 
+                kw='(Sticker ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword].decode('utf8'), 
                 id=row[kwdict_col.id],
-                ct=row[kwdict_col.used_count],
-                dsb=' X' if row[kwdict_col.override] or row[kwdict_col.deleted] else '')
+                ct=row[kwdict_col.used_count])
 
         return text
 
     @staticmethod
     def list_user_created_ranking(line_api, data):
-        text = u'回覆組製作排行(前{num}名): '.format(num=len(data))
+        text = 'Top {num} creative user: '.format(num=len(data))
 
         for row in data:
-            text += u'\n\n第{rk}名 - {name}\n共製作{ct}組 | 共被呼計{t_used}次 | 平均一組呼叫{avg}次'.format(
+            text += u'\n\nNo.{rk} - {name}\nPair created: {ct} | Total used: {t_used} | Avg. used: {avg}'.format(
                 rk=row[0],
                 name=line_api.get_profile(row[1]).display_name,
                 ct=row[2],
