@@ -2,7 +2,7 @@
 
 import os, sys
 
-import urlparse
+from urllib.parse import urlparse
 import psycopg2
 import hashlib
 
