@@ -6,7 +6,6 @@ import traceback
 import validators
 import time
 from collections import defaultdict
-from urllib.parse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
 from error import error
