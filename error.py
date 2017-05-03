@@ -18,7 +18,7 @@ class error(object):
         
         @staticmethod
         def invalid_thing(name_of_thing, thing):
-            return u'不合法的{}: {}。請檢閱使用說明書。'.format(name_of_thing, thing)
+            return u'不合法的{}: {}。請檢閱使用說明書。'.format(name_of_thing, thing).encode('utf-8')
 
         @staticmethod
         def lack_of_thing(name_of_thing):
