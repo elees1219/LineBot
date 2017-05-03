@@ -572,7 +572,7 @@ def handle_text_message(event):
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.items():
                         cmd_dict_text += u'\n{} ({})'.format(cmd, cmd_obj.count)
-                    text += u'\nSystem command called(including failed): {t}{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
+                    text += u'\n\nSystem command called(including failed): {t}{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
                     
                     text2 = u'Data Collected Full Time\n\n'
                     text2 += u'Count of Keyword Pair: {ct}\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(ct=kwpct,
