@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 class error(object):
 
     class webpage(object):
