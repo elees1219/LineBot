@@ -2,7 +2,7 @@
 
 import os
 
-from urlparse import urlparse
+import urlparse
 import psycopg2
 
 import collections

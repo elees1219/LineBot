@@ -2,7 +2,7 @@
 
 import os, sys
 
-from urlparse import urlparse
+import urlparse
 import psycopg2
 import hashlib
 
@@ -12,7 +12,7 @@ class group_ban(object):
 
     def __init__(self, scheme, db_url):
         urlparse.uses_netloc.append(scheme)
-        self.url = urlparse(db_url)
+        self.url = urlparse.urlparse(db_url)
         self._set_connection()
         self.id_length = 33
         self.moderator_count = 3
