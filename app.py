@@ -9,6 +9,7 @@ from urlparse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
 from error import error
+from operator import itemgetter, attrgetter
 
 # import for 'SHA'
 import hashlib 
@@ -40,7 +41,30 @@ from linebot.models import (
 # Main initializing
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
-rec = {'JC_called': 0, 'Msg_Replied': 0, 'Msg_Received': defaultdict(int), 'Silence': False, 'Intercept': True}
+
+class msg_counter(object):
+    def __init__(self):
+        self._rcv = 0
+        self._rep = 0
+
+    @property
+    def recv(self):
+        return self._rcv
+
+    @property
+    def repl(self):
+        return self._rep
+
+    def received(self):
+        self._rcv += 1
+
+    def replied(self):
+        self._rep += 1
+
+    def __repr__(self):
+        return u'收到: {}, 回覆: {}'.format(self._rcv, self._rep)
+
+rec = {'JC_called': 0, 'Msg': defaultdict(msg_counter), 'Silence': False, 'Intercept': True, 'webpage': 0}
 report_content = {'Error': {}, 
                   'FullQuery': {}, 
                   'FullInfo': {},
@@ -174,6 +198,7 @@ def callback():
 
 @app.route("/error", methods=['GET'])
 def get_error_list():
+    rec['webpage'] += 1
     content = 'Boot up at {time}\n\nError list: '.format(time=boot_up)
     error_timestamps = report_content['Error'].keys()
 
@@ -185,6 +210,7 @@ def get_error_list():
 
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
+    rec['webpage'] += 1
     error_message = report_content['Error'].get(timestamp)
 
     if error_message is None:
@@ -196,6 +222,7 @@ def get_error_message(timestamp):
 
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
+    rec['webpage'] += 1
     query = report_content['FullQuery'].get(timestamp)
     
     if query is None:
@@ -207,6 +234,7 @@ def full_query(timestamp):
 
 @app.route("/info/<timestamp>", methods=['GET'])
 def full_info(timestamp):
+    rec['webpage'] += 1
     info = report_content['FullInfo'].get(timestamp)
     
     if info is None:
@@ -218,6 +246,7 @@ def full_info(timestamp):
 
 @app.route("/full/<timestamp>", methods=['GET'])
 def full_content(timestamp):
+    rec['webpage'] += 1
     content_text = report_content['Text'].get(timestamp)
     
     if content_text is None:
@@ -229,6 +258,7 @@ def full_content(timestamp):
 
 @app.route("/ranking/<type>", methods=['GET'])
 def full_ranking(type):
+    rec['webpage'] += 1
     if type == 'user':
         content = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank())
     elif type == 'used':
@@ -251,7 +281,7 @@ def handle_text_message(event):
     src = event.source
     splitter = '  '
 
-    rec['Msg_Received'][get_source_channel_id(src)] += 1
+    rec['Msg'][get_source_channel_id(src)].received()
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
@@ -276,7 +306,7 @@ def handle_text_message(event):
                 rec['JC_called'] += 1
 
                 if cmd not in cmd_dict:
-                    text = error.main.invalid_thing('command', cmd)
+                    text = error.main.invalid_thing(u'指令', cmd)
                     api_reply(token, TextSendMessage(text=text))
                     return
 
@@ -285,7 +315,7 @@ def handle_text_message(event):
                 params = split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
-                    text = error.main.lack_of_thing('parameter')
+                    text = error.main.lack_of_thing(u'參數')
                     api_reply(token, TextSendMessage(text=text))
                     return
 
@@ -300,7 +330,7 @@ def handle_text_message(event):
                     if isinstance(src, SourceUser) and permission_level(key) >= 3:
                         results = kwd.sql_cmd_only(sql)
                         if results is not None:
-                            text = u'SQL command result({len}): \n'.format(len=len(results))
+                            text = u'資料庫回傳結果({len}筆): \n'.format(len=len(results))
                             for result in results:
                                 text += u'{result}\n'.format(result=result)
                         else:
@@ -384,8 +414,8 @@ def handle_text_message(event):
                             text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
 
                         if results is not None:
-                            text = u'Pair Added. {top}\n'.format(len=len(results), 
-                                                                 top='(top)' if pinned else '')
+                            text = u'已新增{top}回覆組。\n'.format(len=len(results), 
+                                                                 top=u'置頂' if pinned else '')
                             for result in results:
                                 text += kw_dict_mgr.entry_basic_info(result)
 
@@ -530,47 +560,51 @@ def handle_text_message(event):
                     last_count = len(last)
                     limit = 10
 
-                    text = u'Data Recorded since booted up\n'
-                    text += u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up)
-                    text += u'\nMessage Received: {recv}'.format(recv=sum(rec['Msg_Received'].values()))
-                    for channel, count in rec['Msg_Received'].iteritems():
-                        text += '\n{} - {}'.format(channel, count)
-                    text += u'\nMessage Replied: {repl}\n\n'.format(repl=rec['Msg_Replied'])
+                    sorted_msg = sorted(rec['Msg'], key=lambda counter: (counter[1].recv + counter[1].repl), reverse=True)
+
+                    text = u'從開機後開始統計的資料(連續30分鐘沒有收到任何訊息的話以下資料會全部歸零)\n'
+                    text += u'開機時間: {bt} (台北時間)\n'.format(bt=boot_up)
+                    text += u'\n收到了{}則訊息；回覆了{}則訊息\n'.format(sum(counter[1].recv for counter in sorted_msg), 
+                                                                            sum(counter[1].repl for counter in sorted_msg))
+                    for channel, counter in sorted_msg:
+                        text += u'\n{} - {}'.format(channel, counter)
+
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.iteritems():
-                        cmd_dict_text += '{} - {}, '.format(cmd, cmd_obj.count)
-                    cmd_dict_text = cmd_dict_text[:-2]
-                    text += u'System command called count (including failed): {t}\n{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
+                        cmd_dict_text += u'\n指令{} - 呼叫{}次'.format(cmd, cmd_obj.count)
+                    text += u'\n系統指令呼叫次數(包含呼叫失敗): {t}{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
                     
-                    text2 = u'Data Collected Full Time\n\n'
-                    text2 += u'Count of Keyword Pair: {ct}\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(ct=kwpct,
+                    text2 = u'全時統計資料\n\n'
+                    text2 += u'已登錄回覆組: {ct}\n貼圖關鍵字: {stk_kw}組 | 圖片回覆: {pic_rep}組\n'.format(ct=kwpct,
                                                                                                             stk_kw=kwd.sticker_keyword_count(),
                                                                                                             pic_rep=kwd.picture_reply_count())
-                    text2 += u'Count of Active Keyword Pair: {ct} ({pct:.2f}%)\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(
+                    text2 += u'可使用回覆組: {ct} ({pct:.2f}%)\n(貼圖關鍵字: {stk_kw} | 圖片回覆: {pic_rep}組\n'.format(
                         ct=kwd.row_count(True),
                         stk_kw=kwd.sticker_keyword_count(True),
                         pic_rep=kwd.picture_reply_count(True),
                         pct=kwd.row_count(True) / float(kwpct) * 100)
-                    text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_count_sum())
+                    text2 += u'總回覆次數: {crep}\n\n'.format(crep=kwd.used_count_sum())
 
-                    text2 += u'The User who Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(
-                        name='(LINE account data not found)' if line_profile is None else line_profile.display_name,
+                    text2 += u'製作最多回覆組的LINE使用者:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(
+                        name=u'(LINE帳號資料不存在)' if line_profile is None else line_profile.display_name,
                         num=user_list_top[1],
                         pct=user_list_top[1] / float(kwpct) * 100)
 
-                    text2 += u'Most Popular Keyword ({t} Time(s)):'.format(t=first[0][kwdict_col.used_count])
+                    text2 += u'呼叫最多次的回覆組({t}次，共{c}組):'.format(t=first[0][kwdict_col.used_count],
+                                                                         c=len(first))
                     for entry in first:
-                        text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
+                        text2 += u'\n{kw} (ID: {id})'.format(kw=u'(貼圖ID {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
                                                              id=entry[kwdict_col.id])
 
-                    text2 += u'\n\nMost Unpopular Keyword ({t} Time(s)):'.format(t=last[0][kwdict_col.used_count])
+                    text2 += u'\n\n呼叫最少次的回覆組({t}次，共{c}組):'.format(t=last[0][kwdict_col.used_count],
+                                                                     c=len(last))
                     for entry in last:
-                        text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
+                        text2 += u'\n{kw} (ID: {id})'.format(kw=u'(貼圖ID {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
                                                              id=entry[kwdict_col.id])
                         
                         last_count -= 1
                         if len(last) - last_count >= limit:
-                            text2 += '\n...({left} more)'.format(left=last_count)
+                            text2 += '\n...(還有{left}組)'.format(left=last_count)
                             break
 
                     api_reply(token, [TextSendMessage(text=text), TextMessage(text=text2)])
@@ -784,16 +818,16 @@ def handle_text_message(event):
         else:
             reply_message_by_keyword(get_source_channel_id(src), token, text, False)
     except exceptions.LineBotApiError as ex:
-        text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
-        text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
+        text = u'開機時間: {boot}\n\n'.format(boot=boot_up)
+        text += u'LINE API內部錯誤。狀態碼: {sc}\n\n'.format(sc=ex.status_code)
         for err in ex.error.details:
-            text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
+            text += u'內容: {prop}\訊息: {msg}\n'.format(prop=err.property, msg=err.message)
 
         send_error_url_line(token, text, get_source_channel_id(src))
     except Exception as exc:
-        text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
+        text = u'開機時間: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
+        text += u'種類: {type}\n詳細訊息: {msg}\n於第{lineno}行'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
 
         send_error_url_line(token, text, get_source_channel_id(src))
     return
@@ -841,29 +875,29 @@ def handle_sticker_message(event):
     rep = event.reply_token
     src = event.source
 
-    rec['Msg_Received'][get_source_channel_id(src)] += 1
+    rec['Msg'][get_source_channel_id(src)].received()
 
     if isinstance(event.source, SourceUser):
         results = kwd.get_reply(sticker_id, True)
         
         if results is not None:
             result = results[0]
-            kwdata = 'Associated Keyword ID: {id}\n'.format(id=result[kwdict_col.id])
+            kwdata = u'相關可用回覆組ID: {id}\n'.format(id=result[kwdict_col.id])
         else:
-            kwdata = 'No associated keyword.\n'
+            kwdata = u'無相關可用回覆組。\n'
 
         api_reply(
             rep,
-            [TextSendMessage(text=kwdata + 'Package ID: {pck_id}\nSticker ID: {stk_id}'.format(
+            [TextSendMessage(text=kwdata + u'貼圖圖包ID: {pck_id}\n貼圖ID: {stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Android(png):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{pck_id}\\{stk_id}'.format(
+             TextSendMessage(text=u'貼圖檔案(png)在「Android手機」上的路徑:\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
+             TextSendMessage(text=u'貼圖檔案(png)在「Windows電腦」上的路徑:\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
+             TextSendMessage(text=u'貼圖檔案(png)在「網路」上的路徑:\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
         )
     else:
         reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True)
@@ -872,7 +906,7 @@ def handle_sticker_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
-    rec['Msg_Received'][get_source_channel_id(event.source)] += 1
+    rec['Msg'][get_source_channel_id(event.source)].received()
     return
 
     api_reply(
@@ -887,7 +921,7 @@ def handle_location_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
-    rec['Msg_Received'][get_source_channel_id(event.source)] += 1
+    rec['Msg'][get_source_channel_id(event.source)].received()
     return
 
     if isinstance(event.message, ImageMessage):
@@ -934,10 +968,10 @@ def handle_join(event):
 
     if isinstance(event.source, SourceGroup):
         gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX')
-        api_reply(event.reply_token, TextMessage(text='Group data registered. Type in \'JC G\' to get more details.'))
+        api_reply(event.reply_token, TextMessage(text=u'群組資料已註冊。輸入\'JC G\'以獲得群組資訊。'))
     if isinstance(event.source, SourceRoom):
         gb.new_data(event.source.room_id, MAIN_UID, 'RaenonX')
-        api_reply(event.reply_token, TextMessage(text='Room data registered. Type in \'JC G\' to get more details.'))
+        api_reply(event.reply_token, TextMessage(text=u'群組資料已註冊. 輸入\'JC G\'以獲得群組資訊。'))
 
 
 # Encapsulated Functions
@@ -982,13 +1016,13 @@ def oxford_json(word):
 
 def introduction_template():
     buttons_template = ButtonsTemplate(
-            title='Introduction', text='Welcome to use the shadow of JELLYFISH!', 
+            title='Introduction', text=u'歡迎使用小水母！', 
             actions=[
                 URITemplateAction(label=u'點此開啟使用說明', uri='https://sites.google.com/view/jellybot'),
                 URITemplateAction(label=u'點此導向開發者LINE帳號', uri='http://line.me/ti/p/~chris80124')
             ])
     template_message = TemplateSendMessage(
-        alt_text='Group / Room joining introduction', template=buttons_template)
+        alt_text='小水母簡介', template=buttons_template)
     return template_message
 
 
@@ -1008,8 +1042,8 @@ def string_is_int(s):
         return False
 
 
-def api_reply(reply_token, msgs):
-    rec['Msg_Replied'] += 1
+def api_reply(reply_token, msgs, source):
+    rec['Msg'][get_source_channel_id(source)].received()
 
     if not rec['Silence']:
         if not isinstance(msgs, (list, tuple)):
@@ -1019,7 +1053,7 @@ def api_reply(reply_token, msgs):
             if isinstance(msg, TextSendMessage) and len(msg.text) > 2000:
                 api.reply_message(reply_token, 
                                   TextSendMessage(
-                                      text='The content to reply is too long that program is unavailable to reply with LINE API.\n\nTo view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
+                                      text=u'因回覆內容已超過LINE API單筆訊息限制(2000字)，故無法在此顯示。請點擊以下網址以查看訊息:\n{url}'.format(url=rec_text(msgs))))
                 return
 
         api.reply_message(reply_token, msgs)
@@ -1066,9 +1100,9 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
 def rec_error(details, channel_id):
     if details is not None:
         timestamp = str(int(time.time()))
-        report_content['Error'][timestamp] = 'Error Occurred at {time}\n'.format(time=datetime.now() + timedelta(hours=8))
-        report_content['Error'][timestamp] = 'At channel ID: {cid}'.format(cid=channel_id)
-        report_content['Error'][timestamp] += '\n\n'
+        report_content['Error'][timestamp] = u'發生於 {time}\n'.format(time=datetime.now() + timedelta(hours=8))
+        report_content['Error'][timestamp] = u'頻道ID: {cid}'.format(cid=channel_id)
+        report_content['Error'][timestamp] += u'\n\n'
         report_content['Error'][timestamp] += details  
         return timestamp
 
@@ -1092,18 +1126,19 @@ def rec_text(textmsg_list):
     timestamp = str(int(time.time()))
     report_content['Text'][timestamp] = ''
     for index, txt in enumerate(textmsg_list, start=1):
-        report_content['Text'][timestamp] += 'Message {index}\n'.format(index=index)
+        report_content['Text'][timestamp] += '================第{index}則訊息================\n'.format(index=index)
         report_content['Text'][timestamp] += txt.text
-        report_content['Text'][timestamp] += '==============================='
+        report_content['Text'][timestamp] += '\n===============================================\n'
     return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
 
 
 
 def send_error_url_line(token, error_text, channel_id):
     timestamp = rec_error(traceback.format_exc(), channel_id)
-    err_detail = u'Detail URL: {url}\nError list: {url_full}'.format(
+    err_detail = u'完整錯誤訊息: {url}\n發生過的錯誤(清單): {url_full}\n回報錯誤:{issue}'.format(
         url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
-        url_full=request.url_root + url_for('get_error_list')[1:])
+        url_full=request.url_root + url_for('get_error_list')[1:],
+        issue='https://github.com/RaenonX/LineBot/issues')
     print report_content['Error'][timestamp]
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
 
