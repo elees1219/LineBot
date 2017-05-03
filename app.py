@@ -6,7 +6,7 @@ import traceback
 import validators
 import time
 from collections import defaultdict
-from urlparse import urlparse
+from urllib.parse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
 from error import error
@@ -16,7 +16,7 @@ from operator import itemgetter, attrgetter
 import hashlib 
 
 # import for Oxford Dictionary
-import httplib
+import http.client
 import requests
 import json
 
@@ -1140,7 +1140,7 @@ def send_error_url_line(token, error_text, channel_id):
         url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
         url_full=request.url_root + url_for('get_error_list')[1:],
         issue='https://github.com/RaenonX/LineBot/issues')
-    print(report_content['Error'][timestamp])
+    print(report_content['Error'][timestamp].decode('unicode-escape'))
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
 
 
