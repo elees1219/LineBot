@@ -560,12 +560,12 @@ def handle_text_message(event):
                     last_count = len(last)
                     limit = 10
 
-                    sorted_msg = sorted(rec['Msg'], key=lambda counter: (counter[1].recv + counter[1].repl), reverse=True)
+                    sorted_msg = sorted(rec['Msg'].iteritems(), key=lambda counter: (counter[1].recv + counter[1].repl), reverse=True)
 
                     text = u'從開機後開始統計的資料(連續30分鐘沒有收到任何訊息的話以下資料會全部歸零)\n'
                     text += u'開機時間: {bt} (台北時間)\n'.format(bt=boot_up)
                     text += u'\n收到了{}則訊息；回覆了{}則訊息\n'.format(sum(counter[1].recv for counter in sorted_msg), 
-                                                                            sum(counter[1].repl for counter in sorted_msg))
+                                                                       sum(counter[1].repl for counter in sorted_msg))
                     for channel, counter in sorted_msg:
                         text += u'\n{} - {}'.format(channel, counter)
 
