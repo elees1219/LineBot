@@ -1,4 +1,4 @@
-
+# -*- coding: unicode -*-
 
 class error(object):
 
