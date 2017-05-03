@@ -2,7 +2,7 @@
 
 import os, sys
 
-from urllib.parse import urlparse, uses_netloc
+from urlparse import urlparse
 import psycopg2
 import hashlib
 
@@ -11,7 +11,7 @@ import collections
 class group_ban(object):
 
     def __init__(self, scheme, db_url):
-        uses_netloc.append(scheme)
+        urlparse.uses_netloc.append(scheme)
         self.url = urlparse(db_url)
         self._set_connection()
         self.id_length = 33

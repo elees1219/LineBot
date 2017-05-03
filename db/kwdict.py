@@ -2,7 +2,7 @@
 
 import os
 
-from urllib.parse import urlparse, uses_netloc
+from urlparse import urlparse
 import psycopg2
 
 import collections
@@ -10,8 +10,8 @@ import collections
 class kw_dict_mgr(object):
 
     def __init__(self, scheme, db_url):
-        uses_netloc.append(scheme)
-        self.url = urlparse(db_url)
+        urlparse.uses_netloc.append(scheme)
+        self.url = urlparse.urlparse(db_url)
         self._set_connection()
 
 

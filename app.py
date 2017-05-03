@@ -827,7 +827,7 @@ def handle_text_message(event):
     except Exception as exc:
         text = u'開機時間: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        text += u'種類: {type}\n詳細訊息: {msg}\n於第{lineno}行'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
+        text += u'種類: {type}\n詳細訊息: {msg}\n於第{lineno}行'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.args)
 
         send_error_url_line(token, text, get_source_channel_id(src))
     return
