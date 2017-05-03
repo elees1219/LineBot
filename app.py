@@ -280,7 +280,7 @@ def handle_text_message(event):
     src = event.source
     splitter = '  '
 
-    rec['Msg_Received'][get_source_channel_id(src)] += 1
+    rec['Msg'][get_source_channel_id(src)].received()
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
@@ -306,7 +306,7 @@ def handle_text_message(event):
 
                 if cmd not in cmd_dict:
                     text = error.main.invalid_thing('command', cmd)
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                     return
 
                 max_prm = cmd_dict[cmd].split_max
@@ -315,7 +315,7 @@ def handle_text_message(event):
 
                 if min_prm > len(params) - params.count(None):
                     text = error.main.lack_of_thing('parameter')
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                     return
 
                 params.insert(0, None)
@@ -337,7 +337,7 @@ def handle_text_message(event):
                     else:
                         text = error.main.restricted(3)
 
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
                     pinned = cmd_dict[cmd].non_user_permission_required
@@ -418,7 +418,7 @@ def handle_text_message(event):
                             for result in results:
                                 text += kw_dict_mgr.entry_basic_info(result)
 
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # DELETE keyword & DELETE top keyword
                 elif cmd == 'D' or cmd == 'R':
                     pinned = cmd_dict[cmd].non_user_permission_required
@@ -453,7 +453,7 @@ def handle_text_message(event):
                             text += u'\nThis pair is created by {name}.'.format(
                                 name='(LINE account data not found)' if line_profile is None else line_profile.display_name)
 
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # QUERY keyword
                 elif cmd == 'Q':
                     if params[2] is not None:
@@ -487,7 +487,7 @@ def handle_text_message(event):
                         else:
                             text = u'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=kw)
 
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # INFO of keyword
                 elif cmd == 'I':
                     if params[2] is not None:
@@ -519,7 +519,7 @@ def handle_text_message(event):
                         else:
                             text = u'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=kw)
 
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # RANKING
                 elif cmd == 'K':
                     ranking_type = params[1]
@@ -546,7 +546,7 @@ def handle_text_message(event):
                                 url_u=request.url_root + url_for('full_ranking', type='user')[1:],
                                 url_k=request.url_root + url_for('full_ranking', type='used')[1:])
                     
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # SPECIAL record
                 elif cmd == 'P':
                     kwpct = kwd.row_count()
@@ -565,7 +565,7 @@ def handle_text_message(event):
                     text += u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up)
                     text += u'\nWebpage viewed: {}'.format(rec['webpage'])
                     text += u'\nMessage Received / Replied: {} / {}\n'.format(sum(counter[1].recv for counter in sorted_msg), 
-                                                                       sum(counter[1].repl for counter in sorted_msg))
+                                                                              sum(counter[1].repl for counter in sorted_msg))
                     for channel, counter in sorted_msg:
                         text += u'\n{} - {}'.format(channel, counter)
 
@@ -605,7 +605,7 @@ def handle_text_message(event):
                             text2 += '\n...({left} more)'.format(left=last_count)
                             break
 
-                    api_reply(token, [TextSendMessage(text=text), TextMessage(text=text2)])
+                    api_reply(token, [TextSendMessage(text=text), TextMessage(text=text2)], src)
                 # GROUP ban basic (info)
                 elif cmd == 'G':
                     if not isinstance(src, SourceUser):
@@ -625,7 +625,7 @@ def handle_text_message(event):
                     else:
                         text = 'This function can be only execute in GROUP or ROOM.'
                     
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban advance
                 elif cmd == 'GA':
                     error_no_action_fetch = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
@@ -723,7 +723,7 @@ def handle_text_message(event):
                     else:
                         text = illegal_source
 
-                    api_reply(token, [TextSendMessage(text=pert), TextSendMessage(text=text)])
+                    api_reply(token, [TextSendMessage(text=pert), TextSendMessage(text=text)], src)
                 # get CHAT id
                 elif cmd == 'H':
                     text = get_source_channel_id(src)
@@ -737,7 +737,7 @@ def handle_text_message(event):
                     else:
                         text = 'Unknown chatting type.'
 
-                    api_reply(token, [TextSendMessage(text=source_type), TextSendMessage(text=text)])
+                    api_reply(token, [TextSendMessage(text=source_type), TextSendMessage(text=text)], src)
                 # SHA224 generator
                 elif cmd == 'SHA':
                     target = params[1]
@@ -747,7 +747,7 @@ def handle_text_message(event):
                     else:
                         text = 'Illegal Parameter to generate SHA224 hash.'
 
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # Look up vocabulary in OXFORD Dictionary
                 elif cmd == 'O':
                     voc = params[1]
@@ -777,16 +777,16 @@ def handle_text_message(event):
                                     for de in sen['definitions']:
                                         text += '\n{count}. {de}'.format(count=index+1, de=de)
 
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 # Leave group or room
                 elif cmd == 'B':
                     cid = get_source_channel_id(src)
 
                     if isinstance(src, SourceUser):
                         text = 'Unable to leave 1v1 chat.'
-                        api_reply(token, TextSendMessage(text=text))
+                        api_reply(token, TextSendMessage(text=text), src)
                     else:
-                        api_reply(token, TextSendMessage(text='Channel ID: {cid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(cid=cid)))
+                        api_reply(token, TextSendMessage(text='Channel ID: {cid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(cid=cid)), src)
 
                         if isinstance(src, SourceRoom):
                             api.leave_room(cid)
@@ -810,11 +810,11 @@ def handle_text_message(event):
                         else:
                             text = 'Unable to use this function in Group or Room.'
 
-                    api_reply(token, TextSendMessage(text=text))
+                    api_reply(token, TextSendMessage(text=text), src)
                 else:
                     cmd_dict[cmd].count -= 1
         else:
-            reply_message_by_keyword(get_source_channel_id(src), token, text, False)
+            reply_message_by_keyword(get_source_channel_id(src), token, text, False, src)
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
@@ -837,7 +837,7 @@ def handle_text_message(event):
         ])
         template_message = TemplateSendMessage(
             alt_text='Confirm alt text', template=confirm_template)
-        api_reply(event.reply_token, template_message)
+        api_reply(event.reply_token, template_message, src)
     elif text == 'carousel':
         carousel_template = CarouselTemplate(columns=[
             CarouselColumn(text='hoge1', title='fuga1', actions=[
@@ -854,7 +854,7 @@ def handle_text_message(event):
         ])
         template_message = TemplateSendMessage(
             alt_text='Buttons alt text', template=carousel_template)
-        api_reply(event.reply_token, template_message)
+        api_reply(event.reply_token, template_message, src)
 
 
 # Incomplete
@@ -863,7 +863,7 @@ def handle_postback(event):
     return
     if event.postback.data == 'ping':
         api_reply(
-            event.reply_token, TextSendMessage(text='pong'))
+            event.reply_token, TextSendMessage(text='pong'), event.source)
 
 
 @handler.add(MessageEvent, message=StickerMessage)
@@ -873,7 +873,7 @@ def handle_sticker_message(event):
     rep = event.reply_token
     src = event.source
 
-    rec['Msg_Received'][get_source_channel_id(src)] += 1
+    rec['Msg'][get_source_channel_id(src)].received()
 
     if isinstance(event.source, SourceUser):
         results = kwd.get_reply(sticker_id, True)
@@ -895,16 +895,17 @@ def handle_sticker_message(event):
              TextSendMessage(text='Picture Location on Windows PC(png):\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{pck_id}\\{stk_id}'.format(
                 pck_id=package_id, 
                 stk_id=sticker_id)),
-             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))]
+             TextSendMessage(text='Picture Location on Web(png):\n{stk_url}'.format(stk_url=sticker_png_url(sticker_id)))],
+            src
         )
     else:
-        reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True)
+        reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True, src)
 
 
 # Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
-    rec['Msg_Received'][get_source_channel_id(event.source)] += 1
+    rec['Msg'][get_source_channel_id(event.source)].received()
     return
 
     api_reply(
@@ -912,14 +913,15 @@ def handle_location_message(event):
         LocationSendMessage(
             title=event.message.title, address=event.message.address,
             latitude=event.message.latitude, longitude=event.message.longitude
-        )
+        ),
+        event.source
     )
 
 
 # Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
-    rec['Msg_Received'][get_source_channel_id(event.source)] += 1
+    rec['Msg'][get_source_channel_id(event.source)].received()
     return
 
     if isinstance(event.message, ImageMessage):
@@ -945,12 +947,12 @@ def handle_content_message(event):
         event.reply_token, [
             TextSendMessage(text='Save content.'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
-        ])
+        ], event.source)
 
 
 @handler.add(FollowEvent)
 def handle_follow(event):
-    api_reply(event.reply_token, introduction_template())
+    api_reply(event.reply_token, introduction_template(), event.source)
 
 # Incomplete
 @handler.add(UnfollowEvent)
@@ -962,14 +964,12 @@ def handle_unfollow():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    api_reply(event.reply_token, introduction_template())
-
     if isinstance(event.source, SourceGroup):
         gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX')
-        api_reply(event.reply_token, TextMessage(text='Group data registered. Type in \'JC G\' to get more details.'))
+        api_reply(event.reply_token, TextMessage(text='Group data registered. Type in \'JC G\' to get more details.'), event.source)
     if isinstance(event.source, SourceRoom):
         gb.new_data(event.source.room_id, MAIN_UID, 'RaenonX')
-        api_reply(event.reply_token, TextMessage(text='Room data registered. Type in \'JC G\' to get more details.'))
+        api_reply(event.reply_token, TextMessage(text='Room data registered. Type in \'JC G\' to get more details.'), event.source)
 
 
 # Encapsulated Functions
@@ -1040,8 +1040,8 @@ def string_is_int(s):
         return False
 
 
-def api_reply(reply_token, msgs):
-    rec['Msg_Replied'] += 1
+def api_reply(reply_token, msgs, src):
+    rec['Msg'][src if isinstance(src, str) else get_source_channel_id(src)].replied()
 
     if not rec['Silence']:
         if not isinstance(msgs, (list, tuple)):
@@ -1069,7 +1069,7 @@ def intercept_text(event):
     print '==========================================='
 
 
-def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
+def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw, src):
         if gb.is_group_set_to_silence(channel_id):
             return
 
@@ -1089,10 +1089,12 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
                                              thumbnail_image_url=reply,
                                              actions=[
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
-                                             ])))
+                                             ])), src)
             else:
-                api_reply(token, TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
-                                                                          id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))))
+                api_reply(token, 
+                          TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
+                                                                   id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))),
+                          src)
 
 
 def rec_error(details, channel_id):
@@ -1137,7 +1139,7 @@ def send_error_url_line(token, error_text, channel_id):
         url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
         url_full=request.url_root + url_for('get_error_list')[1:])
     print report_content['Error'][timestamp]
-    api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
+    api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)], channel_id)
 
 
 def profile(uid):
