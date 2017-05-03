@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 import os
-print 'error.py', os.getenv('LANG', 'Unknown')
+print(os.getenv('LANG', 'Unknown'))
 
 
 class error(object):

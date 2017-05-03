@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import errno, os, sys, tempfile
-print 'app.py', os.getenv('LANG', 'Unknown')
+print(os.getenv('LANG', 'Unknown'))
 
 import traceback
 import validators
