@@ -1058,17 +1058,17 @@ def api_reply(reply_token, msgs, source):
 
         api.reply_message(reply_token, msgs)
     else:
-        print '=================================================================='
-        print 'Bot set to silence. Expected message to reply will display below: '
-        print msgs
-        print '=================================================================='
+        print('==================================================================')
+        print('Bot set to silence. Expected message to reply will display below: ')
+        print(msgs)
+        print('==================================================================')
 
 
 def intercept_text(event):
-    print '==========================================='
-    print 'From Channel ID \'{}\''.format(get_source_channel_id(event.source))
-    print 'Message \'{}\''.format(event.message.text.encode('utf-8'))
-    print '==========================================='
+    print('===========================================')
+    print('From Channel ID \'{}\''.format(get_source_channel_id(event.source)))
+    print('Message \'{}\''.format(event.message.text.encode('utf-8')))
+    print('===========================================')
 
 
 def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw):
@@ -1139,7 +1139,7 @@ def send_error_url_line(token, error_text, channel_id):
         url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
         url_full=request.url_root + url_for('get_error_list')[1:],
         issue='https://github.com/RaenonX/LineBot/issues')
-    print report_content['Error'][timestamp]
+    print(report_content['Error'][timestamp])
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
 
 
