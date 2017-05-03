@@ -10,7 +10,7 @@ import collections
 class kw_dict_mgr(object):
 
     def __init__(self, scheme, db_url):
-        urlparse.uses_netloc.append(scheme)
+        urlparse.netloc.append(scheme)
         self.url = urlparse.urlparse(db_url)
         self._set_connection()
 
