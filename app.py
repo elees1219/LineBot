@@ -560,7 +560,7 @@ def handle_text_message(event):
                     last_count = len(last)
                     limit = 10
 
-                    sorted_msg = sorted(rec['Msg'].iteritems(), key=lambda counter: (counter[1].recv + counter[1].repl), reverse=True)
+                    sorted_msg = sorted(rec['Msg'].items(), key=lambda counter: (counter[1].recv + counter[1].repl), reverse=True)
 
                     text = u'從開機後開始統計的資料(連續30分鐘沒有收到任何訊息的話以下資料會全部歸零)\n'
                     text += u'開機時間: {bt} (台北時間)\n'.format(bt=boot_up)
@@ -570,7 +570,7 @@ def handle_text_message(event):
                         text += u'\n{} - {}'.format(channel, counter)
 
                     cmd_dict_text = ''
-                    for cmd, cmd_obj in cmd_dict.iteritems():
+                    for cmd, cmd_obj in cmd_dict.items():
                         cmd_dict_text += u'\n指令{} - 呼叫{}次'.format(cmd, cmd_obj.count)
                     text += u'\n系統指令呼叫次數(包含呼叫失敗): {t}{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
                     
@@ -1139,7 +1139,7 @@ def send_error_url_line(token, error_text, channel_id):
         url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
         url_full=request.url_root + url_for('get_error_list')[1:],
         issue='https://github.com/RaenonX/LineBot/issues')
-    print(report_content['Error'][timestamp].decode('unicode-escape'))
+    print(report_content['Error'][timestamp])
     api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)])
 
 
