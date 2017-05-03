@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-16 -*-
 from __future__ import unicode_literals
 
 class error(object):
@@ -18,7 +18,7 @@ class error(object):
         
         @staticmethod
         def invalid_thing(name_of_thing, thing):
-            return u'不合法的{}: {}。請檢閱使用說明書。'.format(name_of_thing, thing).encode('utf-8')
+            return u'不合法的{}: {}。請檢閱使用說明書。'.format(name_of_thing, thing)
 
         @staticmethod
         def lack_of_thing(name_of_thing):
