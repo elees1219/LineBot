@@ -18,7 +18,7 @@ class error(object):
 
         @staticmethod
         def no_result():
-            return u'沒有結果。'
+            return '沒有結果。'
         
         @staticmethod
         def invalid_thing(name_of_thing, thing):
