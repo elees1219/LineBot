@@ -1103,7 +1103,7 @@ def rec_error(details, channel_id):
         report_content['Error'][timestamp] = u'發生於 {time}\n'.format(time=datetime.now() + timedelta(hours=8))
         report_content['Error'][timestamp] = u'頻道ID: {cid}'.format(cid=channel_id)
         report_content['Error'][timestamp] += u'\n\n'
-        report_content['Error'][timestamp] += details  
+        report_content['Error'][timestamp] += details.decode('utf-8')
         return timestamp
 
 
