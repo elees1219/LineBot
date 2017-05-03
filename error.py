@@ -1,4 +1,4 @@
-# -*- coding: utf-16 -*-
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 class error(object):
@@ -15,6 +15,10 @@ class error(object):
             return 'No content.'
 
     class main(object):
+
+        @staticmethod
+        def no_result():
+            return u'沒有結果。'
         
         @staticmethod
         def invalid_thing(name_of_thing, thing):
@@ -23,10 +27,6 @@ class error(object):
         @staticmethod
         def lack_of_thing(name_of_thing):
             return u'不完整的{nm}。請修正您所提供的{nm}(s)。'.format(nm=name_of_thing)
-
-        @staticmethod
-        def no_result():
-            return u'沒有結果。'
 
         @staticmethod
         def restricted(permission=None):
