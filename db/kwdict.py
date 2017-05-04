@@ -193,29 +193,29 @@ class kw_dict_mgr(object):
     
     @staticmethod
     def entry_basic_info(entry_row):
-        text = u'ID: {}\n'.format(entry_row[kwdict_col.id])
+        text = 'ID: {}\n'.format(entry_row[kwdict_col.id])
         kw = entry_row[kwdict_col.keyword].decode('utf8')
         if not entry_row[kwdict_col.is_sticker_kw]:
-            text += u'關鍵字: {}\n'.format(kw)
+            text += '關鍵字: {}\n'.format(kw)
         else:
-            text += u'關鍵字: (貼圖ID: {})\n'.format(kw)
-        text += u'回覆{}: {}'.format('圖片URL' if entry_row[kwdict_col.is_pic_reply] else '文字',
+            text += '關鍵字: (貼圖ID: {})\n'.format(kw)
+        text += '回覆{}: {}'.format('圖片URL' if entry_row[kwdict_col.is_pic_reply] else '文字',
                                      entry_row[kwdict_col.reply].decode('utf-8'))
         return text
 
     @staticmethod
     def entry_detailed_info(line_api, entry_row):
         basic = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
-        basic += u'屬性:\n'
-        basic += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[kwdict_col.admin] else '[ - ]',
-                                        u'[ 已覆蓋 ]' if entry_row[kwdict_col.override] else '[ - ]',
-                                        u'[ 已刪除 ]' if entry_row[kwdict_col.deleted] else '[ - ]')
-        basic += u'呼叫次數: {}\n\n'.format(entry_row[kwdict_col.used_count])
+        basic += '屬性:\n'
+        basic += '{} {} {}\n\n'.format('[ 置頂 ]' if entry_row[kwdict_col.admin] else '[ - ]',
+                                       '[ 已覆蓋 ]' if entry_row[kwdict_col.override] else '[ - ]',
+                                       '[ 已刪除 ]' if entry_row[kwdict_col.deleted] else '[ - ]')
+        basic += '呼叫次數: {}\n\n'.format(entry_row[kwdict_col.used_count])
 
         profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
-        basic += u'製作者LINE使用者名稱:\n{}\n'.format(profile.display_name)
-        basic += u'製作者LINE UUID:\n{}'.format(entry_row[kwdict_col.creator])
+        basic += '製作者LINE使用者名稱:\n{}\n'.format(profile.display_name)
+        basic += '製作者LINE UUID:\n{}'.format(entry_row[kwdict_col.creator])
 
         return basic
     
@@ -237,9 +237,6 @@ class kw_dict_mgr(object):
                     '[蓋]' if row[kwdict_col.override] else u'',
                     '[頂]' if row[kwdict_col.admin] else u'',
                     '[刪]' if row[kwdict_col.deleted] else u'')
-
-                print type(text)
-                print type(ret['full'])
 
                 ret['full'] += text
 
