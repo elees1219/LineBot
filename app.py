@@ -334,7 +334,7 @@ def handle_text_message(event):
                             for result in results:
                                 text += u'\n[{}]'.format(', '.join(str(s).decode('utf-8') for s in result))
                         else:
-                            text += u'{}'.format(error.main.no_result())
+                            text += error.main.no_result()
                     else:
                         text = error.main.restricted(3)
 
