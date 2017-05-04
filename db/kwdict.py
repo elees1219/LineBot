@@ -199,7 +199,7 @@ class kw_dict_mgr(object):
             text += u'關鍵字: {}\n'.format(kw)
         else:
             text += u'關鍵字: (貼圖ID: {})\n'.format(kw)
-        text += '回覆{}: {}'.format(u'圖片URL' if entry_row[kwdict_col.is_pic_reply] else u'文字',
+        text += u'回覆{}: {}'.format(u'圖片URL' if entry_row[kwdict_col.is_pic_reply] else u'文字',
                                      entry_row[kwdict_col.reply].decode('utf-8'))
         return text
 
