@@ -329,10 +329,9 @@ def handle_text_message(event):
                     if isinstance(src, SourceUser) and permission_level(key) >= 3:
                         results = kwd.sql_cmd_only(sql)
                         if results is not None:
-                            text = u'資料庫指令輸出結果(共{len}筆): \n'.format(len=len(results))
+                            text = u'資料庫指令:\n{}\n\n輸出結果(共{}筆):'.format(sql, len(results))
                             for result in results:
-                                result_decoded = [str(i).decode('utf-8') for i in result]
-                                text += u'{result}\n'.format(result=result_decoded)
+                                text += u'\n[{}]'.format(', '.join(str(s) for s in result))
                         else:
                             text = error.main.no_result()
                     else:
