@@ -305,7 +305,7 @@ def handle_text_message(event):
                 rec['JC_called'] += 1
 
                 if cmd not in cmd_dict:
-                    text = error.main.invalid_thing('command', cmd)
+                    text = error.main.invalid_thing('指令', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 
@@ -314,7 +314,7 @@ def handle_text_message(event):
                 params = split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
-                    text = error.main.lack_of_thing('parameter')
+                    text = error.main.lack_of_thing('參數')
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 

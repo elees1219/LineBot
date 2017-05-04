@@ -8,7 +8,7 @@ class error(object):
 
         @staticmethod
         def no_content_at_time(content_type, timestamp):
-            return '在指定的時間沒有{}的紀錄。 ({})'.format(content_type, time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+            return '在指定的時間沒有{}的紀錄。 ({})'.format(content_type, time.strftime('%Y-%m-%d %H:%M:%S (%Z)', time.localtime(timestamp)))
 
         @staticmethod
         def no_content():
