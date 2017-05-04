@@ -255,13 +255,13 @@ class kw_dict_mgr(object):
         ret = {'limited': '', 'full': ''}
         limited = False
         count = len(data)
-        separator = '====================\n'
-        ret['full'] = '共{}筆資料\n'.format(count)
+        separator = u'====================\n'
+        ret['full'] = u'共{}筆資料\n'.format(count)
 
         for index, row in enumerate(data, start=1):
             text = separator
             text += kw_dict_mgr.entry_detailed_info(line_api, row)
-            text += '\n'
+            text += u'\n'
             ret['full'] += text
 
             if not limited:
@@ -269,7 +269,7 @@ class kw_dict_mgr(object):
 
                 if index >= limit:
                     ret['limited'] += separator
-                    ret['limited'] += '還有{}筆資料沒有顯示。'.format(count - limit)
+                    ret['limited'] += u'還有{}筆資料沒有顯示。'.format(count - limit)
                     limited = True
 
         return ret
