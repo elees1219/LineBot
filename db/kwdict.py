@@ -234,9 +234,9 @@ class kw_dict_mgr(object):
                 text = 'ID: {} - {} {}{}{}\n'.format(
                     row[kwdict_col.id],
                     '(貼圖ID {})'.format(row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
-                    '(蓋)' if row[kwdict_col.override] else u'',
-                    '(頂)' if row[kwdict_col.admin] else u'',
-                    '(刪)' if row[kwdict_col.deleted] else u'')
+                    '[蓋]' if row[kwdict_col.override] else u'',
+                    '[頂]' if row[kwdict_col.admin] else u'',
+                    '[刪]' if row[kwdict_col.deleted] else u'')
 
                 print type(text)
                 print type(ret['full'])
@@ -258,13 +258,13 @@ class kw_dict_mgr(object):
         ret = {'limited': '', 'full': ''}
         limited = False
         count = len(data)
-        separator = u'====================\n'
-        ret['full'] = u'共{}筆資料\n'.format(count)
+        separator = '====================\n'
+        ret['full'] = '共{}筆資料\n'.format(count)
 
         for index, row in enumerate(data, start=1):
             text = separator
             text += kw_dict_mgr.entry_detailed_info(line_api, row)
-            text += u'\n'
+            text += '\n'
             ret['full'] += text
 
             if not limited:
@@ -272,7 +272,7 @@ class kw_dict_mgr(object):
 
                 if index >= limit:
                     ret['limited'] += separator
-                    ret['limited'] += u'還有{}筆資料沒有顯示。'.format(count - limit)
+                    ret['limited'] += '還有{}筆資料沒有顯示。'.format(count - limit)
                     limited = True
 
         return ret
