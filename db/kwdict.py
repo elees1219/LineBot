@@ -196,10 +196,10 @@ class kw_dict_mgr(object):
         text = u'ID: {}\n'.format(entry_row[kwdict_col.id])
         kw = entry_row[kwdict_col.keyword].decode('utf8')
         if not entry_row[kwdict_col.is_sticker_kw]:
-            text += '關鍵字: {}\n'.format(kw)
+            text += u'關鍵字: {}\n'.format(kw)
         else:
-            text += '關鍵字: (貼圖ID: {})\n'.format(kw)
-        text += '回覆{}: {}'.format('圖片URL' if entry_row[kwdict_col.is_pic_reply] else '文字',
+            text += u'關鍵字: (貼圖ID: {})\n'.format(kw)
+        text += '回覆{}: {}'.format(u'圖片URL' if entry_row[kwdict_col.is_pic_reply] else u'文字',
                                      entry_row[kwdict_col.reply].decode('utf-8'))
         return text
 
