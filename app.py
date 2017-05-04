@@ -609,7 +609,7 @@ def handle_text_message(event):
                 # GROUP ban basic (info)
                 elif cmd == 'G':
                     if not isinstance(src, SourceUser):
-                        group_detail = gb.get_group_by_id(gid)
+                        group_detail = gb.get_group_by_id(src.sender_id)
                         gid = get_source_channel_id(src)
                         uid = group_detail[gb_col.admin]
                         admin_profile = profile(uid)
@@ -964,12 +964,12 @@ def handle_unfollow():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    if isinstance(event.source, SourceGroup):
-        gb.new_data(event.source.group_id, MAIN_UID, 'RaenonX')
-        api_reply(event.reply_token, TextMessage(text='Group data registered. Type in \'JC G\' to get more details.'), event.source)
-    if isinstance(event.source, SourceRoom):
-        gb.new_data(event.source.room_id, MAIN_UID, 'RaenonX')
-        api_reply(event.reply_token, TextMessage(text='Room data registered. Type in \'JC G\' to get more details.'), event.source)
+    src = event.source
+    cid = src.sender_id
+
+    if not isinstance(event.source, SourceUser):
+        gb.new_data(cid, MAIN_UID, 'RaenonX')
+        api_reply(event.reply_token, TextMessage(text='Channel data registered. Type in \'JC G\' to get more details.'), cid)
 
 
 # Encapsulated Functions
@@ -1041,7 +1041,7 @@ def string_is_int(s):
 
 
 def api_reply(reply_token, msgs, src):
-    rec['Msg'][src if isinstance(src, str) else get_source_channel_id(src)].replied()
+    rec['Msg'][src if isinstance(src, (str, unicode)) else get_source_channel_id(src)].replied()
 
     if not rec['Silence']:
         if not isinstance(msgs, (list, tuple)):
