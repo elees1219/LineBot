@@ -247,7 +247,7 @@ class kw_dict_mgr(object):
                     ret['limited'] += text
 
                     if index >= limit:
-                        ret['limited'] += u'...(還有{}筆)'.format(count-limit)
+                        ret['limited'] += '...(還有{}筆)'.format(count-limit)
                         limited = True
 
         return ret
