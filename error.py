@@ -19,24 +19,24 @@ class error(object):
         
         @staticmethod
         def invalid_thing(name_of_thing, thing):
-            return u'Invalid {}: {}. Please recheck the user manual.'.format(name_of_thing, thing)
+            return u'不合法的{}: {}。請查看使用說明。'.format(name_of_thing, thing)
 
         @staticmethod
         def lack_of_thing(name_of_thing):
-            return u'Lack of {nm}(s). Please amend the provided {nm}(s) to the valid form.'.format(nm=name_of_thing)
+            return u'缺少{nm}。請修正您所提供的{nm}成正確的格式。'.format(nm=name_of_thing)
 
         @staticmethod
         def no_result():
-            return 'No results.'
+            return '無結果。'
 
         @staticmethod
         def restricted(permission=None):
-            return '限RESTRICTED.{}'.format(
-                '\n\nRequired permission: {}'.format(permission) if permission is not None else '')
+            return '已限制的功能。{}'.format(
+                '\n\n需求權限: {}+'.format(permission) if permission is not None else '')
 
         @staticmethod
         def incorrect_channel(available_in_1v1=True, available_in_room=False, available_in_group=False):
             return 'This is not available in this channel. Valid channel to execute below:\n{} {} {}'.format(
-                '[ CHAT ]' if available_in_1v1 else '[ - ]',
-                '[ GROUP ]' if available_in_group else '[ - ]',
-                '[ ROOM ]' if available_in_room else '[ - ]')
+                '[ 私訊 ]' if available_in_1v1 else '[ - ]',
+                '[ 群組 ]' if available_in_group else '[ - ]',
+                '[ 房間 ]' if available_in_room else '[ - ]')
