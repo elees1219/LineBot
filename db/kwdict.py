@@ -222,7 +222,7 @@ class kw_dict_mgr(object):
     @staticmethod
     def list_keyword(data, limit=25):
         """return two object to access by [\'limited\'] and [\'full\']."""
-        ret = {'limited': '', 'full': ''}
+        ret = {'limited': u'', 'full': u''}
         limited = False
         count = len(data)
         ret['full'] = u'共有{}筆結果\n\n'.format(count)
