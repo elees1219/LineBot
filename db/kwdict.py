@@ -193,7 +193,7 @@ class kw_dict_mgr(object):
     
     @staticmethod
     def entry_basic_info(entry_row):
-        text = 'ID: {}\n'.format(entry_row[kwdict_col.id])
+        text = u'ID: {}\n'.format(entry_row[kwdict_col.id])
         kw = entry_row[kwdict_col.keyword].decode('utf8')
         if not entry_row[kwdict_col.is_sticker_kw]:
             text += '關鍵字: {}\n'.format(kw)
