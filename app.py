@@ -969,7 +969,8 @@ def handle_join(event):
 
     if not isinstance(event.source, SourceUser):
         gb.new_data(cid, MAIN_UID, 'RaenonX')
-        api_reply(event.reply_token, TextMessage(text='Channel data registered. Type in \'JC G\' to get more details.'), cid)
+        api_reply(event.reply_token, [TextMessage(text='Channel data registered. Type in \'JC  G\' to get more details.')
+                                      , introduction_template()], cid)
 
 
 # Encapsulated Functions
