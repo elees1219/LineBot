@@ -31,7 +31,7 @@ class error(object):
 
         @staticmethod
         def restricted(permission=None):
-            return 'RESTRICTED.{}'.format(
+            return '限RESTRICTED.{}'.format(
                 '\n\nRequired permission: {}'.format(permission) if permission is not None else '')
 
         @staticmethod
