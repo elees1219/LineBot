@@ -208,8 +208,8 @@ class kw_dict_mgr(object):
         basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
         basic += u'屬性:\n'
         basic += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[kwdict_col.admin] else '[ - ]',
-                                                    u'[ 已覆蓋 ]' if entry_row[kwdict_col.override] else '[ - ]',
-                                                    u'[ 已刪除 ]' if entry_row[kwdict_col.deleted] else '[ - ]')
+                                        u'[ 已覆蓋 ]' if entry_row[kwdict_col.override] else '[ - ]',
+                                        u'[ 已刪除 ]' if entry_row[kwdict_col.deleted] else '[ - ]')
         basic += u'呼叫次數: {}\n\n'.format(entry_row[kwdict_col.used_count])
 
         profile = line_api.get_profile(entry_row[kwdict_col.creator])
@@ -233,10 +233,10 @@ class kw_dict_mgr(object):
             for index, row in enumerate(data, start=1):
                 text = u'ID: {} - {} {}{}{}\n'.format(
                     row[kwdict_col.id],
-                    u'(貼圖ID {})'.format(row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
-                    u'(蓋)' if row[kwdict_col.override] else u'',
-                    u'(頂)' if row[kwdict_col.admin] else u'',
-                    u'(刪)' if row[kwdict_col.deleted] else u'')
+                    '(貼圖ID {})'.format(row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
+                    '(蓋)' if row[kwdict_col.override] else '',
+                    '(頂)' if row[kwdict_col.admin] else '',
+                    '(刪)' if row[kwdict_col.deleted] elseu'')
                 ret['full'] += text
 
                 if not limited:
