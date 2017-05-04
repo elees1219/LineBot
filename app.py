@@ -1018,13 +1018,13 @@ def oxford_json(word):
 
 def introduction_template():
     buttons_template = ButtonsTemplate(
-            title='Introduction', text='Welcome to use the shadow of JELLYFISH!', 
+            title=u'機器人簡介', text='歡迎使用小水母！', 
             actions=[
                 URITemplateAction(label=u'點此開啟使用說明', uri='https://sites.google.com/view/jellybot'),
                 URITemplateAction(label=u'點此導向開發者LINE帳號', uri='http://line.me/ti/p/~chris80124')
             ])
     template_message = TemplateSendMessage(
-        alt_text='Group / Room joining introduction', template=buttons_template)
+        alt_text=u'機器人簡介', template=buttons_template)
     return template_message
 
 
@@ -1139,7 +1139,7 @@ def rec_text(textmsg_list):
 
 def send_error_url_line(token, error_text, channel_id):
     timestamp = rec_error(traceback.format_exc(), channel_id)
-    err_detail = u'Detail URL: {url}\nError list: {url_full}'.format(
+    err_detail = u'詳細錯誤URL: {url}\n錯誤清單: {url_full}'.format(
         url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
         url_full=request.url_root + url_for('get_error_list')[1:])
     print report_content['Error'][timestamp]
