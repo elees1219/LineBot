@@ -236,7 +236,7 @@ class kw_dict_mgr(object):
                     '(貼圖ID {})'.format(row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
                     '(蓋)' if row[kwdict_col.override] else '',
                     '(頂)' if row[kwdict_col.admin] else '',
-                    '(刪)' if row[kwdict_col.deleted] elseu'')
+                    '(刪)' if row[kwdict_col.deleted] else '')
                 ret['full'] += text
 
                 if not limited:
