@@ -329,7 +329,7 @@ def handle_text_message(event):
                     if isinstance(src, SourceUser) and permission_level(key) >= 3:
                         results = kwd.sql_cmd_only(sql)
                         if results is not None:
-                            text = u'SQL command result({len}): \n'.format(len=len(results))
+                            text = u'資料庫指令輸出結果(共{len}筆): \n'.format(len=len(results))
                             for result in results:
                                 text += u'{result}\n'.format(result=result)
                         else:
