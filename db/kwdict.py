@@ -222,23 +222,21 @@ class kw_dict_mgr(object):
     @staticmethod
     def list_keyword(data, limit=25):
         """return two object to access by [\'limited\'] and [\'full\']."""
-        ret = {'limited': u'', 'full': u''}
+        ret = {'limited': '', 'full': ''}
         limited = False
         count = len(data)
-        ret['full'] = u'共有{}筆結果\n\n'.format(count)
+        ret['full'] = '共有{}筆結果\n\n'.format(count)
 
         if count <= 0:
-            ret['limited'] = u'無結果。'
+            ret['limited'] = '無結果。'
         else:
             for index, row in enumerate(data, start=1):
-                text = u'ID: {} - {} {}{}{}\n'.format(
+                text = 'ID: {} - {} {}{}{}\n'.format(
                     row[kwdict_col.id],
-                    u'(貼圖ID {})'.format(row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
-                    u'(蓋)' if row[kwdict_col.override] else u'',
-                    u'(頂)' if row[kwdict_col.admin] else u'',
-                    u'(刪)' 
-                    if row[kwdict_col.deleted] else 
-                    u'')
+                    '(貼圖ID {})'.format(row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
+                    '(蓋)' if row[kwdict_col.override] else u'',
+                    '(頂)' if row[kwdict_col.admin] else u'',
+                    '(刪)' if row[kwdict_col.deleted] else u'')
 
                 print type(text)
                 print type(ret['full'])
