@@ -205,7 +205,7 @@ class kw_dict_mgr(object):
 
     @staticmethod
     def entry_detailed_info(line_api, entry_row):
-        basic = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
+        basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
         basic += '屬性:\n'
         basic += '{} {} {}\n\n'.format('[ 置頂 ]' if entry_row[kwdict_col.admin] else '[ - ]',
                                        '[ 已覆蓋 ]' if entry_row[kwdict_col.override] else '[ - ]',
