@@ -200,14 +200,14 @@ class kw_dict_mgr(object):
         else:
             text += u'關鍵字: (貼圖ID: {})\n'.format(kw)
         text += u'回覆 {}: {}'.format(entry_row[kwdict_col.reply].decode('utf8'),
-                                                 '圖片URL' if entry_row[kwdict_col.is_pic_reply] else 'Text')
+                                      '圖片URL' if entry_row[kwdict_col.is_pic_reply] else 'Text')
         return text
 
     @staticmethod
     def entry_detailed_info(line_api, entry_row):
         basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
         basic += u'屬性: \n'
-        basic += u'{top} {ovr} {delete}\n\n'.format(u'[ 置頂 ]' if entry_row[kwdict_col.admin] else '[ - ]',
+        basic += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[kwdict_col.admin] else '[ - ]',
                                                     u'[ 已覆蓋 ]' if entry_row[kwdict_col.override] else '[ - ]',
                                                     u'[ 已刪除 ]' if entry_row[kwdict_col.deleted] else '[ - ]')
         basic += u'呼叫次數: {}\n\n'.format(entry_row[kwdict_col.used_count])
