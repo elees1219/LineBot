@@ -513,7 +513,7 @@ def handle_text_message(event):
                     if results is not None:
                         i_object = kw_dict_mgr.list_keyword_info(api, results)
                         text = i_object['limited']
-                        text += '\n\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
+                        text += '\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
                     else:
                         if params[2] is not None:
                             text = 'Specified ID to get INFORMATION (ID: {id}) returned no data.'.format(id=pair_id)
