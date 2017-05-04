@@ -331,7 +331,7 @@ def handle_text_message(event):
                         if results is not None:
                             text = u'資料庫指令:\n{}\n\n輸出結果(共{}筆):'.format(sql, len(results))
                             for result in results:
-                                text += u'\n[{}]'.format(', '.join(str(s, encoding='utf-8') for s in result))
+                                text += u'\n[{}]'.format(', '.join(unicode(s) for s in result))
                         else:
                             text = error.main.no_result()
                     else:
