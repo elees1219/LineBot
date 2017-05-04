@@ -8,12 +8,11 @@ class error(object):
 
         @staticmethod
         def no_content_at_time(content_type, timestamp):
-            return 'No {type} recorded at the specified time. ({time})'.format(time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)),
-                                                                               type=content_type)
+            return '在指定的時間沒有{}的紀錄。 ({})'.format(content_type, time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
 
         @staticmethod
         def no_content():
-            return 'No content.'
+            return '沒有內容。.'
 
     class main(object):
         
@@ -36,7 +35,7 @@ class error(object):
 
         @staticmethod
         def incorrect_channel(available_in_1v1=True, available_in_room=False, available_in_group=False):
-            return 'This is not available in this channel. Valid channel to execute below:\n{} {} {}'.format(
+            return '無法於此類型的頻道使用。請至下列頻道:\n{} {} {}'.format(
                 '[ 私訊 ]' if available_in_1v1 else '[ - ]',
                 '[ 群組 ]' if available_in_group else '[ - ]',
                 '[ 房間 ]' if available_in_room else '[ - ]')
