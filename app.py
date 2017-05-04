@@ -305,7 +305,7 @@ def handle_text_message(event):
                 rec['JC_called'] += 1
 
                 if cmd not in cmd_dict:
-                    text = error.main.invalid_thing('指令', cmd)
+                    text = error.main.invalid_thing(u'指令', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 
@@ -314,7 +314,7 @@ def handle_text_message(event):
                 params = split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
-                    text = error.main.lack_of_thing('參數')
+                    text = error.main.lack_of_thing(u'參數')
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 
@@ -328,12 +328,13 @@ def handle_text_message(event):
 
                     if isinstance(src, SourceUser) and permission_level(key) >= 3:
                         results = kwd.sql_cmd_only(sql)
-                        if results is not None:
-                            text = u'資料庫指令:\n{}\n\n輸出結果(共{}筆):'.format(sql, len(results))
+                        text = u'資料庫指令:\n{}\n\n'.format(sql)
+                        if len(results) > 0:
+                            text += u'輸出結果(共{}筆):'.format(len(results))
                             for result in results:
                                 text += u'\n[{}]'.format(', '.join(str(s).decode('utf-8') for s in result))
                         else:
-                            text = error.main.no_result()
+                            text += u'{}'.format(error.main.no_result())
                     else:
                         text = error.main.restricted(3)
 
