@@ -205,19 +205,19 @@ class kw_dict_mgr(object):
 
     @staticmethod
     def entry_detailed_info(line_api, entry_row):
-        basic = kw_dict_mgr.entry_basic_info(entry_row) + '\n\n'
-        basic += '屬性:\n'
-        basic += '{} {} {}\n\n'.format('[ 置頂 ]' if entry_row[kwdict_col.admin] else '[ - ]',
-                                       '[ 已覆蓋 ]' if entry_row[kwdict_col.override] else '[ - ]',
-                                       '[ 已刪除 ]' if entry_row[kwdict_col.deleted] else '[ - ]')
-        basic += '呼叫次數: {}\n\n'.format(entry_row[kwdict_col.used_count])
+        detailed = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
+        detailed += u'屬性:\n'
+        detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[kwdict_col.admin] else u'[ - ]',
+                                        u'[ 已覆蓋 ]' if entry_row[kwdict_col.override] else u'[ - ]',
+                                        u'[ 已刪除 ]' if entry_row[kwdict_col.deleted] else u'[ - ]')
+        detailed += u'呼叫次數: {}\n\n'.format(entry_row[kwdict_col.used_count])
 
         profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
-        basic += '製作者LINE使用者名稱:\n{}\n'.format(profile.display_name)
-        basic += '製作者LINE UUID:\n{}'.format(entry_row[kwdict_col.creator])
+        detailed += u'製作者LINE使用者名稱:\n{}\n'.format(profile.display_name)
+        detailed += u'製作者LINE UUID:\n{}'.format(entry_row[kwdict_col.creator])
 
-        return basic
+        return detailed
     
     @staticmethod
     def list_keyword(data, limit=25):
