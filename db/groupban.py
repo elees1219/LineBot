@@ -58,10 +58,13 @@ class group_ban(object):
         if len(adminUID) != self.id_length or len(groupId) != self.id_length:
             return False
         else:
-            cmd = u'INSERT INTO group_ban(groupId, silence, admin, admin_sha) VALUES(%(id)s, FALSE, %(adm)s, %(key)s)'
-            cmd_dict = {'id': groupId, 'adm': adminUID, 'key': str(hashlib.sha224(key_for_admin.encode('utf-8')).hexdigest())}
-            self.sql_cmd(cmd, cmd_dict)
-            return True
+            try:
+                cmd = u'INSERT INTO group_ban(groupId, silence, admin, admin_sha) VALUES(%(id)s, FALSE, %(adm)s, %(key)s)'
+                cmd_dict = {'id': groupId, 'adm': adminUID, 'key': str(hashlib.sha224(key_for_admin.encode('utf-8')).hexdigest())}
+                self.sql_cmd(cmd, cmd_dict)
+                return True
+            except psycopg2.ProgrammingError as ex:
+                return False
 
     def del_data(self, groupId):
         if len(groupId) != self.id_length:
