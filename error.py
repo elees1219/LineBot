@@ -1,3 +1,5 @@
+import time
+
 class error(object):
 
     class webpage(object):

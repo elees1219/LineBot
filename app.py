@@ -773,9 +773,9 @@ def handle_text_message(event):
                                 sens = lexent['entries'][0]['senses']
                                 
                                 text += '\nDefinition:'
-                                for index, sen in enumerate(sens):
+                                for index, sen in enumerate(sens, start=1):
                                     for de in sen['definitions']:
-                                        text += '\n{count}. {de}'.format(count=index+1, de=de)
+                                        text += '\n{count}. {de}'.format(count=index, de=de)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Leave group or room

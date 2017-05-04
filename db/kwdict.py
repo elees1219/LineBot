@@ -278,11 +278,12 @@ class kw_dict_mgr(object):
         text = 'Top {num} called pair: '.format(num=len(data))
 
         for row in data:
-            text += u'\nNo.{rk} - ID: {id} - {kw} ({ct})'.format(
+            text += u'\nNo.{rk} - ID: {id} - {kw} ({ct}{dsb})'.format(
                 rk=row[kwdict_col.used_rank], 
                 kw='(Sticker ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword].decode('utf8'), 
                 id=row[kwdict_col.id],
-                ct=row[kwdict_col.used_count])
+                ct=row[kwdict_col.used_count],
+                dsb=' X' if row[kwdict_col.deleted] or row[kwdict_col.override] else '')
 
         return text
 
