@@ -239,6 +239,10 @@ class kw_dict_mgr(object):
                     '(刪)' 
                     if row[kwdict_col.deleted] else 
                     '')
+
+                print type(text)
+                print type(ret['full'])
+
                 ret['full'] += text
 
                 if not limited:
