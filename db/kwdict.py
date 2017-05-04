@@ -200,7 +200,7 @@ class kw_dict_mgr(object):
         else:
             text += u'關鍵字: (貼圖ID: {})\n'.format(kw)
         text += u'回覆{}: {}'.format('圖片URL' if entry_row[kwdict_col.is_pic_reply] else '文字',
-                                     entry_row[kwdict_col.reply].decode('utf8'))
+                                     entry_row[kwdict_col.reply].decode('utf-8'))
         return text
 
     @staticmethod
@@ -231,12 +231,16 @@ class kw_dict_mgr(object):
             ret['limited'] = u'無結果。'
         else:
             for index, row in enumerate(data, start=1):
+                print row[kwdict_col.deleted]
+
                 text = u'ID: {} - {} {}{}{}\n'.format(
                     row[kwdict_col.id],
                     '(貼圖ID {})'.format(row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
                     '(蓋)' if row[kwdict_col.override] else '',
                     '(頂)' if row[kwdict_col.admin] else '',
-                    '(刪)' if row[kwdict_col.deleted] else '')
+                    '(刪)' 
+                    if row[kwdict_col.deleted] else 
+                    '')
                 ret['full'] += text
 
                 if not limited:
