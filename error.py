@@ -39,3 +39,11 @@ class error(object):
                 '[ 私訊 ]' if available_in_1v1 else '[ - ]',
                 '[ 群組 ]' if available_in_group else '[ - ]',
                 '[ 房間 ]' if available_in_room else '[ - ]')
+
+        @staticmethod
+        def incorrect_param(param_name, correct):
+            return u'無法辨認。如果要使用這個功能，{}必須為{}。'.format(param_name, correct)
+
+        @staticmethod
+        def unable_to_determine():
+            return u'無法判斷指令，請檢閱使用說明書。'

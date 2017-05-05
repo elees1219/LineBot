@@ -357,13 +357,13 @@ def handle_text_message(event):
                              
                             if action_kw != 'STK':
                                 results = None
-                                text = 'To use sticker-received-picture-or-sticker-reply function, the 1st parameter must be \'STK\'.'
+                                text = error.main.incorrect_param(u'參數1', u'STK')
                             elif not string_is_int(kw):
                                 results = None
-                                text = 'The 2nd parameter must be integer to represent sticker ID.'
+                                text = error.main.incorrect_param(u'參數2', u'整數數字')
                             elif action_rep != 'PIC':
                                 results = None
-                                text = 'To use sticker-received-picture-or-sticker-reply function, the 3rd parameter must be \'PIC\'.'
+                                text =  error.main.incorrect_param(u'參數3', u'PIC')
                             else:
                                 if string_is_int(rep):
                                     rep = sticker_png_url(rep)
@@ -375,7 +375,7 @@ def handle_text_message(event):
                                     results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, True)
                                 else:
                                     results = None
-                                    text = 'URL(parameter 4) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(http://).'
+                                    text = error.main.incorrect_param(u'參數4', u'HTTPS協定，並且是合法的網址。')
                         elif params[3] is not None:
                             rep = params[3]
 
@@ -392,7 +392,7 @@ def handle_text_message(event):
                                     results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
                                 else:
                                     results = None
-                                    text = 'URL(parameter 3) is illegal. Probably URL not exist or incorrect format. Ensure to include protocol(https://) and the URL scheme is HTTPS.\n'
+                                    text = error.main.incorrect_param(u'參數3', u'HTTPS協定，並且是合法的網址。')
                             elif params[1] == 'STK':
                                 kw = params[2]
 
@@ -400,9 +400,9 @@ def handle_text_message(event):
                                     results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
                                 else:
                                     results = None
-                                    text = 'The 2nd parameter must be integer to represent sticker ID.'
+                                    text = error.main.incorrect_param(u'參數2', u'整數數字')
                             else:
-                                text = 'Unable to determine the function to use. parameter 1 must be \'STK\' or parameter 2 must be \'PIC\'. Check the user manual to get more details.'
+                                text = error.main.unable_to_determine()
                                 results = None
                         elif params[2] is not None:
                             kw = params[1]
@@ -411,11 +411,10 @@ def handle_text_message(event):
                             results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False)
                         else:
                             results = None
-                            text = 'Lack of parameter(s). Please recheck your parameter(s) that correspond to the command.'
+                            text = error.main.lack_of_thing(u'參數')
 
                         if results is not None:
-                            text = u'Pair Added. {top}\n'.format(len=len(results), 
-                                                                 top='(top)' if pinned else '')
+                            text = u'已新增回覆組。{}\n'.format('(置頂)' if pinned else '')
                             for result in results:
                                 text += kw_dict_mgr.entry_basic_info(result)
 
