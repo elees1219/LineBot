@@ -414,7 +414,7 @@ def handle_text_message(event):
                             text = error.main.lack_of_thing(u'參數')
 
                         if results is not None:
-                            text = u'已新增回覆組。{}\n'.format('(置頂)' if pinned else '')
+                            text = u'已新增回覆組。{}\n'.format(u'(置頂)' if pinned else '')
                             for result in results:
                                 text += kw_dict_mgr.entry_basic_info(result)
 
@@ -423,7 +423,7 @@ def handle_text_message(event):
                 elif cmd == 'D' or cmd == 'R':
                     pinned = cmd_dict[cmd].non_user_permission_required
                     if pinned and permission_level(paramA.pop(1)) < 2:
-                        text = 'Insufficient Permission.'
+                        text = error.main.restricted(2)
                     else:
                         if params[2] is None:
                             kw = params[1]
@@ -439,19 +439,19 @@ def handle_text_message(event):
                                     results = kwd.delete_keyword_id(pair_id, pinned)
                                 else:
                                     results = None
-                                    text = 'Illegal parameter 2. Parameter 2 need to be integer to delete keyword by ID.'
+                                    text = error.main.incorrect_param(u'參數2', u'整數數字')
                             else:
                                 results = None
-                                text = 'Incorrect 1st parameter to delete keyword pair. To use ID to delete keyword, 1st parameter needs to be \'ID\'.'
+                                text = error.main.incorrect_param(u'參數1', u'ID')
 
                     if results is not None:
                         for result in results:
                             line_profile = profile(result[kwdict_col.creator])
 
-                            text = 'Pair Deleted. {top}\n'.format(top='(top)' if pinned else '')
+                            text = u'已刪除回覆組。{}\n'.format(u'(置頂)' if pinned else '')
                             text += kw_dict_mgr.entry_basic_info(result)
-                            text += u'\nThis pair is created by {name}.'.format(
-                                name='(LINE account data not found)' if line_profile is None else line_profile.display_name)
+                            text += u'\n此回覆組由 {} 製作。'.format(
+                                '(LINE account data not found)' if line_profile is None else line_profile.display_name)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # QUERY keyword
@@ -466,12 +466,12 @@ def handle_text_message(event):
 
                             if end_index - begin_index < 0:
                                 results = None
-                                text = '2nd parameter must bigger than 1st parameter.'
+                                text = error.main.incorrect_param(u'參數2', u'大於參數1的數字')
                             else:
                                 results = kwd.search_keyword_index(begin_index, end_index)
                         except ValueError:
                             results = None
-                            text = 'Illegal parameter. 1rd parameter and 2nd parameter must be integer.'
+                            text = error.main.incorrect_param(u'參數1和參數2', u'整數數字')
                     else:
                         kw = params[1]
 
@@ -480,12 +480,12 @@ def handle_text_message(event):
                     if results is not None:
                         q_list = kw_dict_mgr.list_keyword(results)
                         text = q_list['limited']
-                        text += '\n\nFull Query URL: {url}'.format(url=rec_query(q_list['full']))
+                        text += '\n\n完整搜尋結果顯示: {}'.format(rec_query(q_list['full']))
                     else:
                         if params[2] is not None:
-                            text = 'Specified ID range to QUERY ({si}~{ei}) returned no data.'.format(si=si, ei=ei)
+                            text = u'找不到和指定的ID範圍({}~{})有關的結果。'.format(si, ei)
                         else:
-                            text = u'Specified keyword to QUERY ({kw}) returned no data.'.format(kw=kw)
+                            text = u'找不到和指定的關鍵字({})有關的結果。'.format(kw)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # INFO of keyword
