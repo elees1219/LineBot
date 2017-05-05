@@ -594,13 +594,13 @@ def handle_text_message(event):
 
                     text2 += u'使用次數最多的回覆組 ({}次，{}組):'.format(first[0][kwdict_col.used_count], len(first))
                     for entry in first:
-                        text2 += u'\n{} (ID: {})'.format(u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
-                                                         entry[kwdict_col.id])
+                        text2 += u'\nID: {} - {}'.format(entry[kwdict_col.id],
+                                                         u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'))
 
                     text2 += u'\n\n使用次數最少的回覆組 ({}次，{}組):'.format(last[0][kwdict_col.used_count], len(last))
                     for entry in last:
-                        text2 += u'\n{} (ID: {})'.format(u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
-                                                         entry[kwdict_col.id])
+                        text2 += u'\nID: {} - {}'.format(entry[kwdict_col.id],
+                                                         u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'))
                         
                         last_count -= 1
                         if len(last) - last_count >= limit:
