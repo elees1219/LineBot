@@ -513,7 +513,7 @@ def handle_text_message(event):
                     if results is not None:
                         i_object = kw_dict_mgr.list_keyword_info(api, results)
                         text = i_object['limited']
-                        text += '\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
+                        text += '\n\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
                     else:
                         if params[2] is not None:
                             text = 'Specified ID to get INFORMATION (ID: {id}) returned no data.'.format(id=pair_id)
@@ -562,48 +562,49 @@ def handle_text_message(event):
 
                     sorted_msg = sorted(rec['Msg'].items(), key=lambda counter: (counter[1].recv + counter[1].repl), reverse=True)
 
-                    text = u'Data Recorded since booted up\n'
-                    text += u'Boot up Time: {bt} (UTC+8)\n'.format(bt=boot_up)
-                    text += u'\nWebpage viewed: {}'.format(rec['webpage'])
-                    text += u'\nMessage Received / Replied: {} / {}\n'.format(sum(counter[1].recv for counter in sorted_msg), 
+                    text = u'開機後開始統計的資料\n'
+                    text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
+                    text += u'\n網頁瀏覽次數: {}'.format(rec['webpage'])
+                    text += u'\n共接收了{}則訊息 | 共回覆了{}則訊息\n'.format(sum(counter[1].recv for counter in sorted_msg), 
                                                                               sum(counter[1].repl for counter in sorted_msg))
                     for channel, counter in sorted_msg:
                         text += u'\n{} - {}'.format(channel, counter)
 
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.items():
-                        cmd_dict_text += u'\n{} ({})'.format(cmd, cmd_obj.count)
-                    text += u'\n\nSystem command called(including failed): {t}{info}'.format(t=rec['JC_called'], info=cmd_dict_text)
+                        cmd_dict_text += u'[{} ({}次)] '.format(cmd, cmd_obj.count)
+                    text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n{info}'.format(rec['JC_called'], cmd_dict_text)
                     
-                    text2 = u'Data Collected Full Time\n\n'
-                    text2 += u'Count of Keyword Pair: {ct}\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(ct=kwpct,
-                                                                                                            stk_kw=kwd.sticker_keyword_count(),
-                                                                                                            pic_rep=kwd.picture_reply_count())
-                    text2 += u'Count of Active Keyword Pair: {ct} ({pct:.2f}%)\n(STK KW: {stk_kw}, PIC REP: {pic_rep})\n'.format(
-                        ct=kwd.row_count(True),
-                        stk_kw=kwd.sticker_keyword_count(True),
-                        pic_rep=kwd.picture_reply_count(True),
-                        pct=kwd.row_count(True) / float(kwpct) * 100)
-                    text2 += u'Count of Reply: {crep}\n\n'.format(crep=kwd.used_count_sum())
+                    text2 = u'全時統計資料\n\n'
+                    text2 += u'已登錄{}組回覆組。\n({}組貼圖關鍵字 | {}組圖片回覆)\n'.format(
+                        kwpct,
+                        kwd.sticker_keyword_count(),
+                        kwd.picture_reply_count())
+                    text2 += u'共{}組回覆組可使用。{:.2%}\n({}組貼圖關鍵字 | {}組圖片回覆)\n'.format(
+                        kwd.row_count(True),
+                        kwd.row_count(True) / float(kwpct),
+                        kwd.sticker_keyword_count(True),
+                        kwd.picture_reply_count(True))
+                    text2 += u'已使用回覆組{}次\n\n'.format(kwd.used_count_sum())
 
-                    text2 += u'The User who Created The Most Keyword Pair:\n{name} ({num} Pairs - {pct:.2f}%)\n\n'.format(
-                        name='(LINE account data not found)' if line_profile is None else line_profile.display_name,
-                        num=user_list_top[1],
-                        pct=user_list_top[1] / float(kwpct) * 100)
+                    text2 += u'製作最多回覆組的LINE使用者:\n{} ({}組 - {:.2%})\n\n'.format(
+                        u'(找不到LINE帳號資料)' if line_profile is None else line_profile.display_name,
+                        user_list_top[1],
+                        user_list_top[1] / float(kwpct))
 
-                    text2 += u'Most Popular Keyword ({t} Time(s)):'.format(t=first[0][kwdict_col.used_count])
+                    text2 += u'使用次數最多的回覆組 ({}次，{}組):'.format(first[0][kwdict_col.used_count], len(first))
                     for entry in first:
-                        text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
-                                                             id=entry[kwdict_col.id])
+                        text2 += u'\n{} (ID: {})'.format(u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
+                                                         entry[kwdict_col.id])
 
-                    text2 += u'\n\nMost Unpopular Keyword ({t} Time(s)):'.format(t=last[0][kwdict_col.used_count])
+                    text2 += u'\n\n使用次數最少的回覆組 ({}次，{}組):'.format(last[0][kwdict_col.used_count], len(last))
                     for entry in last:
-                        text2 += u'\n{kw} (ID: {id})'.format(kw='(Sticker {id})'.format(id=entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
-                                                             id=entry[kwdict_col.id])
+                        text2 += u'\n{} (ID: {})'.format(u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'),
+                                                         entry[kwdict_col.id])
                         
                         last_count -= 1
                         if len(last) - last_count >= limit:
-                            text2 += '\n...({left} more)'.format(left=last_count)
+                            text2 += u'\n...(還有{}組)'.format(last_count)
                             break
 
                     api_reply(token, [TextSendMessage(text=text), TextMessage(text=text2)], src)
