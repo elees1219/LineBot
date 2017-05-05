@@ -36,9 +36,9 @@ class error(object):
         @staticmethod
         def incorrect_channel(available_in_1v1=True, available_in_room=False, available_in_group=False):
             return u'無法於此類型的頻道使用。請至下列頻道:\n{} {} {}'.format(
-                '[ 私訊 ]' if available_in_1v1 else '[ - ]',
-                '[ 群組 ]' if available_in_group else '[ - ]',
-                '[ 房間 ]' if available_in_room else '[ - ]')
+                u'[ 私訊 ]' if available_in_1v1 else u'[ - ]',
+                u'[ 群組 ]' if available_in_group else u'[ - ]',
+                u'[ 房間 ]' if available_in_room else u'[ - ]')
 
         @staticmethod
         def incorrect_param(param_name, correct):

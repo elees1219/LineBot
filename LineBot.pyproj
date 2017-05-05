@@ -38,6 +38,12 @@
     <Compile Include="error.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="game\rps.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{949198a7-aa80-41ec-93fc-cf2d0d5db89f}\3.5" />
@@ -45,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="db\" />
+    <Folder Include="game\" />
   </ItemGroup>
   <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
