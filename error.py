@@ -47,3 +47,7 @@ class error(object):
         @staticmethod
         def unable_to_determine():
             return u'無法判斷指令，請檢閱使用說明書。'
+
+        @staticmethod
+        def pair_not_exist():
+            return u'回覆組不存在。'

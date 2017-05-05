@@ -421,6 +421,8 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # DELETE keyword & DELETE top keyword
                 elif cmd == 'D' or cmd == 'R':
+                    org_text = text
+
                     pinned = cmd_dict[cmd].non_user_permission_required
                     if pinned and permission_level(paramA.pop(1)) < 2:
                         text = error.main.restricted(2)
@@ -452,6 +454,8 @@ def handle_text_message(event):
                             text += kw_dict_mgr.entry_basic_info(result)
                             text += u'\n此回覆組由 {} 製作。'.format(
                                 '(LINE account data not found)' if line_profile is None else line_profile.display_name)
+                    elif text == org_text:
+                        text = error.main.pair_not_exist()
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # QUERY keyword
