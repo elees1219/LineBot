@@ -61,7 +61,7 @@ class msg_counter(object):
         self._rep += 1
 
     def __repr__(self):
-        return u'Received: {}, Replied: {}'.format(self._rcv, self._rep)
+        return u'收到: {}, 回覆: {}'.format(self._rcv, self._rep)
 
 rec = {'JC_called': 0, 'Msg': defaultdict(msg_counter), 'Silence': False, 'Intercept': True, 'webpage': 0}
 report_content = {'Error': {}, 
