@@ -565,10 +565,10 @@ def handle_text_message(event):
                     text = u'開機後開始統計的資料\n'
                     text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
                     text += u'\n網頁瀏覽次數: {}'.format(rec['webpage'])
-                    text += u'\n共接收了{}則訊息 | 共回覆了{}則訊息\n'.format(sum(counter[1].recv for counter in sorted_msg), 
+                    text += u'\n共接收了{}則訊息 | 共回覆了{}則訊息'.format(sum(counter[1].recv for counter in sorted_msg), 
                                                                               sum(counter[1].repl for counter in sorted_msg))
                     for channel, counter in sorted_msg:
-                        text += u'\n{} - {}'.format(channel, counter)
+                        text += u'\n{} - 頻道: {}'.format(counter, channel)
 
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.items():
@@ -576,11 +576,11 @@ def handle_text_message(event):
                     text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n{}'.format(rec['JC_called'], cmd_dict_text)
                     
                     text2 = u'全時統計資料\n\n'
-                    text2 += u'已登錄{}組回覆組。\n({}組貼圖關鍵字 | {}組圖片回覆)\n'.format(
+                    text2 += u'已登錄{}組回覆組 \n({}組貼圖關鍵字 | {}組圖片回覆)\n\n'.format(
                         kwpct,
                         kwd.sticker_keyword_count(),
                         kwd.picture_reply_count())
-                    text2 += u'共{}組回覆組可使用。{:.2%}\n({}組貼圖關鍵字 | {}組圖片回覆)\n'.format(
+                    text2 += u'共{}組回覆組可使用 ({:.2%})\n({}組貼圖關鍵字 | {}組圖片回覆)\n\n'.format(
                         kwd.row_count(True),
                         kwd.row_count(True) / float(kwpct),
                         kwd.sticker_keyword_count(True),
