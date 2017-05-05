@@ -573,7 +573,7 @@ def handle_text_message(event):
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.items():
                         cmd_dict_text += u'[{} ({}次)] '.format(cmd, cmd_obj.count)
-                    text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n{info}'.format(rec['JC_called'], cmd_dict_text)
+                    text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n{}'.format(rec['JC_called'], cmd_dict_text)
                     
                     text2 = u'全時統計資料\n\n'
                     text2 += u'已登錄{}組回覆組。\n({}組貼圖關鍵字 | {}組圖片回覆)\n'.format(
