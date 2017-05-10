@@ -643,7 +643,7 @@ def handle_text_message(event):
                     perm = permission_level(params.pop(1))
                     pert = perm_dict[perm]
 
-                    param_count = len(params) - params.count(None) - 1
+                    param_count = len(params) - params.count(None)
 
                     if isinstance(src, SourceUser):
                         text = error_no_action_fetch
