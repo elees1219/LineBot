@@ -828,10 +828,10 @@ def handle_text_message(event):
 
             if data[1].upper().startswith('HELP'):
                 api_reply(token, [TextSendMessage(text=mff.mff_dmg_calc.help_code()),
-                                  TextSendMessage(text=u'以下是訊息範本，您可以直接將引號和其內容刪除，代換為職業的數據，或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nSKC 100%\n魔力 1090%\n魔力 10.9'),
+                                  TextSendMessage(text=u'下則訊息是訊息範本，您可以直接將引號和其內容刪除，代換為職業的數據，或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nMFF\nSKC 100%\n魔力 1090%\n魔力 10.9'),
                                   TextSendMessage(text=mff.mff_dmg_calc.help_sample())], src)
             else:
-                job = mff.text_job_parser(data[1])
+                job = mff.mff_dmg_calc.text_job_parser(data[1])
                 
                 dmg_calc_dict = {u'破防前非爆擊': mff.mff_dmg_calc.dmg(job),
                                  u'破防前爆擊': mff.mff_dmg_calc.dmg_crt(job),
