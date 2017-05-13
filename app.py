@@ -282,12 +282,6 @@ def handle_text_message(event):
     src = event.source
     splitter = '  '
 
-    if 'SSSS' not in text:
-        api_reply(token, TextSendMessage(text='把我踢出去或封鎖起來。'), src)
-        return
-    else:
-        text = text.replace('SSSS', '')
-
     if text == administrator:
         rec['Silence'] = not rec['Silence']
         api.reply_message(token, TextSendMessage(text='Bot set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
