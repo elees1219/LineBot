@@ -96,7 +96,7 @@ class group_ban(object):
         if len(results) >= 1:
             cmd = u'UPDATE group_ban SET silence = %(set)s WHERE groupId = %(id)s'
             cmd_dict = {'id': groupId, 'set': set}
-            self.sql_cmd(cmd)
+            self.sql_cmd(cmd, cmd_dict)
             return True
         else:
             return False
