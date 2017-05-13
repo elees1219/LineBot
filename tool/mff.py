@@ -109,7 +109,7 @@ class mff_dmg_calc(object):
     
 class job(object):
   def __init__(self, **kwargs):
-    self._data = mff.code_dict()
+    self._data = mff_dmg_calc.code_dict()
     for key, value in kwargs.items():
       self._data[key].value = value
       
