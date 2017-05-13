@@ -101,12 +101,12 @@ class mff_dmg_calc(object):
           print value.key
           print pair[0].encode('utf-8')
           if pair[0] in value.key:
-            pair[1] = float(pair[1])
+            print 'PAIRED'
             if '%' in pair[1]:
               pair[1] = pair[1].replace('%', '')
-              value.value = pair[1] / 100.0
+              value.value = float(pair[1]) / 100.0
             else:
-              value.value = pair[1]
+              value.value = float(pair[1])
               
     return ret_job
     
