@@ -275,12 +275,12 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    rec['Msg'][get_source_channel_id(src)].received()
-
     token = event.reply_token
     text = event.message.text
     src = event.source
     splitter = '  '
+    
+    rec['Msg'][get_source_channel_id(src)].received()
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
