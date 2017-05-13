@@ -7,7 +7,7 @@ class mff_dmg_calc(object):
   @staticmethod
   def code_dict():
     return {
-      'SKP': dmg_bonus([u'SKP', u'SK', u'技能威力', u'威力'], u'技能威力'),
+      'SKP': dmg_bonus([u'SKP', u'SK', u'技能威力', u'威力', u'技能'], u'技能威力'),
       'ABL': dmg_bonus([u'ABL', u'AB', u'屬強', u'屬性', u'屬性強化'], u'屬性強化'),
       'SKC': dmg_bonus([u'SKC', u'SC', u'連發', u'連擊', u'技能連擊'], u'技能連擊傷害加成'),
       'ELC': dmg_bonus([u'ELC', u'EC', u'同屬連發', u'同屬連擊'], u'同屬技能連擊傷害加成'),
@@ -98,10 +98,7 @@ class mff_dmg_calc(object):
     for key, value in ret_job.data.items():
       if not value.value_set:
         for pair in dataobj:
-          print value.key
-          print pair[0].encode('utf-8')
           if pair[0] in value.key:
-            print 'PAIRED'
             if '%' in pair[1]:
               pair[1] = pair[1].replace('%', '')
               value.value = float(pair[1]) / 100.0
