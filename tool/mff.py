@@ -98,6 +98,8 @@ class mff_dmg_calc(object):
     for key, value in ret_job.data.items():
       if not value.value_set:
         for pair in dataobj:
+          print value.key
+          print pair[0]
           if pair[0] in value.key:
             if '%' in pair[1]:
               pair[1] = pair[1].replace('%', '')
