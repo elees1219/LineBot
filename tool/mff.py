@@ -118,7 +118,7 @@ class job(object):
     return self._data
 
   def __repr__(self):
-      return self._data
+      return str(self._data)
     
 class dmg_bonus(object):
   """NOTICE: enter value without percentage."""
