@@ -281,7 +281,7 @@ def handle_text_message(event):
     splitter = '  '
 
     if 'SSSS' not in text:
-        api_reply(token, u'把我踢出去。', src)
+        api_reply(token, u'把我踢出去或封鎖起來。', src)
         return
     else:
         text = text.replace('SSSS', '')
