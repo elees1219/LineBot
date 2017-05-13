@@ -120,7 +120,8 @@ cmd_dict = {'S': command(1, 1, True),
             'U': command(0, 1, False)}
 
 # Line Bot Environment initializing
-MAIN_UID = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
+MAIN_UID_OLD = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
+MAIN_UID = 'U089d534654e2c5774624e8d8c813000e'
 main_silent = False
 administrator = os.getenv('ADMIN', None)
 group_admin = os.getenv('G_ADMIN', None)
