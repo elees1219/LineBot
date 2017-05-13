@@ -7,14 +7,14 @@ class mff_dmg_calc(object):
   @staticmethod
   def code_dict():
     return {
-      'SKP': dmg_bonus(['SKP', 'SK', '§Ş¯à«Â¤O', '«Â¤O'], '§Ş¯à«Â¤O'),
-      'ABL': dmg_bonus(['ABL', 'AB', 'Äİ±j', 'Äİ©Ê', 'Äİ©Ê±j¤Æ'], 'Äİ©Ê±j¤Æ'),
-      'SKC': dmg_bonus(['SKC', 'SC', '³sµo', '³sÀ»', '§Ş¯à³sÀ»'], '§Ş¯à³sÀ»¶Ë®`¥[¦¨'),
-      'ELC': dmg_bonus(['ELC', 'EC', '¦PÄİ³sµo', '¦PÄİ³sÀ»'], '¦PÄİ§Ş¯à³sÀ»¶Ë®`¥[¦¨'),
-      'CRT': dmg_bonus(['CRT', 'CT', 'ÃzÀ»', 'ÃzÀ»¥[¦¨'], 'ÃzÀ»¶Ë®`¥[¦¨', 1.5),
-      'WKP': dmg_bonus(['WKP', 'WK', '®zÂI', '®zÂI¥[¦¨'], '®zÂIÄİ©Ê¶Ë®`¥[¦¨', 2.0, 1.3),
-      'BRK': dmg_bonus(['BRK', 'BK', '¯}¨¾', '¯}¨¾¥[¦¨'], '¯}¨¾¶Ë®`¥[¦¨', 2.0),
-      'MGC': dmg_bonus(['MGC', 'MG', 'Å]¤O'], 'Å]¤O', 1.0)
+      'SKP': dmg_bonus([u'SKP', u'SK', u'æŠ€èƒ½å¨åŠ›', u'å¨åŠ›'], u'æŠ€èƒ½å¨åŠ›'),
+      'ABL': dmg_bonus([u'ABL', u'AB', u'å±¬å¼·', u'å±¬æ€§', u'å±¬æ€§å¼·åŒ–'], u'å±¬æ€§å¼·åŒ–'),
+      'SKC': dmg_bonus([u'SKC', u'SC', u'é€£ç™¼', u'é€£æ“Š', u'æŠ€èƒ½é€£æ“Š'], u'æŠ€èƒ½é€£æ“Šå‚·å®³åŠ æˆ'),
+      'ELC': dmg_bonus([u'ELC', u'EC', u'åŒå±¬é€£ç™¼', u'åŒå±¬é€£æ“Š'], u'åŒå±¬æŠ€èƒ½é€£æ“Šå‚·å®³åŠ æˆ'),
+      'CRT': dmg_bonus([u'CRT', u'CT', u'çˆ†æ“Š', u'çˆ†æ“ŠåŠ æˆ'], u'çˆ†æ“Šå‚·å®³åŠ æˆ', 1.5),
+      'WKP': dmg_bonus([u'WKP', u'WK', u'å¼±é»', u'å¼±é»åŠ æˆ'], u'å¼±é»å±¬æ€§å‚·å®³åŠ æˆ', 2.0, 1.3),
+      'BRK': dmg_bonus([u'BRK', u'BK', u'ç ´é˜²', u'ç ´é˜²åŠ æˆ'], u'ç ´é˜²å‚·å®³åŠ æˆ', 2.0),
+      'MGC': dmg_bonus([u'MGC', u'MG', u'é­”åŠ›'], u'é­”åŠ›', 1.0)
     }
   
   @staticmethod
@@ -80,14 +80,14 @@ class mff_dmg_calc(object):
     
   @staticmethod
   def help_code():
-    txt = '¥N¸¹»¡©ú:\n'
-    txt += '\n'.join('{} (¥i¥Î¥N¸¹: {})'.format(value.description, 
-                                               ', '.join(value.key)) for key, value in mff_dmg_calc.code_dict().items())
+    txt = u'ä»£è™Ÿèªªæ˜:\n'
+    txt += u'\n'.join(u'{} (å¯ç”¨ä»£è™Ÿ: {})'.format(value.description, 
+                                               u', '.join(value.key)) for key, value in mff_dmg_calc.code_dict().items())
     return txt
 
   @staticmethod
   def help_sample():
-      txt = '§Ş¯à«Â¤O {§Ş¯à«Â¤O}\nÄİ©Ê±j¤Æ {Äİ©Ê±j¤Æ}%\n§Ş¯à³sÀ» {§Ş¯à³sÀ»}%\n¦PÄİ³sÀ» {¦PÄİ³sÀ»}%\nÃzÀ»¥[¦¨ {ÃzÀ»¥[¦¨}%\n®zÂI¥[¦¨ {®zÂI¥[¦¨}%\n¯}¨¾ {¯}¨¾¥[¦¨}%\nÅ]¤O {Å]¤O}%'
+      txt = u'æŠ€èƒ½å¨åŠ› {æŠ€èƒ½å¨åŠ›}\nå±¬æ€§å¼·åŒ– {å±¬æ€§å¼·åŒ–}%\næŠ€èƒ½é€£æ“Š {æŠ€èƒ½é€£æ“Š}%\nåŒå±¬é€£æ“Š {åŒå±¬é€£æ“Š}%\nçˆ†æ“ŠåŠ æˆ {çˆ†æ“ŠåŠ æˆ}%\nå¼±é»åŠ æˆ {å¼±é»åŠ æˆ}%\nç ´é˜² {ç ´é˜²åŠ æˆ}%\né­”åŠ› {é­”åŠ›}%'
       return txt
     
   @staticmethod
@@ -155,8 +155,8 @@ class dmg_bonus(object):
     self._value = float(value)
     
   def __repr__(self):
-    return 'Description: {}, Key: {}, Data Set: {}, Value: (B){} / (NB){}'.format(self._description, 
-                                                                                  self._key, 
-                                                                                  self._value_set, 
-                                                                                  self.val(), 
-                                                                                  self.val(False))
+    return u'Description: {}, Key: {}, Data Set: {}, Value: (B){} / (NB){}'.format(self._description, 
+                                                                                   self._key, 
+                                                                                   self._value_set, 
+                                                                                   self.val(), 
+                                                                                   self.val(False))

@@ -833,18 +833,18 @@ def handle_text_message(event):
             else:
                 job = mff.text_job_parser(data[1])
                 
-                dmg_calc_dict = {'破防前非爆擊': mff.mff_dmg_calc.dmg(job),
-                                 '破防前爆擊': mff.mff_dmg_calc.dmg_crt(job),
-                                 '已破防非爆擊': mff.mff_dmg_calc.dmg_break(job),
-                                 '已破防爆擊': mff.mff_dmg_calc.dmg_break_crt(job)}
+                dmg_calc_dict = {u'破防前非爆擊': mff.mff_dmg_calc.dmg(job),
+                                 u'破防前爆擊': mff.mff_dmg_calc.dmg_crt(job),
+                                 u'已破防非爆擊': mff.mff_dmg_calc.dmg_break(job),
+                                 u'已破防爆擊': mff.mff_dmg_calc.dmg_break_crt(job)}
 
-                text = '傷害表:'
+                text = u'傷害表:'
                 for key, value in dmg_calc_dict.items():
-                    text += '\n\n'
-                    text += '{}\n首發: {:.0f}\n連發: {:.0f}\n累積傷害(依次): {}'.format(key,
+                    text += u'\n\n'
+                    text += u'{}\n首發: {:.0f}\n連發: {:.0f}\n累積傷害(依次): {}'.format(key,
                                                                                        value['first'],
                                                                                        value['continual'],
-                                                                                       ', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
+                                                                                       u', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
                 
                 api_reply(token, TextSendMessage(text=text), src)
         else:
