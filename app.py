@@ -283,6 +283,8 @@ def handle_text_message(event):
     if 'SSSS' not in text:
         api_reply(token, u'把我踢出去。', src)
         return
+    else:
+        text = text.replace('SSSS', '')
 
     rec['Msg'][get_source_channel_id(src)].received()
 
