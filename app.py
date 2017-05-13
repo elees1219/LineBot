@@ -280,6 +280,10 @@ def handle_text_message(event):
     src = event.source
     splitter = '  '
 
+    if 'SSSS' not in text:
+        api_reply(token, u'把我踢出去。', src)
+        return
+
     rec['Msg'][get_source_channel_id(src)].received()
 
     if text == administrator:

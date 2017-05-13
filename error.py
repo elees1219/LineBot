@@ -31,7 +31,7 @@ class error(object):
         @staticmethod
         def restricted(permission=None):
             return u'已限制的功能。{}'.format(
-                '\n\n需求權限: {}+'.format(permission) if permission is not None else '')
+                u'\n\n需求權限: {}+'.format(permission) if permission is not None else u'')
 
         @staticmethod
         def incorrect_channel(available_in_1v1=True, available_in_room=False, available_in_group=False):
