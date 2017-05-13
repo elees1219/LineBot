@@ -33,56 +33,56 @@ class mff_dmg_calc(object):
   @staticmethod
   def dmg(job):
     """first, continual, list of sum"""
-    ret = mff._dmg_obj()
+    ret = mff_dmg_calc._dmg_obj()
     
     ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
     
     ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
     
-    ret = mff._generate_dmg_list(ret)
+    ret = mff_dmg_calc._generate_dmg_list(ret)
     return ret
   
   @staticmethod
   def dmg_crt(job):
     """first, continual, list of sum"""
-    ret = mff._dmg_obj()
+    ret = mff_dmg_calc._dmg_obj()
     
     ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].val(False) * job.data['CRT'].value * job.data['MGC'].value / 2.0
     
     ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['CRT'].value * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
     
-    ret = mff._generate_dmg_list(ret)
+    ret = mff_dmg_calc._generate_dmg_list(ret)
     return ret
   
   @staticmethod
   def dmg_break(job):
     """first, continual, list of sum"""
-    ret = mff._dmg_obj()
+    ret = mff_dmg_calc._dmg_obj()
     
     ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].value * job.data['BRK'].value * job.data['MGC'].value 
     
     ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['BRK'].value * job.data['WKP'].value * job.data['MGC'].value 
     
-    ret = mff._generate_dmg_list(ret)
+    ret = mff_dmg_calc._generate_dmg_list(ret)
     return ret
   
   @staticmethod
   def dmg_break_crt(job):
     """first, continual, list of sum"""
-    ret = mff._dmg_obj()
+    ret = mff_dmg_calc._dmg_obj()
     
     ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].value * job.data['BRK'].value * job.data['CRT'].value * job.data['MGC'].value
     
     ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['BRK'].value * job.data['CRT'].value * job.data['WKP'].value * job.data['MGC'].value
     
-    ret = mff._generate_dmg_list(ret)
+    ret = mff_dmg_calc._generate_dmg_list(ret)
     return ret
     
   @staticmethod
   def help_code():
     txt = '代號說明:\n'
     txt += '\n'.join('{} (可用代號: {})'.format(value.description, 
-                                               ', '.join(value.key)) for key, value in mff.code_dict().items())
+                                               ', '.join(value.key)) for key, value in mff_dmg_calc.code_dict().items())
     return txt
 
   @staticmethod

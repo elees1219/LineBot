@@ -23,7 +23,7 @@ import json
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
 # tool import
-from tool import mff_dmg_calc, job, dmg_bonus
+from tool import mff
 
 # import from LINE MAPI
 from linebot import (
