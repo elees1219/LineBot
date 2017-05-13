@@ -832,19 +832,20 @@ def handle_text_message(event):
                                   TextSendMessage(text=mff.mff_dmg_calc.help_sample())], src)
             else:
                 job = mff.mff_dmg_calc.text_job_parser(data[1])
-                
-                dmg_calc_dict = {u'破防前非爆擊': mff.mff_dmg_calc.dmg(job),
-                                 u'破防前爆擊': mff.mff_dmg_calc.dmg_crt(job),
-                                 u'已破防非爆擊': mff.mff_dmg_calc.dmg_break(job),
-                                 u'已破防爆擊': mff.mff_dmg_calc.dmg_break_crt(job)}
+                print job
+
+                dmg_calc_dict = [[u'破防前非爆擊', mff.mff_dmg_calc.dmg(job)],
+                                 [u'破防前爆擊', mff.mff_dmg_calc.dmg_crt(job)],
+                                 [u'已破防非爆擊', mff.mff_dmg_calc.dmg_break(job)],
+                                 [u'已破防爆擊', mff.mff_dmg_calc.dmg_break_crt(job)]]
 
                 text = u'傷害表:'
-                for key, value in dmg_calc_dict.items():
+                for title, value in dmg_calc_dict:
                     text += u'\n\n'
-                    text += u'{}\n首發: {:.0f}\n連發: {:.0f}\n累積傷害(依次): {}'.format(key,
-                                                                                       value['first'],
-                                                                                       value['continual'],
-                                                                                       u', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
+                    text += u'{}\n首發: {:.0f}\n連發: {:.0f}\n累積傷害(依次): {}'.format(title,
+                                                                                        value['first'],
+                                                                                        value['continual'],
+                                                                                        u', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
                 
                 api_reply(token, TextSendMessage(text=text), src)
         else:
