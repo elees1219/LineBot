@@ -7,13 +7,13 @@ class mff_dmg_calc(object):
   @staticmethod
   def code_dict():
     return {
-      'SKP': dmg_bonus([u'SKP', u'SK', u'技能威力', u'威力', u'技能'], u'技能威力'),
-      'ABL': dmg_bonus([u'ABL', u'AB', u'屬強', u'屬性', u'屬性強化'], u'屬性強化'),
-      'SKC': dmg_bonus([u'SKC', u'SC', u'連發', u'連擊', u'技能連擊'], u'技能連擊傷害加成'),
-      'ELC': dmg_bonus([u'ELC', u'EC', u'同屬連發', u'同屬連擊'], u'同屬技能連擊傷害加成'),
-      'CRT': dmg_bonus([u'CRT', u'CT', u'爆擊', u'爆擊加成'], u'爆擊傷害加成', 1.5),
-      'WKP': dmg_bonus([u'WKP', u'WK', u'弱點', u'弱點加成'], u'弱點屬性傷害加成', 2.0, 1.3),
-      'BRK': dmg_bonus([u'BRK', u'BK', u'破防', u'破防加成'], u'破防傷害加成', 2.0),
+      'SKP': dmg_bonus([u'SKP', u'SK', u'技能威力', u'威力', u'技能'], u'技能威力 (アビリティパーワー)'),
+      'ABL': dmg_bonus([u'ABL', u'AB', u'屬強', u'屬性', u'屬性強化'], u'屬性強化 (属性強化)'),
+      'SKC': dmg_bonus([u'SKC', u'SC', u'連發', u'連擊', u'技能連擊'], u'技能連擊傷害加成 (アビリティチェーン)'),
+      'ELC': dmg_bonus([u'ELC', u'EC', u'同屬連發', u'同屬連擊'], u'同屬技能連擊傷害加成 (同属性チェーン)'),
+      'CRT': dmg_bonus([u'CRT', u'CT', u'爆擊', u'爆擊加成'], u'爆擊傷害加成 (クリティカルダメージアップ)', 1.5),
+      'WKP': dmg_bonus([u'WKP', u'WK', u'弱點', u'弱點加成'], u'弱點屬性傷害加成 (弱点ダメージアップ)', 2.0, 1.3),
+      'BRK': dmg_bonus([u'BRK', u'BK', u'破防', u'破防加成'], u'破防傷害加成 (ブレイクダメージアップ)', 2.0),
       'MGC': dmg_bonus([u'MGC', u'MG', u'魔力'], u'魔力', 1.0)
     }
   
@@ -81,8 +81,8 @@ class mff_dmg_calc(object):
   @staticmethod
   def help_code():
     txt = u'代號說明:\n'
-    txt += u'\n'.join(u'{} (可用代號: {})'.format(value.description, 
-                                               u', '.join(value.key)) for key, value in mff_dmg_calc.code_dict().items())
+    txt += u'\n'.join(u'代號: {} - {})'.format(u', '.join(value.key), 
+                                               value.description) for key, value in mff_dmg_calc.code_dict().items())
     return txt
 
   @staticmethod
@@ -163,3 +163,4 @@ class dmg_bonus(object):
                                                                                    self._value_set, 
                                                                                    self.val(), 
                                                                                    self.val(False))
+
