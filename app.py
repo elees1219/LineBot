@@ -23,7 +23,7 @@ import json
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
 # tool import
-from tool import mff
+from tool import mff_dmg_calc, job, dmg_bonus
 
 # import from LINE MAPI
 from linebot import (
@@ -827,16 +827,16 @@ def handle_text_message(event):
             data = split(text, splitter_mff, 2)
 
             if data[1].upper().startswith('HELP'):
-                api_reply(token, [TextSendMessage(text=mff.mff_dmg_calc.help_code()),
+                api_reply(token, [TextSendMessage(text=mff_dmg_calc.help_code()),
                                   TextSendMessage(text=u'以下是訊息範本，您可以直接將引號和其內容刪除，代換為職業的數據，或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nSKC 100%\n魔力 1090%\n魔力 10.9'),
-                                  TextSendMessage(text=mff.mff_dmg_calc.help_sample())], src)
+                                  TextSendMessage(text=mff_dmg_calc.help_sample())], src)
             else:
                 job = mff.text_job_parser(data[1])
                 
-                dmg_calc_dict = {'破防前非爆擊': mff.mff_dmg_calc.dmg(job),
-                                 '破防前爆擊': mff.mff_dmg_calc.dmg_crt(job),
-                                 '已破防非爆擊': mff.mff_dmg_calc.dmg_break(job),
-                                 '已破防爆擊': mff.mff_dmg_calc.dmg_break_crt(job)}
+                dmg_calc_dict = {'破防前非爆擊': mff_dmg_calc.dmg(job),
+                                 '破防前爆擊': mff_dmg_calc.dmg_crt(job),
+                                 '已破防非爆擊': mff_dmg_calc.dmg_break(job),
+                                 '已破防爆擊': mff_dmg_calc.dmg_break_crt(job)}
 
                 text = '傷害表:'
                 for key, value in dmg_calc_dict.items():
@@ -844,7 +844,7 @@ def handle_text_message(event):
                     text += '{}\n首發: {:.0f}\n連發: {:.0f}\n累積傷害(依次): {}'.format(key,
                                                                                        value['first'],
                                                                                        value['continual'],
-                                                                                       ','.join('{:.0f}'.format(x) for x in value['list_of_sum']))
+                                                                                       ', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
                 
                 api_reply(token, TextSendMessage(text=text), src)
         else:
