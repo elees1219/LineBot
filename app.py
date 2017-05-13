@@ -9,6 +9,7 @@ from urlparse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
 from error import error
+from flask import Flask, request, abort, url_for
 
 # import for 'SHA'
 import hashlib 
@@ -21,8 +22,10 @@ import json
 # Database import
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
-from flask import Flask, request, abort, url_for
+# tool import
+from tool import mff
 
+# import from LINE MAPI
 from linebot import (
     LineBotApi, WebhookHandler, exceptions
 )
@@ -280,6 +283,7 @@ def handle_text_message(event):
     text = event.message.text
     src = event.source
     splitter = '  '
+    splitter_mff = '\n'
     
     rec['Msg'][get_source_channel_id(src)].received()
 
@@ -819,6 +823,30 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
                     cmd_dict[cmd].count -= 1
+        elif len(text.split(splitter_mff)) >= 2 and text.startswith('MFF'):
+            data = split(text, splitter_mff, 2)
+
+            if data[1].upper().startswith('HELP'):
+                api_reply(token, [TextSendMessage(text=mff.mff_dmg_calc.help_code()),
+                                  TextSendMessage(text=u'以下是訊息範本，您可以直接將引號和其內容刪除，代換為職業的數據，或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nSKC 100%\n魔力 1090%\n魔力 10.9'),
+                                  TextSendMessage(text=mff.mff_dmg_calc.help_sample())], src)
+            else:
+                job = mff.text_job_parser(data[1])
+                
+                dmg_calc_dict = {'破防前非爆擊': mff.mff_dmg_calc.dmg(job),
+                                 '破防前爆擊': mff.mff_dmg_calc.dmg_crt(job),
+                                 '已破防非爆擊': mff.mff_dmg_calc.dmg_break(job),
+                                 '已破防爆擊': mff.mff_dmg_calc.dmg_break_crt(job)}
+
+                text = '傷害表:'
+                for key, value in dmg_calc_dict.items():
+                    text += '\n\n'
+                    text += '{}\n首發: {:.0f}\n連發: {:.0f}\n累積傷害(依次): {}'.format(key,
+                                                                                       value['first'],
+                                                                                       value['continual'],
+                                                                                       ','.join('{:.0f}'.format(x) for x in value['list_of_sum']))
+                
+                api_reply(token, TextSendMessage(text=text), src)
         else:
             reply_message_by_keyword(get_source_channel_id(src), token, text, False, src)
     except exceptions.LineBotApiError as ex:
