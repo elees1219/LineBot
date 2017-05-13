@@ -118,7 +118,7 @@ class job(object):
     return self._data
 
   def __repr__(self):
-      return str(self._data)
+      return '\n'.join('{} - {}'.format(value.description.decode('utf-8'), value.value) for key, value in self._data.items())
     
 class dmg_bonus(object):
   """NOTICE: enter value without percentage."""
