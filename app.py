@@ -832,7 +832,7 @@ def handle_text_message(event):
                                   TextSendMessage(text=mff.mff_dmg_calc.help_sample())], src)
             else:
                 job = mff.mff_dmg_calc.text_job_parser(data[1])
-                print job.encode('utf-8')
+                print job.data
 
                 dmg_calc_dict = [[u'破防前非爆擊', mff.mff_dmg_calc.dmg(job)],
                                  [u'破防前爆擊', mff.mff_dmg_calc.dmg_crt(job)],
