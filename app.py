@@ -330,7 +330,7 @@ def handle_text_message(event):
                     if isinstance(src, SourceUser) and permission_level(key) >= 3:
                         results = kwd.sql_cmd_only(sql)
                         text = u'資料庫指令:\n{}\n\n'.format(sql)
-                        if len(results) > 0:
+                        if results is not None and len(results) > 0:
                             text += u'輸出結果(共{}筆):'.format(len(results))
                             for result in results:
                                 text += u'\n[{}]'.format(', '.join(str(s).decode('utf-8') for s in result))
