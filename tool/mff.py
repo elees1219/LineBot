@@ -87,7 +87,7 @@ class mff_dmg_calc(object):
 
   @staticmethod
   def help_sample():
-      txt = u'技能威力 {技能威力}\n屬性強化 {屬性強化}%\n技能連擊 {技能連擊}%\n同屬連擊 {同屬連擊}%\n爆擊加成 {爆擊加成}%\n弱點加成 {弱點加成}%\n破防 {破防加成}%\n魔力 {魔力}%'
+      txt = u'MFF\n技能威力 {技能威力}\n屬性強化 {屬性強化}%\n技能連擊 {技能連擊}%\n同屬連擊 {同屬連擊}%\n爆擊加成 {爆擊加成}%\n弱點加成 {弱點加成}%\n破防 {破防加成}%\n魔力 {魔力}%'
       return txt
     
   @staticmethod
