@@ -828,7 +828,7 @@ def handle_text_message(event):
 
             if data[1].upper().startswith('HELP'):
                 api_reply(token, [TextSendMessage(text=mff.mff_dmg_calc.help_code()),
-                                  TextSendMessage(text=u'下則訊息是訊息範本，您可以直接將其複製，刪除引號和其內容，並代換為職業的數據使用。或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nMFF\nSKC 100%\n魔力 1090%\n魔力 10.9\n\n欲察看更多範例，請前往 https://sites.google.com/view/jellybot/mff傷害計算'),
+                                  TextSendMessage(text=u'下則訊息是訊息範本，您可以直接將其複製，更改其內容，然後使用。或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nMFF\nSKC 100%\n魔力 1090%\n魔力 10.9\n\n欲察看更多範例，請前往 https://sites.google.com/view/jellybot/mff傷害計算'),
                                   TextSendMessage(text=mff.mff_dmg_calc.help_sample())], src)
             else:
                 job = mff.mff_dmg_calc.text_job_parser(data[1])
