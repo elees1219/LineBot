@@ -81,7 +81,7 @@ class mff_dmg_calc(object):
   @staticmethod
   def help_code():
     txt = u'代號說明:\n'
-    txt += u'\n'.join(u'代號: {} - {})'.format(u', '.join(value.key), 
+    txt += u'\n'.join(u'代號: {} - {}'.format(u', '.join(value.key), 
                                                value.description) for key, value in mff_dmg_calc.code_dict().items())
     return txt
 
