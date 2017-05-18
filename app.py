@@ -627,7 +627,7 @@ def handle_text_message(event):
 
                         if group_detail is not None:
                             text = u'Chat Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
-                            text += u'Silence: {sl}\n'.format(sl=group_detail[gb_col.silence])
+                            text += u'Silence: {sl}'.format(sl=group_detail[gb_col.silence])
                             for txt, uid in uids.items():
                                 if uid is not None:
                                     prof = profile(uid)
@@ -636,7 +636,7 @@ def handle_text_message(event):
                                     text += u'{} User ID: {}'.format(txt,
                                                                       uid)
                         else:
-                            text = u'\n\nChat Group ID: {id}\n'.format(id=gid)
+                            text = u'Chat Group ID: {id}\n'.format(id=gid)
                             text += u'Silence: False'
                     else:
                         text = 'This function can be only execute in GROUP or ROOM.'
