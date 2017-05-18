@@ -621,16 +621,22 @@ def handle_text_message(event):
                     if not isinstance(src, SourceUser):
                         group_detail = gb.get_group_by_id(src.sender_id)
                         gid = get_source_channel_id(src)
-                        uid = group_detail[gb_col.admin]
-                        admin_profile = profile(uid)
+
+                        uids = {'Admin': group_detail[gb_col.admin], 'Moderator 1': group_detail[gb_col.moderator1], 
+                                'Moderator 2': group_detail[gb_col.moderator2], 'Moderator 3': group_detail[gb_col.moderator3]}
 
                         if group_detail is not None:
                             text = u'Chat Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
-                            text += u'Silence: {sl}\n\n'.format(sl=group_detail[gb_col.silence])
-                            text += u'Admin: {name}\n'.format(name='(LINE account data not found)' if admin_profile is None else admin_profile.display_name)
-                            text += u'Admin User ID: {name}'.format(name=group_detail[gb_col.admin])
+                            text += u'Silence: {sl}\n'.format(sl=group_detail[gb_col.silence])
+                            for txt, uid in uids.items():
+                                if uid is not None:
+                                    prof = profile(uid)
+                                    text += u'\n\n{}: {}\n'.format(txt,
+                                                               '(LINE account data not found)' if prof is None else prof.display_name)
+                                    text += u'{} User ID: {}'.format(txt,
+                                                                      uid)
                         else:
-                            text = u'Chat Group ID: {id}\n'.format(id=gid)
+                            text = u'\n\nChat Group ID: {id}\n'.format(id=gid)
                             text += u'Silence: False'
                     else:
                         text = 'This function can be only execute in GROUP or ROOM.'
