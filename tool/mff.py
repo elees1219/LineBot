@@ -35,9 +35,9 @@ class mff_dmg_calc(object):
     """first, continual, list of sum"""
     ret = mff_dmg_calc._dmg_obj()
     
-    ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
+    ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['MGC'].value / 2.0
     
-    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
+    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['MGC'].value / 2.0
     
     ret = mff_dmg_calc._generate_dmg_list(ret)
     return ret
@@ -47,9 +47,9 @@ class mff_dmg_calc(object):
     """first, continual, list of sum"""
     ret = mff_dmg_calc._dmg_obj()
     
-    ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].val(False) * job.data['CRT'].value * job.data['MGC'].value / 2.0
+    ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['CRT'].value * job.data['MGC'].value / 2.0
     
-    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['CRT'].value * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
+    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['CRT'].value * job.data['MGC'].value / 2.0
     
     ret = mff_dmg_calc._generate_dmg_list(ret)
     return ret
@@ -61,13 +61,61 @@ class mff_dmg_calc(object):
     
     ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].value * job.data['BRK'].value * job.data['MGC'].value 
     
-    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['BRK'].value * job.data['WKP'].value * job.data['MGC'].value 
+    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['BRK'].value * job.data['MGC'].value 
     
     ret = mff_dmg_calc._generate_dmg_list(ret)
     return ret
   
   @staticmethod
   def dmg_break_crt(job):
+    """first, continual, list of sum"""
+    ret = mff_dmg_calc._dmg_obj()
+    
+    ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].value * job.data['BRK'].value * job.data['CRT'].value * job.data['MGC'].value
+    
+    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['BRK'].value * job.data['CRT'].value * job.data['MGC'].value
+    
+    ret = mff_dmg_calc._generate_dmg_list(ret)
+    return ret
+    
+  @staticmethod
+  def dmg_weak(job):
+    """first, continual, list of sum"""
+    ret = mff_dmg_calc._dmg_obj()
+    
+    ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
+    
+    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
+    
+    ret = mff_dmg_calc._generate_dmg_list(ret)
+    return ret
+  
+  @staticmethod
+  def dmg_crt_weak(job):
+    """first, continual, list of sum"""
+    ret = mff_dmg_calc._dmg_obj()
+    
+    ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].val(False) * job.data['CRT'].value * job.data['MGC'].value / 2.0
+    
+    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['CRT'].value * job.data['WKP'].val(False) * job.data['MGC'].value / 2.0
+    
+    ret = mff_dmg_calc._generate_dmg_list(ret)
+    return ret
+  
+  @staticmethod
+  def dmg_break_weak(job):
+    """first, continual, list of sum"""
+    ret = mff_dmg_calc._dmg_obj()
+    
+    ret['first'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value) * job.data['WKP'].value * job.data['BRK'].value * job.data['MGC'].value 
+    
+    ret['continual'] = job.data['SKP'].value * (1.0 + job.data['ABL'].value + job.data['SKC'].value + job.data['ELC'].value) * job.data['BRK'].value * job.data['WKP'].value * job.data['MGC'].value 
+    
+    ret = mff_dmg_calc._generate_dmg_list(ret)
+    return ret
+  
+  @staticmethod
+  def dmg_break_crt_weak(job):
     """first, continual, list of sum"""
     ret = mff_dmg_calc._dmg_obj()
     

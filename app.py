@@ -66,7 +66,10 @@ class msg_counter(object):
     def __repr__(self):
         return u'收到: {}, 回覆: {}'.format(self._rcv, self._rep)
 
-rec = {'JC_called': 0, 'Msg': defaultdict(msg_counter), 'Silence': False, 'Intercept': True, 'webpage': 0}
+rec = {'JC_called': 0, 'MFF_called': 0, 
+       'Msg': defaultdict(msg_counter), 
+       'Silence': False, 'Intercept': True, 
+       'webpage': 0}
 report_content = {'Error': {}, 
                   'FullQuery': {}, 
                   'FullInfo': {},
@@ -582,6 +585,7 @@ def handle_text_message(event):
                     for cmd, cmd_obj in cmd_dict.items():
                         cmd_dict_text += u'[{} ({}次)] '.format(cmd, cmd_obj.count)
                     text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n{}'.format(rec['JC_called'], cmd_dict_text)
+                    text += u'\n已使用MFF傷害計算輔助系統{}次。'.format(rec['MFF_called'])
                     
                     text2 = u'全時統計資料\n\n'
                     text2 += u'已登錄{}組回覆組 \n({}組貼圖關鍵字 | {}組圖片回覆)\n\n'.format(
@@ -830,6 +834,7 @@ def handle_text_message(event):
                 else:
                     cmd_dict[cmd].count -= 1
         elif len(text.split(splitter_mff)) >= 2 and text.startswith('MFF'):
+            rec['MFF_called'] += 1
             data = split(text, splitter_mff, 2)
 
             if data[1].upper().startswith('HELP'):
@@ -839,10 +844,14 @@ def handle_text_message(event):
             else:
                 job = mff.mff_dmg_calc.text_job_parser(data[1])
 
-                dmg_calc_dict = [[u'破防前非爆擊', mff.mff_dmg_calc.dmg(job)],
-                                 [u'破防前爆擊', mff.mff_dmg_calc.dmg_crt(job)],
-                                 [u'已破防非爆擊', mff.mff_dmg_calc.dmg_break(job)],
-                                 [u'已破防爆擊', mff.mff_dmg_calc.dmg_break_crt(job)]]
+                dmg_calc_dict = [[u'破防前非爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_weak(job)],
+                                 [u'破防前爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_crt_weak(job)],
+                                 [u'已破防非爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_break_weak(job)],
+                                 [u'已破防爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_break_crt_weak(job)],
+                                 [u'破防前非爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg(job)],
+                                 [u'破防前爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_crt(job)],
+                                 [u'已破防非爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_break(job)],
+                                 [u'已破防爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_break_crt(job)]]
 
                 text = u'傷害表:'
                 for title, value in dmg_calc_dict:
