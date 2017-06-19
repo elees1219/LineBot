@@ -784,11 +784,11 @@ def handle_text_message(event):
                                 status_code=code,
                                 explanation=httplib.responses[code])
                         else:
-                            text = 'Powered by Oxford Dictionary.\n'
+                            text = 'Powered by Oxford Dictionary.'
 
                             lexents = j['results'][0]['lexicalEntries']
                             for lexent in lexents:
-                                text += '\n{text} ({lexCat})'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
+                                text += '\n\n{text} ({lexCat})'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
                                 
                                 sens = lexent['entries'][0]['senses']
                                 
