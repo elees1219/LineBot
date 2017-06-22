@@ -784,8 +784,6 @@ def handle_text_message(event):
                                 status_code=code,
                                 explanation=httplib.responses[code])
                         else:
-                            print j
-
                             text = ''
                             section_splitter = '..........................................................................................'
 
