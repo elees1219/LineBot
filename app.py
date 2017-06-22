@@ -786,18 +786,32 @@ def handle_text_message(event):
                         else:
                             print j
 
-                            text = 'Powered by Oxford Dictionary.'
+                            text = ''
+                            section_splitter = '..........................................................................................'
 
                             lexents = j['results'][0]['lexicalEntries']
                             for lexent in lexents:
-                                text += '\n\n{text} ({lexCat})'.format(text=lexent['text'], lexCat=lexent['lexicalCategory'])
+                                text += '={} ({})='.format(lexent['text'], lexent['lexicalCategory'])
                                 
-                                sens = lexent['entries'][0]['senses']
-                                
-                                text += '\nDefinition:'
-                                for index, sen in enumerate(sens, start=1):
-                                    for de in sen['definitions']:
-                                        text += '\n{count}. {de}'.format(count=index, de=de)
+                                lexentarr = lexent['entries'][0]
+                                for lexentElem in lexentarr:
+                                    sens = lexentElem['senses']
+                                    
+                                    text += '\nDefinition:'
+                                    for index, sen in enumerate(sens, start=1):
+                                        if 'registers' in sen:
+                                            reg_text = ', '.join(sen['registers'])
+
+                                        for de in sen['definitions']:
+                                            text += '\n{}. {} ({})'.format(index, de, reg_text)
+
+                                        if 'examples' in sen:
+                                            for ex in sen['examples']:
+                                                text += '\n------{}'.format(ex)
+
+                                text += '\n{}'.format(section_splitter)
+
+                            text += '\nPowered by Oxford Dictionary.'
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Leave group or room
