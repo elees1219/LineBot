@@ -793,7 +793,7 @@ def handle_text_message(event):
                             for lexent in lexents:
                                 text += '={} ({})='.format(lexent['text'], lexent['lexicalCategory'])
                                 
-                                lexentarr = lexent['entries'][0]
+                                lexentarr = lexent['entries']
                                 for lexentElem in lexentarr:
                                     sens = lexentElem['senses']
                                     
