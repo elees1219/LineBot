@@ -784,6 +784,8 @@ def handle_text_message(event):
                                 status_code=code,
                                 explanation=httplib.responses[code])
                         else:
+                            print j
+
                             text = 'Powered by Oxford Dictionary.'
 
                             lexents = j['results'][0]['lexicalEntries']
