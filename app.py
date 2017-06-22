@@ -803,7 +803,9 @@ def handle_text_message(event):
                                             reg_text = ', '.join(sen['registers'])
 
                                         for de in sen['definitions']:
-                                            text += '\n{}. {} ({})'.format(index, de, reg_text)
+                                            text += '\n{}. {} {}'.format(index, 
+                                                                         de, 
+                                                                         '({})'.format(', '.join(sen['registers'])) if 'registers' in sen else '')
 
                                         if 'examples' in sen:
                                             for ex in sen['examples']:
