@@ -791,7 +791,7 @@ def handle_text_message(event):
 
                             lexents = j['results'][0]['lexicalEntries']
                             for lexent in lexents:
-                                text += '={} ({})='.format(lexent['text'], lexent['lexicalCategory'])
+                                text += '=={} ({})=='.format(lexent['text'], lexent['lexicalCategory'])
                                 
                                 lexentarr = lexent['entries']
                                 for lexentElem in lexentarr:
@@ -809,11 +809,11 @@ def handle_text_message(event):
 
                                         if 'examples' in sen:
                                             for ex in sen['examples']:
-                                                text += '\n------{}'.format(ex)
+                                                text += '\n------{}'.format(ex['text'])
 
-                                text += '\n{}'.format(section_splitter)
+                                text += '\n{}\n'.format(section_splitter)
 
-                            text += '\nPowered by Oxford Dictionary.'
+                            text += 'Powered by Oxford Dictionary.'
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Leave group or room
