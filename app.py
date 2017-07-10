@@ -754,13 +754,14 @@ def handle_text_message(event):
                     if params[1] is not None:
                         uid = params[1]
                         line_profile = profile(uid)
+                        
+                        source_type = u'使用者詳細資訊'
 
                         if len(uid) != 33:
                             text = error.main.invalid_length(u'使用者ID', 33)
                         elif not uid.startswith('U'):
                             text = error.main.invalid_thing(u'使用者ID', uid[0])
                         else:
-                            source_type = 'Type: User'
                             if line_profile is not None:
                                 text = u'使用者ID: {}\n'.format(uid)
                                 text += u'使用者名稱: {}\n'.format(line_profile.display_name)
@@ -776,7 +777,7 @@ def handle_text_message(event):
                         elif isinstance(src, SourceRoom):
                             source_type = 'Type: Room'
                         else:
-                            text = 'Unknown chatting type.'
+                            source_type = 'Unknown chatting type.'
 
                     api_reply(token, [TextSendMessage(text=source_type), TextSendMessage(text=text)], src)
                 # SHA224 generator
@@ -873,6 +874,9 @@ def handle_text_message(event):
                     else:
                         text = error.main.lack_of_thing(u'參數')
 
+                    api_reply(token, TextSendMessage(text=text), src)
+                # last STICKER message
+                elif cmd == 'STK':
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
                     cmd_dict[cmd].count -= 1
