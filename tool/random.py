@@ -13,4 +13,4 @@ class random_drawer(object):
 
     @staticmethod
     def draw_probability(probability):
-        return random.random() <= probability
+        return (random.random() <= probability)
