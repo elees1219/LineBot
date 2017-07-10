@@ -2,6 +2,6 @@ from .mff import (
     mff_dmg_calc, job, dmg_bonus
 )
 
-from .random import (
+from .random_gen import (
     random_drawer
 )
