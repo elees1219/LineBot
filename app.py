@@ -350,11 +350,13 @@ def handle_text_message(event):
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
                     pinned = cmd_dict[cmd].non_user_permission_required
+                    new_uid = get_source_user_id(src)
+
                     if pinned and permission_level(params.pop(1)) < 1:
                         text = error.main.restricted(1)
+                    elif not is_valid_user_id(new_uid):
+                        text = error.main.miscellaneous(u'發生錯誤，請到私訊頻道重新嘗試。')
                     else:
-                        new_uid = get_source_user_id(src)
-
                         if params[4] is not None:
                             action_kw = params[1]
                             kw = params[2]
@@ -433,6 +435,8 @@ def handle_text_message(event):
                     deletor_uid = src.user_id
                     if pinned and permission_level(paramA.pop(1)) < 2:
                         text = error.main.restricted(2)
+                    elif not is_valid_user_id(deletor):
+                        text = error.main.miscellaneous(u'發生錯誤，請到私訊頻道重新嘗試。')
                     else:
                         if params[2] is None:
                             kw = params[1]
@@ -1130,6 +1134,10 @@ def get_source_channel_id(source_event):
 
 def get_source_user_id(source_event):
     return source_event.user_id
+
+
+def is_valid_user_id(uid):
+    return uid is not None and len(uid) == 33 and uid.startswith('U')
 
 
 def string_is_int(s):

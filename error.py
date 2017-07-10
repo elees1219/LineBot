@@ -20,7 +20,6 @@ class error(object):
         @staticmethod
         def invalid_thing(name_of_thing, thing):
             return u'不合法的{}: {}。請查看使用說明書( {} )。'.format(name_of_thing, thing, error.user_manual_url)
-
         
         @staticmethod
         def invalid_thing_with_correct_format(name_of_thing, correct_format, thing):
@@ -67,3 +66,7 @@ class error(object):
         def insufficient_space_for_command():
             return u'偵測到1個空格。\n要使用指令的話，指令和參數之間需要2個空格。詳細使用方法請參閱使用說明書( {} )。'.format(
                 error.user_manual_url)
+
+        @staticmethod
+        def miscellaneous(content):
+            return content
