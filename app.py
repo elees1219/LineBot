@@ -311,14 +311,7 @@ def handle_text_message(event):
 
             if head == 'JC':
                 rec['JC_called'] += 1
-
-                print text
-                if ' ' in text and splitter not in text:
-                    print "PRA"
-                    text = error.message.insufficient_space_for_command();
-                    api_reply(token, TextSendMessage(text=text), src)
-                    return
-
+                
                 if cmd not in cmd_dict:
                     text = error.main.invalid_thing(u'指令', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
@@ -898,7 +891,12 @@ def handle_text_message(event):
                 
                 api_reply(token, TextSendMessage(text=text), src)
         else:
-            reply_message_by_keyword(get_source_channel_id(src), token, text, False, src)
+            replied = reply_message_by_keyword(get_source_channel_id(src), token, text, False, src)
+
+            if ' ' in head and not replied:
+                text = error.message.insufficient_space_for_command();
+                api_reply(token, TextSendMessage(text=text), src)
+                return
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
@@ -1166,7 +1164,7 @@ def intercept_text(event):
 
 def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw, src):
         if gb.is_group_set_to_silence(channel_id):
-            return
+            return False
 
         res = kwd.get_reply(keyword, is_sticker_kw)
         if res is not None:
@@ -1185,11 +1183,15 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw, src):
                                              actions=[
                                                  URITemplateAction(label=u'Original Picture', uri=reply)
                                              ])), src)
+                return True
             else:
                 api_reply(token, 
                           TextSendMessage(text=u'{rep}{id}'.format(rep=reply,
                                                                    id='' if not is_sticker_kw else '\n\nID: {id}'.format(id=result[kwdict_col.id]))),
                           src)
+                return True
+
+        return False
 
 
 def rec_error(details, channel_id):
