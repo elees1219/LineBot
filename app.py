@@ -119,7 +119,7 @@ cmd_dict = {'S': command(1, 1, True),
             'P': command(0, 0, False), 
             'G': command(0, 0, False), 
             'GA': command(1, 5, True), 
-            'H': command(0, 0, False), 
+            'H': command(0, 1, False), 
             'SHA': command(1, 1, False), 
             'O': command(1, 1, False), 
             'B': command(0, 0, False), 
@@ -747,14 +747,27 @@ def handle_text_message(event):
                 elif cmd == 'H':
                     text = get_source_channel_id(src)
 
-                    if isinstance(src, SourceUser):
+                    if params[1] is not None:
+                        uid = params[1]
+                        line_profile = profile(uid)
+
                         source_type = 'Type: User'
-                    elif isinstance(src, SourceGroup):
-                        source_type = 'Type: Group'
-                    elif isinstance(src, SourceRoom):
-                        source_type = 'Type: Room'
+                        if line_profile is not None:
+                            text = u'使用者ID: {}'.format(uid)
+                            text += u'使用者名稱: {}'.format(line_profile.display_name)
+                            text += u'使用者狀態訊息: {}'.format(line_profile.status_message)
+                            text += u'使用者頭貼網址: {}'.format(line_profile.picture_url)
+                        else:
+                            text = u'找不到使用者ID - {} 的詳細資訊。'.format(uid)
                     else:
-                        text = 'Unknown chatting type.'
+                        if isinstance(src, SourceUser):
+                            source_type = 'Type: User'
+                        elif isinstance(src, SourceGroup):
+                            source_type = 'Type: Group'
+                        elif isinstance(src, SourceRoom):
+                            source_type = 'Type: Room'
+                        else:
+                            text = 'Unknown chatting type.'
 
                     api_reply(token, [TextSendMessage(text=source_type), TextSendMessage(text=text)], src)
                 # SHA224 generator
@@ -1134,9 +1147,12 @@ def api_reply(reply_token, msgs, src):
 
 
 def intercept_text(event):
+    user_id = get_source_user_id(event.source)
+    user_profile = profile(user_id)
+
     print '==========================================='
     print 'From Channel ID \'{}\''.format(get_source_channel_id(event.source))
-    print 'From User ID \'{}\' ({})'.format(get_source_user_id(event.source), profile(get_source_user_id(event.source)))
+    print 'From User ID \'{}\' ({})'.format(user_id, user_profile.display_name.encode('utf-8') if user_profile is not None else 'unknown')
     print 'Message \'{}\''.format(event.message.text.encode('utf-8'))
     print '==========================================='
 
