@@ -5,6 +5,8 @@ import random
 class random_drawer(object):
     @staticmethod
     def draw_number(start, end):
+        start = int(start)
+        end = int(end)
         return random.randint(start, end)
         
     @staticmethod

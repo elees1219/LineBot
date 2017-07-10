@@ -861,10 +861,9 @@ def handle_text_message(event):
                             text_list = params[1].split('\n')
                             text = u'抽籤範圍【{}】\n抽籤結果【{}】'.format(', '.join(text_list), random_gen.random_drawer.draw_text(text_list))
                         elif params[1].endswith('%') and params[1].count('%') == 1:
-                            params[1] = float(params[1].replace('%', '')) / 100.0
                             text = u'抽籤機率【{}】\n抽籤結果【{}】'.format(
                                 params[1], 
-                                u'恭喜中獎' if random_gen.random_drawer.draw_probability(params[1]) else u'銘謝惠顧')
+                                u'恭喜中獎' if random_gen.random_drawer.draw_probability(float(params[1].replace('%', '')) / 100.0) else u'銘謝惠顧')
                         else:
                             text = error.main.invalid_thing(u'參數1', params[1])
                     else:
