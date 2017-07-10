@@ -893,7 +893,7 @@ def handle_text_message(event):
         else:
             replied = reply_message_by_keyword(get_source_channel_id(src), token, text, False, src)
 
-            if ' ' in head and not replied:
+            if text.startswith('JC') and ' ' in text and not replied:
                 text = error.message.insufficient_space_for_command();
                 api_reply(token, TextSendMessage(text=text), src)
                 return
