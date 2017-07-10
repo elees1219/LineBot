@@ -57,5 +57,5 @@ class error(object):
     class message(object):
         @staticmethod
         def insufficient_space_for_command():
-            return u'偵測到1個空格。\n要使用指令的話，指令和參數之間需要2個空格。詳細使用方是請參閱使用說明書( {} )。'.format(
+            return u'偵測到1個空格。\n要使用指令的話，指令和參數之間需要2個空格。詳細使用方法請參閱使用說明書( {} )。'.format(
                 error.user_manual_url)
