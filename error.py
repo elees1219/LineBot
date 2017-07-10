@@ -51,3 +51,8 @@ class error(object):
         @staticmethod
         def pair_not_exist():
             return u'回覆組不存在。'
+
+    class message(object):
+        @staticmethod
+        def insufficient_space_for_command():
+            return u'偵測到1個空格。如果是要使用指令的話，指令和參數之間需要2個空格。如果只是作為參數的話，請無視此提示訊息。'

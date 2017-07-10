@@ -312,6 +312,9 @@ def handle_text_message(event):
             if head == 'JC':
                 rec['JC_called'] += 1
 
+                if ' ' in text:
+                    error.message.insufficient_space_for_command();
+
                 if cmd not in cmd_dict:
                     text = error.main.invalid_thing(u'指令', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
