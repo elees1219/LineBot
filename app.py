@@ -44,10 +44,11 @@ from linebot.models import (
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
 
-class msg_counter(object):
+class channel_data(object):
     def __init__(self):
         self._rcv = 0
         self._rep = 0
+        self._last_sticker = None
 
     @property
     def recv(self):
@@ -56,6 +57,14 @@ class msg_counter(object):
     @property
     def repl(self):
         return self._rep
+
+    @property
+    def last_sticker(self):
+        return self._last_sticker
+
+    @last_sticker.setter
+    def last_sticker(self, value):
+        self._last_sticker = value
 
     def received(self):
         self._rcv += 1
@@ -67,7 +76,7 @@ class msg_counter(object):
         return u'收到: {}, 回覆: {}'.format(self._rcv, self._rep)
 
 rec = {'JC_called': 0, 'MFF_called': 0, 
-       'Msg': defaultdict(msg_counter), 
+       'Msg': defaultdict(channel_data), 
        'Silence': False, 'Intercept': True, 
        'webpage': 0}
 report_content = {'Error': {}, 
@@ -123,7 +132,8 @@ cmd_dict = {'S': command(1, 1, True),
             'SHA': command(1, 1, False), 
             'O': command(1, 1, False), 
             'B': command(0, 0, False), 
-            'RD': command(1, 2, False)}
+            'RD': command(1, 2, False),
+            'STK': command(0, 0, False)}
 
 # Line Bot Environment initializing
 MAIN_UID_OLD = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
@@ -877,6 +887,12 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # last STICKER message
                 elif cmd == 'STK':
+                    last_sticker = rec['Msg'][cid].last_sticker
+                    if last_sticker is not None:
+                        text = u'最後一個貼圖的貼圖ID為{}。'.format(last_sticker)
+                    else:
+                        text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。'
+
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
                     cmd_dict[cmd].count -= 1
@@ -973,8 +989,10 @@ def handle_sticker_message(event):
     sticker_id = event.message.sticker_id
     rep = event.reply_token
     src = event.source
+    cid = get_source_channel_id(src)
 
-    rec['Msg'][get_source_channel_id(src)].received()
+    rec['Msg'][cid].received()
+    rec['Msg'][cid].last_sticker = sticker_id
 
     if isinstance(event.source, SourceUser):
         results = kwd.get_reply(sticker_id, True)
@@ -1000,7 +1018,7 @@ def handle_sticker_message(event):
             src
         )
     else:
-        reply_message_by_keyword(get_source_channel_id(src), rep, sticker_id, True, src)
+        reply_message_by_keyword(cid, rep, sticker_id, True, src)
 
 
 # Incomplete
