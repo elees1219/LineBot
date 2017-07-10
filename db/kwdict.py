@@ -220,7 +220,7 @@ class kw_dict_mgr(object):
 
         if entry_row[kwdict_col.deletor] is not None:
             deletor_profile = line_api.get_profile(entry_row[kwdict_col.deletor])
-            detailed += u'刪除者LINE使用者名稱:\n{}\n'.format(deletor_profile.display_name)
+            detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(deletor_profile.display_name)
             detailed += u'刪除者LINE UUID:\n{}'.format(entry_row[kwdict_col.deletor])
 
         return detailed
