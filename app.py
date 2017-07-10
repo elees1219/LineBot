@@ -461,7 +461,7 @@ def handle_text_message(event):
                             text += kw_dict_mgr.entry_basic_info(result)
                             text += u'\n此回覆組由 {} 製作。'.format(
                                 '(LINE account data not found)' if line_profile is None else line_profile.display_name)
-                    elif text == org_text:
+                    else:
                         text = error.main.pair_not_exist()
 
                     api_reply(token, TextSendMessage(text=text), src)

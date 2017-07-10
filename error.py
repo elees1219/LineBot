@@ -44,15 +44,15 @@ class error(object):
 
         @staticmethod
         def incorrect_param(param_name, correct):
-            return u'無法辨認。如果要使用這個功能，{}必須為{}。詳細使用方法請參閱使用說明書( {} )'.format(param_name, correct, error.user_manual_url)
+            return u'無法辨認。如果要使用這個功能，{}必須為{}。詳細使用方法請參閱使用說明書( {} )。'.format(param_name, correct, error.user_manual_url)
 
         @staticmethod
         def unable_to_determine():
             return u'無法判斷指令，請檢閱使用說明書( {} )。'.format(error.user_manual_url)
 
         @staticmethod
-        def pair_not_exist():
-            return u'回覆組不存在。'
+        def pair_not_exist_or_insuffieicnt_permission():
+            return u'回覆組不存在，或字組改變權限不足。權限相關說明請參閱使用說明書( {} )。'.format(error.user_manual_url)
 
     class message(object):
         @staticmethod
