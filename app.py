@@ -1171,6 +1171,8 @@ def api_reply(reply_token, msgs, src):
 
 
 def intercept_text(event):
+    print event.source
+
     user_id = get_source_user_id(event.source)
     user_profile = profile(user_id)
 
