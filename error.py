@@ -54,6 +54,10 @@ class error(object):
         def pair_not_exist_or_insuffieicnt_permission():
             return u'回覆組不存在，或字組改變權限不足。權限相關說明請參閱使用說明書( {} )。'.format(error.user_manual_url)
 
+        @staticmethod
+        def invalid_length(thing, length):
+            return u'長度不符。{}的長度應為{}。'.format(thing, length)
+
     class message(object):
         @staticmethod
         def insufficient_space_for_command():
