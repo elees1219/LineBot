@@ -453,8 +453,7 @@ def handle_text_message(event):
                                 results = None
                                 text = error.main.incorrect_param(u'參數1', u'ID')
 
-                    if results is not None:
-                        print results
+                    if results is not None and len(results) > 0:
                         for result in results:
                             line_profile = profile(result[kwdict_col.creator])
 
@@ -463,7 +462,7 @@ def handle_text_message(event):
                             text += u'\n此回覆組由 {} 製作。'.format(
                                 '(LINE account data not found)' if line_profile is None else line_profile.display_name)
                     else:
-                        text = error.main.pair_not_exist()
+                        text = error.main.pair_not_exist_or_insuffieicnt_permission()
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # QUERY keyword

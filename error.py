@@ -51,7 +51,7 @@ class error(object):
             return u'無法判斷指令，請檢閱使用說明書( {} )。'.format(error.user_manual_url)
 
         @staticmethod
-        def pair_not_exist():
+        def pair_not_exist_or_insuffieicnt_permission():
             return u'回覆組不存在，或字組改變權限不足。權限相關說明請參閱使用說明書( {} )。'.format(error.user_manual_url)
 
     class message(object):
