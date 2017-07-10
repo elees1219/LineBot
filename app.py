@@ -312,7 +312,9 @@ def handle_text_message(event):
             if head == 'JC':
                 rec['JC_called'] += 1
 
+                print text
                 if ' ' in text and splitter not in text:
+                    print "PRA"
                     text = error.message.insufficient_space_for_command();
                     api_reply(token, TextSendMessage(text=text), src)
                     return
