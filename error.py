@@ -44,7 +44,7 @@ class error(object):
 
         @staticmethod
         def incorrect_param(param_name, correct):
-            return u'無法辨認。如果要使用這個功能，{}必須為{}。詳細使用方是請參閱使用說明書( {} )'.format(param_name, correct, error.user_manual_url)
+            return u'無法辨認。如果要使用這個功能，{}必須為{}。詳細使用方法請參閱使用說明書( {} )'.format(param_name, correct, error.user_manual_url)
 
         @staticmethod
         def unable_to_determine():
