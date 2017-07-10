@@ -4,6 +4,7 @@ import os, sys
 
 import urlparse
 import psycopg2
+from sqlalchemy.exc import IntegrityError
 import hashlib
 
 import collections
@@ -63,7 +64,7 @@ class group_ban(object):
                 cmd_dict = {'id': groupId, 'adm': adminUID, 'key': str(hashlib.sha224(key_for_admin.encode('utf-8')).hexdigest())}
                 self.sql_cmd(cmd, cmd_dict)
                 return True
-            except psycopg2.ProgrammingError as ex:
+            except IntegrityError as ex:
                 return False
 
     def del_data(self, groupId):

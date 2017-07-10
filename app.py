@@ -353,7 +353,7 @@ def handle_text_message(event):
                     if pinned and permission_level(params.pop(1)) < 1:
                         text = error.main.restricted(1)
                     else:
-                        new_uid = src.sender_id
+                        new_uid = get_source_user_id(src)
 
                         if params[4] is not None:
                             action_kw = params[1]
