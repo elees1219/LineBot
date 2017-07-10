@@ -352,8 +352,6 @@ def handle_text_message(event):
                     pinned = cmd_dict[cmd].non_user_permission_required
                     if pinned and permission_level(params.pop(1)) < 1:
                         text = error.main.restricted(1)
-                    elif not isinstance(src, SourceUser):
-                        text = error.main.incorrect_channel()
                     else:
                         new_uid = src.sender_id
 
@@ -432,13 +430,14 @@ def handle_text_message(event):
                     org_text = text
 
                     pinned = cmd_dict[cmd].non_user_permission_required
+                    deletor_uid = src.user_id
                     if pinned and permission_level(paramA.pop(1)) < 2:
                         text = error.main.restricted(2)
                     else:
                         if params[2] is None:
                             kw = params[1]
 
-                            results = kwd.delete_keyword(kw, pinned)
+                            results = kwd.delete_keyword(kw, deletor_uid, pinned)
                         else:
                             action = params[1]
 
@@ -446,7 +445,7 @@ def handle_text_message(event):
                                 pair_id = params[2]
 
                                 if string_is_int(pair_id):
-                                    results = kwd.delete_keyword_id(pair_id, pinned)
+                                    results = kwd.delete_keyword_id(pair_id, deletor_uid, pinned)
                                 else:
                                     results = None
                                     text = error.main.incorrect_param(u'參數2', u'整數數字')
@@ -1100,6 +1099,9 @@ def sticker_png_url(sticker_id):
 def get_source_channel_id(source_event):
     return source_event.sender_id
 
+def get_source_user_id(source_event):
+    return source_event.user_id
+
 
 def string_is_int(s):
     try: 
@@ -1134,6 +1136,7 @@ def api_reply(reply_token, msgs, src):
 def intercept_text(event):
     print '==========================================='
     print 'From Channel ID \'{}\''.format(get_source_channel_id(event.source))
+    print 'From User ID \'{}\' ({})'.format(get_source_user_id(event.source), profile(get_source_user_id(event.source)))
     print 'Message \'{}\''.format(event.message.text.encode('utf-8'))
     print '==========================================='
 

@@ -46,9 +46,10 @@ class kw_dict_mgr(object):
                     {} BOOLEAN NOT NULL DEFAULT FALSE, \
                     {} BOOLEAN NOT NULL DEFAULT FALSE, \
                     {} INTEGER NOT NULL, \
-                    {} VARCHAR(33) NOT NULL), \
+                    {} VARCHAR(33) NOT NULL, \
                     {} BOOLEAN DEFAULT FALSE, \
-                    {} BOOLEAN DEFAULT FALSE;'.format(*_col_list)
+                    {} BOOLEAN DEFAULT FALSE, \
+                    {} VARCHAR(33);'.format(*_col_list)
         return cmd
 
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
@@ -133,22 +134,22 @@ class kw_dict_mgr(object):
         result = self.sql_cmd_only(cmd)
         return result
 
-    def delete_keyword(self, keyword, is_top):
+    def delete_keyword(self, keyword, deletor, is_top):
         cmd = u'UPDATE keyword_dict \
-                SET deleted = TRUE \
+                SET deleted = TRUE, deletor = %(dt)s \
                 WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE \
                 RETURNING *;'
-        cmd_dict = {'kw': keyword, 'top': is_top}
+        cmd_dict = {'kw': keyword, 'top': is_top, 'dt': deletor}
         result = self.sql_cmd(cmd, cmd_dict)
         return result
 
-    def delete_keyword_id(self, id, is_top):
+    def delete_keyword_id(self, id, deletor, is_top):
         cmd = u'UPDATE keyword_dict \
-                SET deleted = TRUE \
+                SET deleted = TRUE, deletor = %(dt)s \
                 WHERE id = %(id)s AND admin = %(top)s AND deleted = FALSE \
                 RETURNING *;'
                 
-        cmd_dict = {'id': id, 'top': is_top}
+        cmd_dict = {'id': id, 'top': is_top, 'dt': deletor}
         result = self.sql_cmd(cmd, cmd_dict)
         return result
 
@@ -212,10 +213,15 @@ class kw_dict_mgr(object):
                                         u'[ 已刪除 ]' if entry_row[kwdict_col.deleted] else u'[ - ]')
         detailed += u'呼叫次數: {}\n\n'.format(entry_row[kwdict_col.used_count])
 
-        profile = line_api.get_profile(entry_row[kwdict_col.creator])
+        creator_profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
-        detailed += u'製作者LINE使用者名稱:\n{}\n'.format(profile.display_name)
+        detailed += u'製作者LINE使用者名稱:\n{}\n'.format(creator_profile.display_name)
         detailed += u'製作者LINE UUID:\n{}'.format(entry_row[kwdict_col.creator])
+
+        if entry_row[kwdict_col.deletor] is not None:
+            deletor_profile = line_api.get_profile(entry_row[kwdict_col.deletor])
+            detailed += u'刪除者LINE使用者名稱:\n{}\n'.format(deletor_profile.display_name)
+            detailed += u'刪除者LINE UUID:\n{}'.format(entry_row[kwdict_col.deletor])
 
         return detailed
     
@@ -320,6 +326,6 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'used_rank']
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'deletor', 'used_rank']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
 kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
