@@ -45,6 +45,9 @@
     <Compile Include="tool\mff.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tool\random.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tool\__init__.py">
       <SubType>Code</SubType>
     </Compile>

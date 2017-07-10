@@ -21,6 +21,11 @@ class error(object):
         def invalid_thing(name_of_thing, thing):
             return u'不合法的{}: {}。請查看使用說明書( {} )。'.format(name_of_thing, thing, error.user_manual_url)
 
+        
+        @staticmethod
+        def invalid_thing_with_correct_format(name_of_thing, correct_format, thing):
+            return u'不合法的{nt}: {t}。{nt}應為{fmt}。詳情請查看使用說明書( {um} )。'.format(nt=name_of_thing, t=thing, fmt=correct_format, um=error.user_manual_url)
+
         @staticmethod
         def lack_of_thing(name_of_thing):
             return u'缺少{nm}。請修正您所提供的{nm}成正確的格式。詳細說明請參閱使用說明書( {um} )'.format(nm=name_of_thing, um=error.user_manual_url)
@@ -58,7 +63,6 @@ class error(object):
         def invalid_length(thing, length):
             return u'長度不符。{}的長度應為{}。'.format(thing, length)
 
-    class message(object):
         @staticmethod
         def insufficient_space_for_command():
             return u'偵測到1個空格。\n要使用指令的話，指令和參數之間需要2個空格。詳細使用方法請參閱使用說明書( {} )。'.format(

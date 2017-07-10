@@ -23,7 +23,7 @@ import json
 from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
 
 # tool import
-from tool import mff
+from tool import mff, random
 
 # import from LINE MAPI
 from linebot import (
@@ -123,7 +123,7 @@ cmd_dict = {'S': command(1, 1, True),
             'SHA': command(1, 1, False), 
             'O': command(1, 1, False), 
             'B': command(0, 0, False), 
-            'U': command(0, 1, False)}
+            'RD': command(1, 2, False)}
 
 # Line Bot Environment initializing
 MAIN_UID_OLD = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
@@ -845,23 +845,30 @@ def handle_text_message(event):
                             api.leave_room(cid)
                         elif isinstance(src, SourceGroup):
                             api.leave_group(cid)
-                # User profile
-                elif cmd == 'U':
-                    uid = params[1]
-
-                    if uid is not None and len(uid) != 33:
-                        text = 'The length of user id must be 33 characters.'   
-                    else:
-                        if isinstance(src, SourceUser):
-                            line_profile = profile(uid if uid is not None else src.sender_id)
-
-                            text = u'User ID:\n{uid}\nUser name:\n{name}\nProfile Picture URL:\n{url}\nStatus Message:\n{msg}'.format(
-                                    uid=line_profile.user_id,
-                                    name=line_profile.display_name,
-                                    url=line_profile.picture_url,
-                                    msg=line_profile.status_message)
+                # RANDOM draw
+                elif cmd == 'RD':
+                    if params[2] is not None:
+                        start_index = params[1]
+                        end_index = params[2]
+                        if not start_index.isnumeric():
+                            text = error.main.invalid_thing_with_correct_format(u'起始抽籤數字', u'整數', start_index)
+                        elif not end_index.isnumeric():
+                            text = error.main.invalid_thing_with_correct_format(u'終止抽籤數字', u'整數', start_index)
                         else:
-                            text = 'Unable to use this function in Group or Room.'
+                            text = u'抽籤範圍【{}~{}】\n抽籤結果【{}】'.format(start_index, end_index, random.random_drawer.draw_number(start_index, end_index))
+                    elif params[1] is not None:
+                        if '\n' in params[1]:
+                            text_list = params[1].split('\n')
+                            text = u'抽籤範圍【{}】\n抽籤結果【{}】'.format(', '.join(text_list), random.random_drawer.draw_text(text_list))
+                        elif params[1].endswith('%') and params[1].count('%') == 1:
+                            params[1] = float(params[1].replace('%', '')) / 100.0
+                            text = u'抽籤機率【{}】\n抽籤結果【{}】'.format(
+                                params[1], 
+                                u'恭喜中獎' if random.random_drawer.draw_probability(params[1]) else u'銘謝惠顧')
+                        else:
+                            text = error.main.invalid_thing(u'參數1', params[1])
+                    else:
+                        text = error.main.lack_of_thing(u'參數')
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
@@ -899,7 +906,7 @@ def handle_text_message(event):
             replied = reply_message_by_keyword(get_source_channel_id(src), token, text, False, src)
 
             if text.startswith('JC') and ' ' in text and not replied:
-                text = error.message.insufficient_space_for_command();
+                text = error.main.insufficient_space_for_command();
                 api_reply(token, TextSendMessage(text=text), src)
                 return
     except exceptions.LineBotApiError as ex:
