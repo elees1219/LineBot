@@ -887,7 +887,8 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # last STICKER message
                 elif cmd == 'STK':
-                    last_sticker = rec['Msg'][cid].last_sticker
+                    
+                    last_sticker = rec['Msg'][get_source_channel_id(src)].last_sticker
                     if last_sticker is not None:
                         text = u'最後一個貼圖的貼圖ID為{}。'.format(last_sticker)
                     else:
