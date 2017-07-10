@@ -1136,7 +1136,7 @@ def api_reply(reply_token, msgs, src):
 def intercept_text(event):
     print '==========================================='
     print 'From Channel ID \'{}\''.format(get_source_channel_id(event.source))
-    print 'From User ID \'{}\' ({})'.format(get_source_user_id(event.source), profile(get_source_user_id(event.source)))
+    print 'From User ID \'{}\' ({})'.format(get_source_user_id(event.source), profile(get_source_user_id(event.source)).display_name)
     print 'Message \'{}\''.format(event.message.text.encode('utf-8'))
     print '==========================================='
 
