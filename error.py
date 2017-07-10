@@ -68,5 +68,9 @@ class error(object):
                 error.user_manual_url)
 
         @staticmethod
+        def unable_to_receive_user_id():
+            return u'因LINE政策問題，如果要使用這個功能的話，請先將LINE更新到v7.5.0以上。\n\n詳細說明請點此查看: https://developers.line.me/messaging-api/obtaining-user-consent'
+
+        @staticmethod
         def miscellaneous(content):
             return content

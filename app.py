@@ -355,7 +355,7 @@ def handle_text_message(event):
                     if pinned and permission_level(params.pop(1)) < 1:
                         text = error.main.restricted(1)
                     elif not is_valid_user_id(new_uid):
-                        text = error.main.miscellaneous(u'發生錯誤，請到私訊頻道重新嘗試。')
+                        text = error.main.unable_to_receive_user_id()
                     else:
                         if params[4] is not None:
                             action_kw = params[1]
@@ -436,7 +436,7 @@ def handle_text_message(event):
                     if pinned and permission_level(paramA.pop(1)) < 2:
                         text = error.main.restricted(2)
                     elif not is_valid_user_id(deletor):
-                        text = error.main.miscellaneous(u'發生錯誤，請到私訊頻道重新嘗試。')
+                        text = error.main.unable_to_receive_user_id()
                     else:
                         if params[2] is None:
                             kw = params[1]
