@@ -62,9 +62,9 @@ class kw_dict_mgr(object):
                     VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                     RETURNING *;'
             cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
-            cmd_override = u'UPDATE keyword_dict SET override = TRUE \
+            cmd_override = u'UPDATE keyword_dict SET override = TRUE, deletor = %(dt)s \
                              WHERE keyword = %(kw)s AND deleted = FALSE AND override = FALSE'
-            cmd_override_dict = {'kw': keyword}
+            cmd_override_dict = {'kw': keyword, 'dt': creator_id}
             self.sql_cmd(cmd_override, cmd_override_dict)
             result = self.sql_cmd(cmd, cmd_dict)
 
