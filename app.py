@@ -445,7 +445,7 @@ def handle_text_message(event):
                     deletor_uid = src.user_id
                     if pinned and permission_level(paramA.pop(1)) < 2:
                         text = error.main.restricted(2)
-                    elif not is_valid_user_id(deletor):
+                    elif not is_valid_user_id(deletor_uid):
                         text = error.main.unable_to_receive_user_id()
                     else:
                         if params[2] is None:
