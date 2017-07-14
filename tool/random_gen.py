@@ -4,6 +4,10 @@ import random
 
 class random_drawer(object):
     @staticmethod
+    def seed(seed):
+        random.seed(seed);
+
+    @staticmethod
     def draw_number(start, end):
         start = int(start)
         end = int(end)

@@ -862,6 +862,7 @@ def handle_text_message(event):
                             api.leave_group(cid)
                 # RANDOM draw
                 elif cmd == 'RD':
+                    random_gen.random_drawer.seed(999)
                     if params[2] is not None:
                         start_index = params[1]
                         end_index = params[2]
