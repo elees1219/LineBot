@@ -937,13 +937,13 @@ def handle_text_message(event):
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
         for err in ex.error.details:
-            text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message)
+            text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message.encode("utf-8"))
 
         send_error_url_line(token, text, get_source_channel_id(src))
     except Exception as exc:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message)
+        text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message.encode("utf-8"))
 
         send_error_url_line(token, text, get_source_channel_id(src))
     return
