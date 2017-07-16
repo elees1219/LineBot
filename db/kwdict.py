@@ -49,6 +49,8 @@ class kw_dict_mgr(object):
                     {} VARCHAR(33) NOT NULL, \
                     {} BOOLEAN DEFAULT FALSE, \
                     {} BOOLEAN DEFAULT FALSE, \
+                    {} TIMESTAMP DEFAULT NOW(), \
+                    {} TIMESTAMP, \
                     {} VARCHAR(33);'.format(*_col_list)
         return cmd
 
@@ -62,7 +64,7 @@ class kw_dict_mgr(object):
                     VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                     RETURNING *;'
             cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
-            cmd_override = u'UPDATE keyword_dict SET override = TRUE, deletor = %(dt)s \
+            cmd_override = u'UPDATE keyword_dict SET override = TRUE, deletor = %(dt)s, disabled_time = NOW() \
                              WHERE keyword = %(kw)s AND deleted = FALSE AND override = FALSE AND admin = %(adm)s'
             cmd_override_dict = {'kw': keyword, 'dt': creator_id, 'adm': is_top}
             self.sql_cmd(cmd_override, cmd_override_dict)
@@ -136,7 +138,7 @@ class kw_dict_mgr(object):
 
     def delete_keyword(self, keyword, deletor, is_top):
         cmd = u'UPDATE keyword_dict \
-                SET deleted = TRUE, deletor = %(dt)s \
+                SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() \
                 WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE \
                 RETURNING *;'
         cmd_dict = {'kw': keyword, 'top': is_top, 'dt': deletor}
@@ -145,7 +147,7 @@ class kw_dict_mgr(object):
 
     def delete_keyword_id(self, id, deletor, is_top):
         cmd = u'UPDATE keyword_dict \
-                SET deleted = TRUE, deletor = %(dt)s \
+                SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() \
                 WHERE id = %(id)s AND admin = %(top)s AND deleted = FALSE \
                 RETURNING *;'
                 
@@ -181,6 +183,12 @@ class kw_dict_mgr(object):
         result = self.sql_cmd_only(cmd)
         return int(result[0][0])
 
+    def used_count_rank(self, id):
+        cmd = u'SELECT used_rank FROM (SELECT RANK() OVER (ORDER BY used_count DESC) AS used_rank, * FROM keyword_dict) AS ranked WHERE id = %(id)s;'
+        cmd_dict = {'id': id}
+        result = self.sql_cmd(cmd, cmd_dict)
+        return int(result[0][0])
+
 
 
 
@@ -209,19 +217,22 @@ class kw_dict_mgr(object):
         detailed = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
         detailed += u'屬性:\n'
         detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[kwdict_col.admin] else u'[ - ]',
-                                        u'[ 已覆蓋 ]' if entry_row[kwdict_col.override] else u'[ - ]',
-                                        u'[ 已刪除 ]' if entry_row[kwdict_col.deleted] else u'[ - ]')
-        detailed += u'呼叫次數: {}\n\n'.format(entry_row[kwdict_col.used_count])
+                                        u'[ 覆蓋 ]' if entry_row[kwdict_col.override] else u'[ - ]',
+                                        u'[ 刪除 ]' if entry_row[kwdict_col.deleted] else u'[ - ]')
+        detailed += u'呼叫次數: {} (第{}名)\n\n'.format(entry_row[kwdict_col.used_count], 
+                                                       used_count_rank(entry_row[kwdict_col.id]))
 
         creator_profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
         detailed += u'製作者LINE使用者名稱:\n{}\n'.format(creator_profile.display_name)
-        detailed += u'製作者LINE UUID:\n{}'.format(entry_row[kwdict_col.creator])
+        detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[kwdict_col.creator])
+        detailed += u'製作時間:\n{}'.format(entry_row[kwdict_col.created_time])
 
         if entry_row[kwdict_col.deletor] is not None:
             deletor_profile = line_api.get_profile(entry_row[kwdict_col.deletor])
             detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(deletor_profile.display_name)
-            detailed += u'刪除者LINE UUID:\n{}'.format(entry_row[kwdict_col.deletor])
+            detailed += u'刪除者LINE UUID:\n{}\n'.format(entry_row[kwdict_col.deletor])
+            detailed += u'刪除時間:\n{}'.format(entry_row[kwdict_col.disabled_time])
 
         return detailed
     
@@ -326,6 +337,9 @@ class kw_dict_mgr(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'deletor', 'used_rank']
+_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 
+             'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'deletor', 
+             'created_time', 'disabled_time'
+             'used_rank']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
-kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
