@@ -190,15 +190,6 @@ class kw_dict_mgr(object):
         return int(result[0][0])
 
 
-
-
-    @staticmethod
-    def sticker_png_url(sticker_id):
-        return 'https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/{stk_id}/android/sticker.png'.format(stk_id=sticker_id)
-    
-    @staticmethod
-    def sticker_id(sticker_url):
-        return sticker_url.replace('https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/', '').replace('/android/sticker.png', '')
     
     @staticmethod
     def entry_basic_info(entry_row):
@@ -213,14 +204,14 @@ class kw_dict_mgr(object):
         return text
 
     @staticmethod
-    def entry_detailed_info(line_api, entry_row):
+    def entry_detailed_info(kwd_mgr, line_api, entry_row):
         detailed = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
         detailed += u'屬性:\n'
         detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[kwdict_col.admin] else u'[ - ]',
                                         u'[ 覆蓋 ]' if entry_row[kwdict_col.override] else u'[ - ]',
                                         u'[ 刪除 ]' if entry_row[kwdict_col.deleted] else u'[ - ]')
         detailed += u'呼叫次數: {} (第{}名)\n\n'.format(entry_row[kwdict_col.used_count], 
-                                                       kw_dict_mgr.used_count_rank(entry_row[kwdict_col.id]))
+                                                       kwd_mgr.used_count_rank(entry_row[kwdict_col.id]))
 
         creator_profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
@@ -267,7 +258,7 @@ class kw_dict_mgr(object):
         return ret
 
     @staticmethod
-    def list_keyword_info(line_api, data, limit=2):
+    def list_keyword_info(kwd_mgr, line_api, data, limit=2):
         """return two object to access by [\'limited\'] and [\'full\']."""
         ret = {'limited': '', 'full': ''}
         limited = False
@@ -277,7 +268,7 @@ class kw_dict_mgr(object):
 
         for index, row in enumerate(data, start=1):
             text = separator
-            text += kw_dict_mgr.entry_detailed_info(line_api, row)
+            text += kw_dict_mgr.entry_detailed_info(kwd_mgr, line_api, row)
             text += u'\n'
             ret['full'] += text
 
@@ -318,6 +309,16 @@ class kw_dict_mgr(object):
                 row[4])
 
         return text
+
+    
+
+    @staticmethod
+    def sticker_png_url(sticker_id):
+        return 'https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/{stk_id}/android/sticker.png'.format(stk_id=sticker_id)
+    
+    @staticmethod
+    def sticker_id(sticker_url):
+        return sticker_url.replace('https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/', '').replace('/android/sticker.png', '')
 
 
 

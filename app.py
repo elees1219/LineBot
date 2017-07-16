@@ -535,7 +535,7 @@ def handle_text_message(event):
                         results = kwd.get_info(kw)
 
                     if results is not None:
-                        i_object = kw_dict_mgr.list_keyword_info(api, results)
+                        i_object = kw_dict_mgr.list_keyword_info(kwd, api, results)
                         text = i_object['limited']
                         text += '\n\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
                     else:
