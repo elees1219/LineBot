@@ -36,7 +36,7 @@ class error(object):
         @staticmethod
         def restricted(permission=None):
             return u'已限制的功能。{}'.format(
-                u'\n\n需求權限: {}+\n\n權限相關說明請參閱使用說明書( {} )'.format(permission) if permission is not None else u'', error.user_manual_url)
+                u'\n需求權限: {}+\n\n權限相關說明請參閱使用說明書( {} )'.format(permission, error.user_manual_url) if permission is not None else u'')
 
         @staticmethod
         def incorrect_channel(available_in_1v1=True, available_in_room=False, available_in_group=False):
