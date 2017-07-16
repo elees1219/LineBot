@@ -342,4 +342,4 @@ _col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin',
              'created_time', 'disabled_time'
              'used_rank']
 _col_tuple = collections.namedtuple('kwdict_col', _col_list)
-kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
+kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
