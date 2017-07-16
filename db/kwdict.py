@@ -220,7 +220,7 @@ class kw_dict_mgr(object):
                                         u'[ 覆蓋 ]' if entry_row[kwdict_col.override] else u'[ - ]',
                                         u'[ 刪除 ]' if entry_row[kwdict_col.deleted] else u'[ - ]')
         detailed += u'呼叫次數: {} (第{}名)\n\n'.format(entry_row[kwdict_col.used_count], 
-                                                       used_count_rank(entry_row[kwdict_col.id]))
+                                                       kw_dict_mgr.used_count_rank(entry_row[kwdict_col.id]))
 
         creator_profile = line_api.get_profile(entry_row[kwdict_col.creator])
 
