@@ -107,7 +107,7 @@ class message_tracker(object):
             cmd = u'SELECT * FROM msg_track WHERE cid = %(cid)s'
             cmd_dict = {'cid': cid}
             result = self.sql_cmd(cmd, cmd_dict)
-            return result
+            return result[0]
 
     def count_sum(self):
         """

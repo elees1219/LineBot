@@ -627,12 +627,13 @@ def handle_text_message(event):
                         else:
                             text += u'自動回復機能運轉中。'
 
-                        text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(msg_track.get_data(gid)[msg_track_col.text_msg], 
-                                                                                    msg_track.get_data(gid)[msg_track_col.stk_msg])
-                        text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(msg_track.get_data(gid)[msg_track_col.text_msg_trig], 
-                                                                                                msg_track.get_data(gid)[msg_track_col.stk_msg_trig])
-                        text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(msg_track.get_data(gid)[msg_track_col.text_rep], 
-                                                                                 msg_track.get_data(gid)[msg_track_col.stk_rep])
+                        group_tracking_data = msg_track.get_data(gid)
+                        text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg], 
+                                                                                            group_tracking_data[msg_track_col.stk_msg])
+                        text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg_trig], 
+                                                                                         group_tracking_data[msg_track_col.stk_msg_trig])
+                        text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_rep], 
+                                                                            group_tracking_data[msg_track_col.stk_rep])
                     else:
                         text = error.main.incorrect_channel(False, True, True)
                     
