@@ -262,6 +262,8 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
+    # TODO: user manual P, G
+
     token = event.reply_token
     text = event.message.text
     src = event.source
@@ -561,7 +563,7 @@ def handle_text_message(event):
                     text += u'\n網頁瀏覽次數: {}'.format(rec['webpage'])
                     
                     sum_data = msg_track.count_sum()
-                    text += u'\n\n訊息流量統計: {}'
+                    text += u'\n\n訊息流量統計:'
                     text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg'], sum_data['stk_msg'])
                     text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg_trig'], sum_data['stk_msg_trig'])
                     text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_rep'], sum_data['stk_rep'])
@@ -611,24 +613,28 @@ def handle_text_message(event):
                         group_detail = gb.get_group_by_id(src.sender_id)
                         gid = get_source_channel_id(src)
 
-                        uids = {'Admin': group_detail[gb_col.admin], 'Moderator 1': group_detail[gb_col.moderator1], 
-                                'Moderator 2': group_detail[gb_col.moderator2], 'Moderator 3': group_detail[gb_col.moderator3]}
+                        uids = {u'管理員': group_detail[gb_col.admin], u'副管 1': group_detail[gb_col.moderator1], 
+                                u'副管 2': group_detail[gb_col.moderator2], u'副管 3': group_detail[gb_col.moderator3]}
 
+                        text = u'群組/房間頻道ID: {}\n'.format(gid)
                         if group_detail is not None:
-                            text = u'Chat Group ID: {id}\n'.format(id=group_detail[gb_col.groupId])
-                            text += u'Silence: {sl}'.format(sl=group_detail[gb_col.silence])
+                            text += u'自動回復機能運轉中。' if group_detail[gb_col.silence] else u'已停止自動回覆機能。'
                             for txt, uid in uids.items():
                                 if uid is not None:
                                     prof = profile(uid)
-                                    text += u'\n\n{}: {}\n'.format(txt,
-                                                               '(LINE account data not found)' if prof is None else prof.display_name)
-                                    text += u'{} User ID: {}'.format(txt,
-                                                                      uid)
+                                    text += u'\n\n{}: {}\n'.format(txt, error.main.line_account_data_not_found(uid) if prof is None else prof.display_name)
+                                    text += u'{} 使用者ID: {}'.format(txt, uid)
                         else:
-                            text = u'Chat Group ID: {id}\n'.format(id=gid)
-                            text += u'Silence: False'
+                            text += u'自動回復機能運轉中。'
+
+                        text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(msg_track.get_data(gid)[msg_track_col.text_msg], 
+                                                                                    msg_track.get_data(gid)[msg_track_col.stk_msg])
+                        text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(msg_track.get_data(gid)[msg_track_col.text_msg_trig], 
+                                                                                                msg_track.get_data(gid)[msg_track_col.stk_msg_trig])
+                        text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(msg_track.get_data(gid)[msg_track_col.text_rep], 
+                                                                                 msg_track.get_data(gid)[msg_track_col.stk_rep])
                     else:
-                        text = 'This function can be only execute in GROUP or ROOM.'
+                        text = error.main.incorrect_channel(False, True, True)
                     
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban advance

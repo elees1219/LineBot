@@ -99,6 +99,16 @@ class message_tracker(object):
             self.sql_cmd(cmd, cmd_dict)
             return True
 
+    def get_data(self, cid):
+        """return group entry"""
+        if len(cid) != self.channel_id_length:
+            raise ValueError();
+        else:
+            cmd = u'SELECT * FROM msg_track WHERE cid = %(cid)s'
+            cmd_dict = {'cid': cid}
+            result = self.sql_cmd(cmd, cmd_dict)
+            return result
+
     def count_sum(self):
         """
         Returns a dictionary contains data.
