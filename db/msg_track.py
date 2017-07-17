@@ -20,7 +20,6 @@ class message_tracker(object):
 
 
 
-
     def sql_cmd_only(self, cmd):
         return self.sql_cmd(cmd, None)
 
@@ -125,6 +124,23 @@ class message_tracker(object):
         results['text_rep'] = sql_result[4]
         results['stk_rep'] = sql_result[5]
         return results
+
+
+    def _close_connection(self):
+        self.conn.commit()
+        self.cur.close()
+        self.conn.close()
+
+    def _set_connection(self):
+        self.conn = psycopg2.connect(
+            database=self.url.path[1:],
+            user=self.url.username,
+            password=self.url.password,
+            host=self.url.hostname,
+            port=self.url.port
+        )
+        self.cur = self.conn.cursor()
+
 
 
 
