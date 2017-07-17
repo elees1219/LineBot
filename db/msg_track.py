@@ -63,7 +63,7 @@ class message_tracker(object):
 
         None listed code of Type of Event and Illegal channel id length will raise ValueError.
         """
-        if len(groupId) != self.channel_id_length:
+        if len(cid) != self.channel_id_length:
             raise ValueError();
         else:
             if type_of_event == 1:
@@ -93,7 +93,7 @@ class message_tracker(object):
             return True
         
     def new_data(self, cid):
-        if len(groupId) != self.channel_id_length:
+        if len(cid) != self.channel_id_length:
             raise ValueError();
         else:
             cmd = u'INSERT INTO msg_track (cid) VALUES (%(cid)s)'
