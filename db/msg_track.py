@@ -115,12 +115,13 @@ class message_tracker(object):
 
         cmd = u'SELECT SUM(text_msg), SUM(text_msg_trig), SUM(stk_msg), SUM(stk_msg_trig), SUM(text_rep), SUM(stk_rep) FROM msg_track'
         sql_result = self.sql_cmd_only(cmd)
-        results['text_msg'] = sql_result[0]
-        results['text_msg_trig'] = sql_result[1]
-        results['stk_msg'] = sql_result[2]
-        results['stk_msg_trig'] = sql_result[3]
-        results['text_rep'] = sql_result[4]
-        results['stk_rep'] = sql_result[5]
+        sql_result = sql_result[0]
+        results['text_msg'] = sql_result[msg_track_col.text_msg]
+        results['text_msg_trig'] = sql_result[msg_track_col.text_msg_trig]
+        results['stk_msg'] = sql_result[msg_track_col.stk_msg]
+        results['stk_msg_trig'] = sql_result[msg_track_col.stk_msg_trig]
+        results['text_rep'] = sql_result[msg_track_col.text_rep]
+        results['stk_rep'] = sql_result[msg_track_col.stk_rep]
         return results
 
 
