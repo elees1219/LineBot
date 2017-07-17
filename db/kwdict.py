@@ -236,7 +236,7 @@ class kw_dict_mgr(object):
         ret['full'] = '共有{}筆結果\n\n'.format(count)
 
         if count <= 0:
-            ret['limited'] = '無結果。'
+            ret['limited'] = error.main.no_result()
         else:
             for index, row in enumerate(data, start=1):
                 text = 'ID: {} - {} {}{}{}\n'.format(
@@ -266,19 +266,22 @@ class kw_dict_mgr(object):
         separator = u'====================\n'
         ret['full'] = u'共{}筆資料\n'.format(count)
 
-        for index, row in enumerate(data, start=1):
-            text = separator
-            text += kw_dict_mgr.entry_detailed_info(kwd_mgr, line_api, row)
-            text += u'\n'
-            ret['full'] += text
+        if count <= 0:
+            ret['limited'] = error.main.no_result()
+        else:
+            for index, row in enumerate(data, start=1):
+                text = separator
+                text += kw_dict_mgr.entry_detailed_info(kwd_mgr, line_api, row)
+                text += u'\n'
+                ret['full'] += text
 
-            if not limited:
-                ret['limited'] += text
+                if not limited:
+                    ret['limited'] += text
 
-                if index >= limit:
-                    ret['limited'] += separator
-                    ret['limited'] += u'還有{}筆資料沒有顯示。'.format(count - limit)
-                    limited = True
+                    if index >= limit:
+                        ret['limited'] += separator
+                        ret['limited'] += u'還有{}筆資料沒有顯示。'.format(count - limit)
+                        limited = True
 
         return ret
 

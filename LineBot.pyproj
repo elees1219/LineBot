@@ -30,6 +30,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="db\kwdict.py" />
+    <Compile Include="db\msg_track.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="db\__init__.py">
       <SubType>Code</SubType>
     </Compile>

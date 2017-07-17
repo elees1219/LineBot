@@ -20,7 +20,7 @@ import requests
 import json
 
 # Database import
-from db import kw_dict_mgr, group_ban, kwdict_col, gb_col
+from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col
 
 # tool import
 from tool import mff, random_gen
@@ -40,43 +40,17 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 
-# Main initializing
+# Databases initialization
+kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
+gb = group_ban("postgres", os.environ["DATABASE_URL"])
+msg_track = message_tracker("postgres", os.environ["DATABASE_URL"])
+
+# Main initialization
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
 
-class channel_data(object):
-    def __init__(self):
-        self._rcv = 0
-        self._rep = 0
-        self._last_sticker = None
-
-    @property
-    def recv(self):
-        return self._rcv
-
-    @property
-    def repl(self):
-        return self._rep
-
-    @property
-    def last_sticker(self):
-        return self._last_sticker
-
-    @last_sticker.setter
-    def last_sticker(self, value):
-        self._last_sticker = value
-
-    def received(self):
-        self._rcv += 1
-
-    def replied(self):
-        self._rep += 1
-
-    def __repr__(self):
-        return u'收到: {}, 回覆: {}'.format(self._rcv, self._rep)
-
 rec = {'JC_called': 0, 'MFF_called': 0, 
-       'Msg': defaultdict(channel_data), 
+       'last_stk': defaultdict(str), 
        'Silence': False, 'Intercept': True, 
        'webpage': 0}
 report_content = {'Error': {}, 
@@ -135,7 +109,7 @@ cmd_dict = {'S': command(1, 1, True),
             'RD': command(1, 2, False),
             'STK': command(0, 0, False)}
 
-# Line Bot Environment initializing
+# Line Bot Environment initialization
 MAIN_UID_OLD = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
 MAIN_UID = 'U089d534654e2c5774624e8d8c813000e'
 main_silent = False
@@ -162,11 +136,7 @@ if channel_access_token is None:
 api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
-# Database initializing
-kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
-gb = group_ban("postgres", os.environ["DATABASE_URL"])
-
-# Oxford Dictionary Environment initializing
+# Oxford Dictionary Environment initialization
 oxford_id = os.getenv('OXFORD_ID', None)
 oxford_key = os.getenv('OXFORD_KEY', None)
 oxford_disabled = False
@@ -298,7 +268,7 @@ def handle_text_message(event):
     splitter = '  '
     splitter_mff = '\n'
     
-    rec['Msg'][get_source_channel_id(src)].received()
+    msg_track.log_message_activity(get_source_channel_id(src), 1)
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
@@ -484,6 +454,7 @@ def handle_text_message(event):
                     if params[2] is not None:
                         si = params[1]
                         ei = params[2]
+                        text = u'搜尋範圍: 【回覆組ID】介於【{}】和【{}】之間的回覆組。\n'.format(si, ei)
 
                         try:
                             begin_index = int(si)
@@ -491,14 +462,15 @@ def handle_text_message(event):
 
                             if end_index - begin_index < 0:
                                 results = None
-                                text = error.main.incorrect_param(u'參數2', u'大於參數1的數字')
+                                text += error.main.incorrect_param(u'參數2', u'大於參數1的數字')
                             else:
                                 results = kwd.search_keyword_index(begin_index, end_index)
                         except ValueError:
                             results = None
-                            text = error.main.incorrect_param(u'參數1和參數2', u'整數數字')
+                            text += error.main.incorrect_param(u'參數1和參數2', u'整數數字')
                     else:
                         kw = params[1]
+                        text = u'搜尋範圍: 【關鍵字】或【回覆】包含【{}】的回覆組。\n'.format(kw)
 
                         results = kwd.search_keyword(kw)
 
@@ -517,32 +489,30 @@ def handle_text_message(event):
                 elif cmd == 'I':
                     if params[2] is not None:
                         action = params[1]
+                        pair_id = params[2]
+                        text = u'搜尋條件: 【回覆組ID】為【{}】的回覆組。\n'.format(pair_id)
 
                         if action != 'ID':
-                            text = 'Incorrect 1st parameter to query information. To use this function, 1st parameter needs to be \'ID\'.'
+                            text += error.main.invalid_thing_with_correct_format(u'參數1', u'ID', action)
                             results = None
                         else:
-                            pair_id = params[2]
-
                             if string_is_int(pair_id):
                                 results = kwd.get_info_id(pair_id)   
                             else:
                                 results = None
-                                text = 'Parameter 2 must be integer to represent pair ID.'
+                                text += error.main.invalid_thing_with_correct_format(u'參數2', u'正整數', pair_id)
                     else:
                         kw = params[1]
+                        text = u'搜尋條件: 【關鍵字】或【回覆】為【{}】的回覆組。\n'.format(kw)
 
                         results = kwd.get_info(kw)
 
                     if results is not None:
                         i_object = kw_dict_mgr.list_keyword_info(kwd, api, results)
-                        text = i_object['limited']
+                        text += i_object['limited']
                         text += '\n\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
                     else:
-                        if params[2] is not None:
-                            text = 'Specified ID to get INFORMATION (ID: {id}) returned no data.'.format(id=pair_id)
-                        else:
-                            text = u'Specified keyword to get INFORMATION ({kw}) returned no data.'.format(kw=kw)
+                        text = error.main.miscellaneous(u'資料查詢主體為空。')
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # RANKING
@@ -574,6 +544,8 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # SPECIAL record
                 elif cmd == 'P':
+                    # TODO: split to part
+
                     kwpct = kwd.row_count()
 
                     user_list_top = kwd.user_sort_by_created_pair()[0]
@@ -584,15 +556,15 @@ def handle_text_message(event):
                     last_count = len(last)
                     limit = 10
 
-                    sorted_msg = sorted(rec['Msg'].items(), key=lambda counter: (counter[1].recv + counter[1].repl), reverse=True)
-
                     text = u'開機後開始統計的資料\n'
                     text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
                     text += u'\n網頁瀏覽次數: {}'.format(rec['webpage'])
-                    text += u'\n共接收了{}則訊息 | 共回覆了{}則訊息'.format(sum(counter[1].recv for counter in sorted_msg), 
-                                                                              sum(counter[1].repl for counter in sorted_msg))
-                    for channel, counter in sorted_msg:
-                        text += u'\n{} - 頻道: {}'.format(counter, channel)
+                    
+                    sum_data = msg_track.count_sum()
+                    text += u'\n\n訊息流量統計: {}'
+                    text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg'], sum_data['stk_msg'])
+                    text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg_trig'], sum_data['stk_msg_trig'])
+                    text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_rep'], sum_data['stk_rep'])
 
                     cmd_dict_text = ''
                     for cmd, cmd_obj in cmd_dict.items():
@@ -805,45 +777,45 @@ def handle_text_message(event):
                     voc = params[1]
 
                     if oxford_disabled:
-                        text = 'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
+                        text = u'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
                     else:
                         j = oxford_json(voc)
 
                         if type(j) is int:
                             code = j
 
-                            text = 'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
+                            text = u'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
                                 status_code=code,
                                 explanation=httplib.responses[code])
                         else:
-                            text = ''
+                            text = u''
                             section_splitter = '..........................................................................................'
 
                             lexents = j['results'][0]['lexicalEntries']
                             for lexent in lexents:
-                                text += '=={} ({})=='.format(lexent['text'], lexent['lexicalCategory'])
+                                text += u'=={} ({})=='.format(lexent['text'], lexent['lexicalCategory'])
                                 
                                 lexentarr = lexent['entries']
                                 for lexentElem in lexentarr:
                                     sens = lexentElem['senses']
                                     
-                                    text += '\nDefinition:'
+                                    text += u'\nDefinition:'
                                     for index, sen in enumerate(sens, start=1):
                                         if 'registers' in sen:
                                             reg_text = ', '.join(sen['registers'])
 
                                         for de in sen['definitions']:
-                                            text += '\n{}. {} {}'.format(index, 
+                                            text += u'\n{}. {} {}'.format(index, 
                                                                          de, 
-                                                                         '({})'.format(', '.join(sen['registers'])) if 'registers' in sen else '')
+                                                                         u'({})'.format(u', '.join(sen['registers'])) if u'registers' in sen else u'')
 
                                         if 'examples' in sen:
                                             for ex in sen['examples']:
-                                                text += '\n------{}'.format(ex['text'])
+                                                text += u'\n------{}'.format(ex['text'].decode("utf-8"))
 
                                 text += '\n{}\n'.format(section_splitter)
 
-                            text += 'Powered by Oxford Dictionary.'
+                            text += u'Powered by Oxford Dictionary.'
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Leave group or room
@@ -887,8 +859,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # last STICKER message
                 elif cmd == 'STK':
-                    
-                    last_sticker = rec['Msg'][get_source_channel_id(src)].last_sticker
+                    last_sticker = rec['last_stk'][get_source_channel_id(src)]
                     if last_sticker is not None:
                         text = u'最後一個貼圖的貼圖ID為{}。'.format(last_sticker)
                     else:
@@ -992,17 +963,16 @@ def handle_sticker_message(event):
     src = event.source
     cid = get_source_channel_id(src)
 
-    rec['Msg'][cid].received()
-    rec['Msg'][cid].last_sticker = sticker_id
+    rec['last_stk'][cid] = sticker_id
+    msg_track.log_message_activity(cid, 3)
 
     if isinstance(event.source, SourceUser):
         results = kwd.get_reply(sticker_id, True)
         
         if results is not None:
-            result = results[0]
-            kwdata = 'Associated Keyword ID: {id}\n'.format(id=result[kwdict_col.id])
+            kwdata = u'相關回覆組ID: {id}。\n'.format(id=', '.join([result[kwdict_col.id] for result in results]))
         else:
-            kwdata = 'No associated keyword.\n'
+            kwdata = u'無相關回覆組ID。\n'
 
         api_reply(
             rep,
@@ -1025,7 +995,7 @@ def handle_sticker_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
-    rec['Msg'][get_source_channel_id(event.source)].received()
+    msg_track.log_message_activity(get_source_channel_id(src), 1)
     return
 
     api_reply(
@@ -1041,7 +1011,7 @@ def handle_location_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
-    rec['Msg'][get_source_channel_id(event.source)].received()
+    msg_track.log_message_activity(get_source_channel_id(src), 1)
     return
 
     if isinstance(event.message, ImageMessage):
@@ -1172,7 +1142,10 @@ def string_is_int(s):
 
 
 def api_reply(reply_token, msgs, src):
-    rec['Msg'][src if isinstance(src, (str, unicode)) else get_source_channel_id(src)].replied()
+    if isinstance(msgs, TemplateSendMessage):
+        msg_track.log_message_activity(get_source_channel_id(src), 6)
+    elif isinstance(msgs, TextSendMessage):
+        msg_track.log_message_activity(get_source_channel_id(src), 5)
 
     if not rec['Silence']:
         if not isinstance(msgs, (list, tuple)):
@@ -1210,6 +1183,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw, src):
 
         res = kwd.get_reply(keyword, is_sticker_kw)
         if res is not None:
+            msg_track.log_message_activity(get_source_channel_id(src), 4 if is_sticker_kw else 2)
             result = res[0]
             reply = result[kwdict_col.reply].decode('utf-8')
 
@@ -1219,7 +1193,7 @@ def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw, src):
                 api_reply(token, TemplateSendMessage(
                     alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
                     template=ButtonsTemplate(text=u'ID: {id}\nCreated by {creator}.'.format(
-                        creator='(LINE account data not found)' if line_profile is None else line_profile.display_name,
+                        creator=u'(LINE account data not found)' if line_profile is None else line_profile.display_name,
                         id=result[kwdict_col.id]), 
                                              thumbnail_image_url=reply,
                                              actions=[
@@ -1267,7 +1241,7 @@ def rec_text(textmsg_list):
     for index, txt in enumerate(textmsg_list, start=1):
         report_content['Text'][timestamp] += 'Message {index}\n'.format(index=index)
         report_content['Text'][timestamp] += txt.text
-        report_content['Text'][timestamp] += '==============================='
+        report_content['Text'][timestamp] += '\n===============================\n'
     return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
 
 

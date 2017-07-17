@@ -5,3 +5,7 @@ from .kwdict import (
 from .groupban import (
     group_ban, gb_col
 )
+
+from .msg_track import (
+    message_tracker, msg_track_col
+)
