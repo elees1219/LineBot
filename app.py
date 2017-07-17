@@ -613,8 +613,8 @@ def handle_text_message(event):
                         group_detail = gb.get_group_by_id(src.sender_id)
                         gid = get_source_channel_id(src)
 
-                        uids = {u'管理員': group_detail[gb_col.admin], u'副管 1': group_detail[gb_col.moderator1], 
-                                u'副管 2': group_detail[gb_col.moderator2], u'副管 3': group_detail[gb_col.moderator3]}
+                        uids = {u'管理員': group_detail[gb_col.admin], u'副管I': group_detail[gb_col.moderator1], 
+                                u'副管II': group_detail[gb_col.moderator2], u'副管III': group_detail[gb_col.moderator3]}
 
                         text = u'群組/房間頻道ID: {}\n'.format(gid)
                         if group_detail is not None:
@@ -622,7 +622,7 @@ def handle_text_message(event):
                             for txt, uid in uids.items():
                                 if uid is not None:
                                     prof = profile(uid)
-                                    text += u'\n\n{}: {}\n'.format(txt, error.main.line_account_data_not_found(uid) if prof is None else prof.display_name)
+                                    text += u'\n\n{}: {}\n'.format(txt, error.main.line_account_data_not_found() if prof is None else prof.display_name)
                                     text += u'{} 使用者ID: {}'.format(txt, uid)
                         else:
                             text += u'自動回復機能運轉中。'

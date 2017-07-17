@@ -72,8 +72,8 @@ class error(object):
             return u'因LINE政策問題，如果要使用這個功能的話，請先將LINE更新到v7.5.0以上。\n\n詳細說明請點此查看: https://developers.line.me/messaging-api/obtaining-user-consent'
 
         @staticmethod
-        def line_account_data_not_found(uid):
-            return u'找不到LINE帳號資料。帳號ID: {}'.format(uid)
+        def line_account_data_not_found():
+            return u'找不到LINE帳號資料。'
 
         @staticmethod
         def miscellaneous(content):
