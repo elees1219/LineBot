@@ -67,25 +67,21 @@ class message_tracker(object):
             raise ValueError();
         else:
             if type_of_event == 1:
-                column_to_add = msg_track_col.text_msg
                 update_last_message_recv = True
             elif type_of_event == 2:
-                column_to_add = msg_track_col.text_msg_trig
                 update_last_message_recv = True
             elif type_of_event == 3:
-                column_to_add = msg_track_col.stk_msg
                 update_last_message_recv = True
             elif type_of_event == 4:
-                column_to_add = msg_track_col.stk_msg_trig
                 update_last_message_recv = True
             elif type_of_event == 5:
-                column_to_add = msg_track_col.text_rep
                 update_last_message_recv = False
             elif type_of_event == 6:
-                column_to_add = msg_track_col.stk_rep
                 update_last_message_recv = False
             else:
                 raise ValueError();
+            
+            column_to_add = _col_list[type_of_event]
 
             cmd = u'UPDATE msg_track SET %(col)s = %(col)s + 1{} WHERE cid = %(cid)s'.format(u', last_msg_recv = NOW()' if update_last_message_recv else u'')
             cmd_dict = {'cid': cid, 'col': column_to_add}
