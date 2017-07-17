@@ -618,14 +618,14 @@ def handle_text_message(event):
 
                         text = u'群組/房間頻道ID: {}\n'.format(gid)
                         if group_detail is not None:
-                            text += u'已停用自動回覆機能。' if group_detail[gb_col.silence] else u'自動回復機能運轉中。'
+                            text += u'\n自動回覆機能狀態【{}】'.format(u'已停用' if group_detail[gb_col.silence] else u'使用中')
                             for txt, uid in uids.items():
                                 if uid is not None:
                                     prof = profile(uid)
                                     text += u'\n\n{}: {}\n'.format(txt, error.main.line_account_data_not_found() if prof is None else prof.display_name)
                                     text += u'{} 使用者ID: {}'.format(txt, uid)
                         else:
-                            text += u'自動回復機能運轉中。'
+                            text += u'\n自動回覆機能狀態【使用中】'
 
                         group_tracking_data = msg_track.get_data(gid)
                         text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg], 
