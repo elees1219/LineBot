@@ -83,8 +83,10 @@ class message_tracker(object):
             
             column_to_add = _col_list[type_of_event]
 
-            cmd = u'UPDATE msg_track SET %(col)s = %(col)s + 1{} WHERE cid = %(cid)s'.format(u', last_msg_recv = NOW()' if update_last_message_recv else u'')
-            cmd_dict = {'cid': cid, 'col': column_to_add}
+            cmd = u'UPDATE msg_track SET {col} = {col} + 1{recv_time} WHERE cid = %(cid)s'.format(
+                recv_time=u', last_msg_recv = NOW()' if update_last_message_recv else u'',
+                col=column_to_add)
+            cmd_dict = {'cid': cid}
             self.sql_cmd(cmd, cmd_dict)
             return True
         
