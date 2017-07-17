@@ -977,7 +977,7 @@ def handle_sticker_message(event):
         results = kwd.get_reply(sticker_id, True)
         
         if results is not None:
-            kwdata = u'相關回覆組ID: {id}。\n'.format(id=', '.join([result[kwdict_col.id] for result in results]))
+            kwdata = u'相關回覆組ID: {id}。\n'.format(id=u', '.join([unicode(result[kwdict_col.id]) for result in results]))
         else:
             kwdata = u'無相關回覆組ID。\n'
 
