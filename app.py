@@ -618,7 +618,7 @@ def handle_text_message(event):
 
                         text = u'群組/房間頻道ID: {}\n'.format(gid)
                         if group_detail is not None:
-                            text += u'自動回復機能運轉中。' if group_detail[gb_col.silence] else u'已停止自動回覆機能。'
+                            text += u'已停用自動回覆機能。' if group_detail[gb_col.silence] else u'自動回復機能運轉中。'
                             for txt, uid in uids.items():
                                 if uid is not None:
                                     prof = profile(uid)
