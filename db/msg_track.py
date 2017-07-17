@@ -113,7 +113,7 @@ class message_tracker(object):
         """
         results = defaultdict(int)
 
-        cmd = u'SELECT SUM(text_msg), SUM(text_msg_trig), SUM(stk_msg), SUM(stk_msg_trig), SUM(text_rep), SUM(stk_rep) FROM msg_track'
+        cmd = u'SELECT MIN(last_msg_recv), SUM(text_msg), SUM(text_msg_trig), SUM(stk_msg), SUM(stk_msg_trig), SUM(text_rep), SUM(stk_rep) FROM msg_track'
         sql_result = self.sql_cmd_only(cmd)
         sql_result = sql_result[0]
         results['text_msg'] = sql_result[msg_track_col.text_msg]
