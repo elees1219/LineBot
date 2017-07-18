@@ -158,6 +158,8 @@ class message_tracker(object):
         text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_msg_trig], data[msg_track_col.stk_msg_trig])
         text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_rep], data[msg_track_col.stk_rep])
 
+        return text
+
     @staticmethod
     def entry_detail_list(data_list, limit=10, group_ban=None):
         """return two object to access by [\'limited\'] and [\'full\']."""
