@@ -81,4 +81,4 @@ class error(object):
 
         @staticmethod
         def miscellaneous(content):
-            return content
+            return u'{}\n\n小水母使用說明: {}'.format(content, error.user_manual_url)

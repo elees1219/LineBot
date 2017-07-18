@@ -444,7 +444,11 @@ def handle_text_message(event):
                             text += u'\n此回覆組由 {} 製作。'.format(
                                 '(LINE account data not found)' if line_profile is None else line_profile.display_name)
                     else:
-                        text = error.main.pair_not_exist_or_insuffieicnt_permission()
+                        if string_is_int(kw):
+                            text = error.main.miscellaneous(u'偵測到參數1是整數。若欲使用ID作為刪除根據，請參閱小水母使用說明。')
+                        else:
+                            text = error.main.pair_not_exist_or_insuffieicnt_permission()
+
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # QUERY keyword
