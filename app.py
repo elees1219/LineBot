@@ -808,7 +808,7 @@ def handle_text_message(event):
                                 explanation=httplib.responses[code])
                         else:
                             text = u''
-                            section_splitter = '..........................................................................................'
+                            section_splitter = '.................................................................'
 
                             lexents = j['results'][0]['lexicalEntries']
                             for lexent in lexents:
@@ -820,14 +820,10 @@ def handle_text_message(event):
                                     
                                     text += u'\nDefinition:'
                                     for index, sen in enumerate(sens, start=1):
-                                        if 'registers' in sen:
-                                            reg_text = ', '.join(sen['registers'])
-
-                                        for de in sen['definitions']:
-                                            text += u'\n{}. {} {}'.format(index, 
-                                                                         de, 
-                                                                         u'({})'.format(u', '.join(sen['registers'])) if u'registers' in sen else u'')
-
+                                        if 'definitions' in sen:
+                                            for de in sen['definitions']:
+                                                text += u'\n{}. {} {}'.format(index, de, u'({})'.format(u', '.join(sen['registers'])) if u'registers' in sen else u'')
+                                        
                                         if 'examples' in sen:
                                             for ex in sen['examples']:
                                                 text += u'\n------{}'.format(ex['text'].decode("utf-8"))
