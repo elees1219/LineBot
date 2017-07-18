@@ -185,12 +185,8 @@ def callback():
 @app.route("/error", methods=['GET'])
 def get_error_list():
     rec['webpage'] += 1
-    content = 'Boot up at {time}\n\nError list: '.format(time=boot_up)
-    error_timestamps = report_content['Error'].keys()
-
-    for timestamp in error_timestamps:
-        content += html_hyperlink(timestamp, request.url_root + url_for('get_error_message', timestamp=timestamp)[1:])
-        content += '\n'
+    content = 'Boot up at {}\n\nError list:\n'.format(boot_up)
+    content += '\n'.join([html_hyperlink(timestamp, request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]) for timestamp in report_content['Error'].keys()])
         
     return content.replace('\n', '<br/>')
 
@@ -760,7 +756,7 @@ def handle_text_message(event):
                         
                         source_type = u'使用者詳細資訊'
 
-                        if is_valid_user_id(uid):
+                        if not is_valid_user_id(uid):
                             text = error.main.invalid_thing_with_correct_format(u'使用者ID', u'U開頭，並且長度為33字元', uid)
                         else:
                             if line_profile is not None:
@@ -772,13 +768,13 @@ def handle_text_message(event):
                                 text = u'找不到使用者ID - {} 的詳細資訊。'.format(uid)
                     else:
                         if isinstance(src, SourceUser):
-                            source_type = 'Type: User'
+                            source_type = u'頻道種類: 使用者(私訊)'
                         elif isinstance(src, SourceGroup):
-                            source_type = 'Type: Group'
+                            source_type = u'頻道種類: 群組'
                         elif isinstance(src, SourceRoom):
-                            source_type = 'Type: Room'
+                            source_type = u'頻道種類: 房間'
                         else:
-                            source_type = 'Unknown chatting type.'
+                            source_type = u'頻道種類: 不明'
 
                     api_reply(token, [TextSendMessage(text=source_type), TextSendMessage(text=text)], src)
                 # SHA224 generator

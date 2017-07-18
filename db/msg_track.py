@@ -151,9 +151,15 @@ class message_tracker(object):
     def entry_detail(data, group_ban=None):
         gid = data[msg_track_col.cid]
 
-        text = u'群組/房間ID: {} {}'.format(
-            gid, u'' if group_ban is None else u'({})'.format(
-                u'停用自動回覆' if group_ban.get_group_by_id(gid)[gb_col.silence] else u'啟用自動回覆'))
+        if group_ban is not None:
+            if gid.startsWith('U'):
+                activation_status = u'私訊頻道'
+            else:
+                activation_status = u'停用回覆' if group_ban.get_group_by_id(gid)[gb_col.silence] else u'啟用回覆'
+        else:
+            activation_status = u'啟用回覆'
+
+        text = u'群組/房間ID: {} 【{}】'.format(gid, activation_status)
         text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_msg], data[msg_track_col.stk_msg])
         text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_msg_trig], data[msg_track_col.stk_msg_trig])
         text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_rep], data[msg_track_col.stk_rep])
@@ -193,9 +199,6 @@ class message_tracker(object):
             port=self.url.port
         )
         self.cur = self.conn.cursor()
-
-
-
 
 _col_list = ['cid', 
              'text_msg',  'text_msg_trig', 
