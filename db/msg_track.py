@@ -91,12 +91,11 @@ class message_tracker(object):
             result = self.sql_cmd(cmd, cmd_dict)
             
             if len(result) < 1:
-                raise ValueError(error.main.miscellanous(u'Group/Room ID not exist'))
+                self.new_data(cid)
 
             cmd = u'UPDATE msg_track SET {col} = {col} + 1{recv_time} WHERE cid = %(cid)s'.format(
                 recv_time=u', last_msg_recv = NOW()' if update_last_message_recv else u'',
                 col=column_to_add)
-            cmd_dict = {'cid': cid}
             self.sql_cmd(cmd, cmd_dict)
         
     def new_data(self, cid):
