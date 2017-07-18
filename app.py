@@ -590,11 +590,11 @@ def handle_text_message(event):
                                 user_list_top[1] / float(kwpct))
 
                             text += u'\n\n使用次數最多的回覆組【{}次，{}組】:'.format(first[0][kwdict_col.used_count], len(first))
-                            text += u'\n'.join(['ID: {} - {}'.format(entry[kwdict_col.id],
+                            text += u'\n'.join([u'ID: {} - {}'.format(entry[kwdict_col.id],
                                                                      u'(貼圖ID {})'.format(entry[kwdict_col.keyword].decode('utf-8')) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in first[0 : limit - 1]])
                             
                             text += u'\n\n使用次數最少的回覆組 【{}次，{}組】:'.format(last[0][kwdict_col.used_count], len(last))
-                            text += u'\n'.join(['ID: {} - {}'.format(entry[kwdict_col.id],
+                            text += u'\n'.join([u'ID: {} - {}'.format(entry[kwdict_col.id],
                                                                      u'(貼圖ID {})'.format(entry[kwdict_col.keyword].decode('utf-8')) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in last[0 : limit - 1]])
                             if last_count - limit > 0:
                                 text += u'\n...(還有{}組)'.format(last_count - limit)

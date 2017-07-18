@@ -164,13 +164,16 @@ class message_tracker(object):
     def entry_detail_list(data_list, limit=10, group_ban=None):
         """return two object to access by [\'limited\'] and [\'full\']."""
         ret = {'limited': u'', 'full': u''}
-        limited = False
         count = len(data_list)
 
         if count <= 0:
             ret['limited'] = error.main.no_result()
         else:
-            ret['limited'] = u'\n\n'.join([message_tracker.entry_detail(data, group_ban) for data in data_list[0 : limit - 1]])
+            ret['limited'] = u'\n\n'.join([message_tracker.entry_detail(data, group_ban) 
+                                           for 
+                                           data 
+                                           in 
+                                           data_list[0 : limit - 1]])
             if count - limit > 0:
                 ret['limited'] += u'\n\n...還有{}筆資料'.format(count - limit)
 
