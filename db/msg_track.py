@@ -173,7 +173,7 @@ class message_tracker(object):
                                            for 
                                            data 
                                            in 
-                                           data_list[0 : limit - 1]])
+                                           data_list[0:limit - 1]])
             if count - limit > 0:
                 ret['limited'] += u'\n\n...還有{}筆資料'.format(count - limit)
 

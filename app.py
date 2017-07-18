@@ -550,15 +550,17 @@ def handle_text_message(event):
                         category = params[1]
 
                         if category == 'GRP':
+                            limit = 7
+
                             sum_data = msg_track.count_sum()
-                            tracking_data = message_tracker.entry_detail_list(msg_track.order_by_recorded_msg_count(), gb)
+                            tracking_data = message_tracker.entry_detail_list(msg_track.order_by_recorded_msg_count(), limit, gb)
 
                             text += u'訊息流量統計:'
                             text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg'], sum_data['stk_msg'])
                             text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg_trig'], sum_data['stk_msg_trig'])
                             text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_rep'], sum_data['stk_rep'])
 
-                            text = u'\n\n群組訊息統計資料:\n'
+                            text = u'\n\n群組訊息統計資料(前{}名):\n'.format(limit)
                             text += tracking_data['limited']
                             text += '\n\n完整資訊URL: {}'.format(rec_info(i_object['full']))
                         elif category == 'KW':
@@ -574,17 +576,18 @@ def handle_text_message(event):
 
                             text = u'回覆組相關統計資料:'
                             text += u'\n\n已使用回覆組【{}】次'.format(kwd.used_count_sum())
-                            text += u'\n\n已登錄【{}】組回覆組\n(【{}】組貼圖關鍵字 | 【{}】組圖片回覆)'.format(
+                            text += u'\n\n已登錄【{}】組回覆組\n【{}】組貼圖關鍵字 | 【{}】組圖片回覆'.format(
                                 kwpct,
                                 kwd.sticker_keyword_count(),
                                 kwd.picture_reply_count())
-                            text += u'\n\n共【{}】組回覆組可使用 ({:.2%})\n(【{}】組貼圖關鍵字 | 【{}】組圖片回覆)'.format(
+                            text += u'\n\n共【{}】組回覆組可使用 ({:.2%})\n【{}】組貼圖關鍵字 | 【{}】組圖片回覆'.format(
                                 kwd.row_count(True),
                                 kwd.row_count(True) / float(kwpct),
                                 kwd.sticker_keyword_count(True),
                                 kwd.picture_reply_count(True))
-
-                            text += u'\n\n製作最多回覆組的LINE使用者:\n{} ({}組 - {:.2%})'.format(
+                            
+                            text += u'\n\n製作最多回覆組的LINE使用者ID:\n{}'.format(user_list_top[0])
+                            text += u'\n製作最多回覆組的LINE使用者:\n{}【{}組 - {:.2%}】'.format(
                                 error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name,
                                 user_list_top[1],
                                 user_list_top[1] / float(kwpct))
@@ -1005,7 +1008,7 @@ def handle_sticker_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
-    msg_track.log_message_activity(get_source_channel_id(src), 1)
+    msg_track.log_message_activity(get_source_channel_id(event.source), 1)
     return
 
     api_reply(
@@ -1021,7 +1024,7 @@ def handle_location_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
-    msg_track.log_message_activity(get_source_channel_id(src), 1)
+    msg_track.log_message_activity(get_source_channel_id(event.source), 1)
     return
 
     if isinstance(event.message, ImageMessage):
