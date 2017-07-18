@@ -5,6 +5,8 @@ import os
 import urlparse
 import psycopg2
 
+from error import error
+
 import collections
 
 class kw_dict_mgr(object):

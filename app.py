@@ -99,8 +99,8 @@ cmd_dict = {'S': command(1, 1, True),
             'C': command(0, 0, True), 
             'I': command(1, 2, False), 
             'K': command(2, 2, False), 
-            'P': command(0, 0, False), 
-            'G': command(0, 0, False), 
+            'P': command(0, 1, False), 
+            'G': command(0, 1, False), 
             'GA': command(1, 5, True), 
             'H': command(0, 1, False), 
             'SHA': command(1, 1, False), 
@@ -262,7 +262,7 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    # TODO: user manual P, G
+    # TODO: user manual P(out), I(out), RECV_STK (out)
 
     token = event.reply_token
     text = event.message.text
@@ -546,96 +546,104 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # SPECIAL record
                 elif cmd == 'P':
-                    # TODO: split to part
+                    if params[1] is not None:
+                        category = params[1]
 
-                    kwpct = kwd.row_count()
+                        if category == 'GRP':
+                            sum_data = msg_track.count_sum()
+                            text += u'訊息流量統計:'
+                            text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg'], sum_data['stk_msg'])
+                            text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg_trig'], sum_data['stk_msg_trig'])
+                            text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_rep'], sum_data['stk_rep'])
 
-                    user_list_top = kwd.user_sort_by_created_pair()[0]
-                    line_profile = profile(user_list_top[0])
-                    
-                    first = kwd.most_used()
-                    last = kwd.least_used()
-                    last_count = len(last)
-                    limit = 10
+                            text = u'\n\n群組訊息統計資料:\n'
+                            text += message_tracker.entry_detail_list(msg_track.order_by_recorded_msg_count(3), gb)
+                        elif category == 'KW':
+                            kwpct = kwd.row_count()
 
-                    text = u'開機後開始統計的資料\n'
-                    text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
-                    text += u'\n網頁瀏覽次數: {}'.format(rec['webpage'])
-                    
-                    sum_data = msg_track.count_sum()
-                    text += u'\n\n訊息流量統計:'
-                    text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg'], sum_data['stk_msg'])
-                    text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg_trig'], sum_data['stk_msg_trig'])
-                    text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_rep'], sum_data['stk_rep'])
+                            user_list_top = kwd.user_sort_by_created_pair()[0]
+                            line_profile = profile(user_list_top[0])
+                            
+                            first = kwd.most_used()
+                            last = kwd.least_used()
+                            last_count = len(last)
+                            limit = 10
 
-                    cmd_dict_text = ''
-                    for cmd, cmd_obj in cmd_dict.items():
-                        cmd_dict_text += u'[{} ({}次)] '.format(cmd, cmd_obj.count)
-                    text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n{}'.format(rec['JC_called'], cmd_dict_text)
-                    text += u'\n已使用MFF傷害計算輔助系統{}次。'.format(rec['MFF_called'])
-                    
-                    text2 = u'全時統計資料\n\n'
-                    text2 += u'已登錄{}組回覆組 \n({}組貼圖關鍵字 | {}組圖片回覆)\n\n'.format(
-                        kwpct,
-                        kwd.sticker_keyword_count(),
-                        kwd.picture_reply_count())
-                    text2 += u'共{}組回覆組可使用 ({:.2%})\n({}組貼圖關鍵字 | {}組圖片回覆)\n\n'.format(
-                        kwd.row_count(True),
-                        kwd.row_count(True) / float(kwpct),
-                        kwd.sticker_keyword_count(True),
-                        kwd.picture_reply_count(True))
-                    text2 += u'已使用回覆組{}次\n\n'.format(kwd.used_count_sum())
+                            text = u'回覆組相關統計資料:'
+                            text += u'\n\n已使用回覆組【{}】次'.format(kwd.used_count_sum())
+                            text += u'\n\n已登錄【{}】組回覆組\n(【{}】組貼圖關鍵字 | 【{}】組圖片回覆)'.format(
+                                kwpct,
+                                kwd.sticker_keyword_count(),
+                                kwd.picture_reply_count())
+                            text += u'\n\n共【{}】組回覆組可使用 ({:.2%})\n(【{}】組貼圖關鍵字 | 【{}】組圖片回覆)'.format(
+                                kwd.row_count(True),
+                                kwd.row_count(True) / float(kwpct),
+                                kwd.sticker_keyword_count(True),
+                                kwd.picture_reply_count(True))
 
-                    text2 += u'製作最多回覆組的LINE使用者:\n{} ({}組 - {:.2%})\n\n'.format(
-                        u'(找不到LINE帳號資料)' if line_profile is None else line_profile.display_name,
-                        user_list_top[1],
-                        user_list_top[1] / float(kwpct))
+                            text += u'\n\n製作最多回覆組的LINE使用者:\n{} ({}組 - {:.2%})'.format(
+                                error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name,
+                                user_list_top[1],
+                                user_list_top[1] / float(kwpct))
 
-                    text2 += u'使用次數最多的回覆組 ({}次，{}組):'.format(first[0][kwdict_col.used_count], len(first))
-                    for entry in first:
-                        text2 += u'\nID: {} - {}'.format(entry[kwdict_col.id],
-                                                         u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'))
+                            text += u'\n\n使用次數最多的回覆組【{}次，{}組】:'.format(first[0][kwdict_col.used_count], len(first))
+                            text += u'\n'.join(['ID: {} - {}'.format(entry[kwdict_col.id],
+                                                                     u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in first[0 : limit - 1]])
+                            
+                            text += u'\n\n使用次數最少的回覆組 【{}次，{}組】:'.format(last[0][kwdict_col.used_count], len(last))
+                            text += u'\n'.join(['ID: {} - {}'.format(entry[kwdict_col.id],
+                                                                     u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in last[0 : limit - 1]])
+                            if last_count - limit > 0:
+                                text += u'\n...(還有{}組)'.format(last_count - limit)
+                        elif category == 'SYS':
+                            text = u'系統統計資料(開機後重設):\n'
+                            text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
+                            text += u'\n自動產生網頁瀏覽次數: {}'.format(rec['webpage'])
+                            text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n'.format(rec['JC_called'], cmd_dict_text)
+                            text += u'\n'.join([u'{} - {}次'.format(cmd, cmd_obj.count) for cmd, cmd_obj in cmd_dict.items()])
+                            text += u'\n已使用MFF傷害計算輔助系統{}次。'.format(rec['MFF_called'])
+                        else:
+                            text = error.main.invalid_thing_with_correct_format(u'參數1', u'GRP、KW或SYS', params[1])
+                    else:
+                        text = error.main.incorrect_param(u'參數1', u'GRP、KW或SYS')
 
-                    text2 += u'\n\n使用次數最少的回覆組 ({}次，{}組):'.format(last[0][kwdict_col.used_count], len(last))
-                    for entry in last:
-                        text2 += u'\nID: {} - {}'.format(entry[kwdict_col.id],
-                                                         u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8'))
-                        
-                        last_count -= 1
-                        if len(last) - last_count >= limit:
-                            text2 += u'\n...(還有{}組)'.format(last_count)
-                            break
-
-                    api_reply(token, [TextSendMessage(text=text), TextMessage(text=text2)], src)
+                    api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban basic (info)
                 elif cmd == 'G':
-                    if not isinstance(src, SourceUser):
-                        group_detail = gb.get_group_by_id(src.sender_id)
+                    if params[1] is not None:
+                        gid = params[1]
+                    else:
                         gid = get_source_channel_id(src)
 
-                        uids = {u'管理員': group_detail[gb_col.admin], u'副管I': group_detail[gb_col.moderator1], 
-                                u'副管II': group_detail[gb_col.moderator2], u'副管III': group_detail[gb_col.moderator3]}
-
-                        text = u'群組/房間頻道ID: {}\n'.format(gid)
-                        if group_detail is not None:
-                            text += u'\n自動回覆機能狀態【{}】'.format(u'已停用' if group_detail[gb_col.silence] else u'使用中')
-                            for txt, uid in uids.items():
-                                if uid is not None:
-                                    prof = profile(uid)
-                                    text += u'\n\n{}: {}\n'.format(txt, error.main.line_account_data_not_found() if prof is None else prof.display_name)
-                                    text += u'{} 使用者ID: {}'.format(txt, uid)
-                        else:
-                            text += u'\n自動回覆機能狀態【使用中】'
-
-                        group_tracking_data = msg_track.get_data(gid)
-                        text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg], 
-                                                                                            group_tracking_data[msg_track_col.stk_msg])
-                        text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg_trig], 
-                                                                                         group_tracking_data[msg_track_col.stk_msg_trig])
-                        text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_rep], 
-                                                                            group_tracking_data[msg_track_col.stk_rep])
-                    else:
+                    if isinstance(src, SourceUser):
                         text = error.main.incorrect_channel(False, True, True)
+                    else:
+                        if is_valid_room_group_id(gid):
+                            group_detail = gb.get_group_by_id(gid)
+
+                            uids = {u'管理員': group_detail[gb_col.admin], u'副管I': group_detail[gb_col.moderator1], 
+                                    u'副管II': group_detail[gb_col.moderator2], u'副管III': group_detail[gb_col.moderator3]}
+
+                            text = u'群組/房間頻道ID: {}\n'.format(gid)
+                            if group_detail is not None:
+                                text += u'\n自動回覆機能狀態【{}】'.format(u'已停用' if group_detail[gb_col.silence] else u'使用中')
+                                for txt, uid in uids.items():
+                                    if uid is not None:
+                                        prof = profile(uid)
+                                        text += u'\n\n{}: {}\n'.format(txt, error.main.line_account_data_not_found() if prof is None else prof.display_name)
+                                        text += u'{} 使用者ID: {}'.format(txt, uid)
+                            else:
+                                text += u'\n自動回覆機能狀態【使用中】'
+
+                            group_tracking_data = msg_track.get_data(gid)
+                            text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg], 
+                                                                                                group_tracking_data[msg_track_col.stk_msg])
+                            text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg_trig], 
+                                                                                             group_tracking_data[msg_track_col.stk_msg_trig])
+                            text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_rep], 
+                                                                            group_tracking_data[msg_track_col.stk_rep])
+                        else:
+                            text = error.main.invalid_thing_with_correct_format(u'群組/房間ID', u'R或C開頭，並且長度為33字元', gid)
                     
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban advance
@@ -746,10 +754,8 @@ def handle_text_message(event):
                         
                         source_type = u'使用者詳細資訊'
 
-                        if len(uid) != 33:
-                            text = error.main.invalid_length(u'使用者ID', 33)
-                        elif not uid.startswith('U'):
-                            text = error.main.invalid_thing(u'使用者ID', uid[0])
+                        if is_valid_user_id(uid):
+                            text = error.main.invalid_thing_with_correct_format(u'使用者ID', u'U開頭，並且長度為33字元', uid)
                         else:
                             if line_profile is not None:
                                 text = u'使用者ID: {}\n'.format(uid)
@@ -1062,10 +1068,11 @@ def handle_unfollow():
 @handler.add(JoinEvent)
 def handle_join(event):
     src = event.source
-    cid = src.sender_id
+    cid = get_source_channel_id(src)
 
     if not isinstance(event.source, SourceUser):
         added = gb.new_data(cid, MAIN_UID, 'RaenonX')
+        msg_track.new_data(cid)
 
         api_reply(event.reply_token, 
                   [TextMessage(text='Channel data registering {}. Type in \'JC  G\' to get more details.'.format('succeed' if added else 'failed')),
@@ -1139,6 +1146,9 @@ def get_source_user_id(source_event):
 def is_valid_user_id(uid):
     return uid is not None and len(uid) == 33 and uid.startswith('U')
 
+def is_valid_room_group_id(uid):
+    return uid is not None and len(uid) == 33 and (uid.startswith('C') or uid.startswith('R'))
+
 
 def string_is_int(s):
     try: 
@@ -1162,7 +1172,7 @@ def api_reply(reply_token, msgs, src):
             if isinstance(msg, TextSendMessage) and len(msg.text) > 2000:
                 api.reply_message(reply_token, 
                                   TextSendMessage(
-                                      text='The content to reply is too long that program is unavailable to reply with LINE API.\n\nTo view full reply text, please click the URL below:\n{url}'.format(url=rec_text(msgs))))
+                                      text=error.main.text_length_too_long(rec_text(msgs))))
                 return
 
         api.reply_message(reply_token, msgs)

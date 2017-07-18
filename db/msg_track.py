@@ -2,10 +2,12 @@
 
 import os, sys
 from collections import defaultdict
+from error import error
 
 import urlparse
 import psycopg2
 from sqlalchemy.exc import IntegrityError
+from db import group_ban, gb_col
 import hashlib
 
 import collections
@@ -36,6 +38,7 @@ class message_tracker(object):
         
         self._close_connection()
         return result
+
 
 
 
@@ -133,6 +136,46 @@ class message_tracker(object):
         results['text_rep'] = sql_result[msg_track_col.text_rep]
         results['stk_rep'] = sql_result[msg_track_col.stk_rep]
         return results
+
+    def order_by_recorded_msg_count(self, limit=10):
+        cmd = u'SELECT *, RANK() OVER (ORDER BY SUM(text_msg) + SUM(text_msg_trig) + SUM(stk_msg) + SUM(stk_msg_trig) DESC) AS total_msg FROM msg_track GROUP BY cid ORDER BY total_msg ASC LIMIT %(limit)s;'
+        cmd_dict = {'limit': limit}
+        
+        result = self.sql_cmd(cmd, cmd_dict)
+        return result
+
+
+
+
+    @staticmethod
+    def entry_detail(data, group_ban=None):
+        gid = data[msg_track_col.cid]
+
+        text = u'群組/房間ID: {} {}'.format(
+            gid, u'' if group_ban is None else u'({})'.format(
+                u'停用自動回覆' if group_ban.get_group_by_id(gid)[gb_col.silence] else u'啟用自動回覆'))
+        text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_msg], data[msg_track_col.stk_msg])
+        text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_msg_trig], data[msg_track_col.stk_msg_trig])
+        text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_rep], data[msg_track_col.stk_rep])
+
+    @staticmethod
+    def entry_detail_list(data_list, limit=10, group_ban=None):
+        """return two object to access by [\'limited\'] and [\'full\']."""
+        ret = {'limited': u'', 'full': u''}
+        limited = False
+        count = len(data_list)
+
+        if count <= 0:
+            ret['limited'] = error.main.no_result()
+        else:
+            ret['limited'] = u'\n\n'.join([message_tracker.entry_detail(data, group_ban) for data in data_list[0 : limit - 1]])
+            if count - limit > 0:
+                ret['limited'] += u'\n\n...還有{}筆資料'.format(count - limit)
+
+            ret['full'] = u', '.join(data_list)
+        return ret
+
+
 
 
     def _close_connection(self):

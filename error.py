@@ -69,11 +69,15 @@ class error(object):
 
         @staticmethod
         def unable_to_receive_user_id():
-            return u'因LINE政策問題，如果要使用這個功能的話，請先將LINE更新到v7.5.0以上。\n\n詳細說明請點此查看: https://developers.line.me/messaging-api/obtaining-user-consent'
+            return u'因LINE政策問題，如果要使用這個功能的話，請先將LINE更新到v7.5.0以上，或是在私訊頻道中重試。\n\n詳細說明請點此查看: https://developers.line.me/messaging-api/obtaining-user-consent'
 
         @staticmethod
         def line_account_data_not_found():
             return u'找不到LINE帳號資料。'
+
+        @staticmethod
+        def text_length_too_long(url):
+            return u'因文字內容長度超過LINE Messaging API的最大字數限制(2000字)，故無法顯示。請點下列網址查看完整內容。\n{}'.format(url)
 
         @staticmethod
         def miscellaneous(content):
