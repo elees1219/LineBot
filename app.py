@@ -562,7 +562,7 @@ def handle_text_message(event):
 
                             text = u'\n\n群組訊息統計資料(前{}名):\n'.format(limit)
                             text += tracking_data['limited']
-                            text += '\n\n完整資訊URL: {}'.format(rec_info(i_object['full']))
+                            text += '\n\n完整資訊URL: {}'.format(rec_info(tracking_data['full']))
                         elif category == 'KW':
                             kwpct = kwd.row_count()
 
