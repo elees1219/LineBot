@@ -88,7 +88,7 @@ class message_tracker(object):
             
             cmd = u'SELECT * FROM msg_track WHERE cid = %(cid)s'
             cmd_dict = {'cid': cid}
-            rsult = self.sql_cmd(cmd, cmd_dict)
+            result = self.sql_cmd(cmd, cmd_dict)
             
             if len(result) < 1:
                 raise ValueError(error.main.miscellanous(u'Group/Room ID not exist'))
