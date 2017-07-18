@@ -615,7 +615,7 @@ def handle_text_message(event):
                     else:
                         gid = get_source_channel_id(src)
 
-                    if isinstance(src, SourceUser):
+                    if params[1] is None and isinstance(src, SourceUser):
                         text = error.main.incorrect_channel(False, True, True)
                     else:
                         if is_valid_room_group_id(gid):
