@@ -823,6 +823,10 @@ def handle_text_message(event):
                                         if 'definitions' in sen:
                                             for de in sen['definitions']:
                                                 text += u'\n{}. {} {}'.format(index, de, u'({})'.format(u', '.join(sen['registers'])) if u'registers' in sen else u'')
+                                                
+                                        if 'crossReferenceMarkers' in sen:
+                                            for crm in sen['crossReferenceMarkers']:
+                                                text += u'\n{}. {} (Cross Reference Marker)'.format(index, crm)
                                         
                                         if 'examples' in sen:
                                             for ex in sen['examples']:
