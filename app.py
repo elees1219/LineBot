@@ -550,17 +550,17 @@ def handle_text_message(event):
                         category = params[1]
 
                         if category == 'GRP':
-                            limit = 7
+                            limit = 5
 
                             sum_data = msg_track.count_sum()
                             tracking_data = message_tracker.entry_detail_list(msg_track.order_by_recorded_msg_count(), limit, gb)
 
-                            text += u'訊息流量統計:'
+                            text = u'【訊息流量統計】'
                             text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg'], sum_data['stk_msg'])
                             text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg_trig'], sum_data['stk_msg_trig'])
                             text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_rep'], sum_data['stk_rep'])
 
-                            text = u'\n\n群組訊息統計資料(前{}名):\n'.format(limit)
+                            text += u'\n\n【群組訊息統計資料 - 前{}名】\n'.format(limit)
                             text += tracking_data['limited']
                             text += u'\n\n完整資訊URL: {}'.format(rec_info(tracking_data['full']))
                         elif category == 'KW':
@@ -574,7 +574,7 @@ def handle_text_message(event):
                             last_count = len(last)
                             limit = 10
 
-                            text = u'回覆組相關統計資料:'
+                            text = u'【回覆組相關統計資料】'
                             text += u'\n\n已使用回覆組【{}】次'.format(kwd.used_count_sum())
                             text += u'\n\n已登錄【{}】組回覆組\n【{}】組貼圖關鍵字 | 【{}】組圖片回覆'.format(
                                 kwpct,
@@ -602,7 +602,7 @@ def handle_text_message(event):
                             if last_count - limit > 0:
                                 text += u'\n...(還有{}組)'.format(last_count - limit)
                         elif category == 'SYS':
-                            text = u'系統統計資料(開機後重設):\n'
+                            text = u'【系統統計資料 - 開機後重設】\n'
                             text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
                             text += u'\n自動產生網頁瀏覽次數: {}'.format(rec['webpage'])
                             text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n'.format(rec['JC_called'])
