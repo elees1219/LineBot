@@ -158,12 +158,17 @@ class message_tracker(object):
     @staticmethod
     def entry_detail(data, group_ban=None):
         gid = data[msg_track_col.cid]
+        print data
 
         if group_ban is not None:
             if gid.startswith('U'):
                 activation_status = u'私訊頻道'
             else:
-                activation_status = u'停用回覆' if group_ban.get_group_by_id(gid)[gb_col.silence] else u'啟用回覆'
+                group_data = group_ban.get_group_by_id(gid)
+                if group_data is not None:
+                    activation_status = u'停用回覆' if group_data[gb_col.silence] else u'啟用回覆'
+                else:
+                    activation_status = u'啟用回覆'
         else:
             activation_status = u'啟用回覆'
 
