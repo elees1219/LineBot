@@ -173,7 +173,7 @@ class message_tracker(object):
             if count - limit > 0:
                 ret['limited'] += u'\n\n...還有{}筆資料'.format(count - limit)
 
-            ret['full'] = u', '.join([message_tracker.entry_detail(data, group_ban) for data in data_list])
+            ret['full'] = u'\n\n'.join([message_tracker.entry_detail(data, group_ban) for data in data_list])
         return ret
 
 
