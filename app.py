@@ -599,7 +599,7 @@ def handle_text_message(event):
                             text = u'系統統計資料(開機後重設):\n'
                             text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
                             text += u'\n自動產生網頁瀏覽次數: {}'.format(rec['webpage'])
-                            text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n'.format(rec['JC_called'], cmd_dict_text)
+                            text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n'.format(rec['JC_called'])
                             text += u'\n'.join([u'{} - {}次'.format(cmd, cmd_obj.count) for cmd, cmd_obj in cmd_dict.items()])
                             text += u'\n已使用MFF傷害計算輔助系統{}次。'.format(rec['MFF_called'])
                         else:
