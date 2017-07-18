@@ -512,7 +512,7 @@ def handle_text_message(event):
                     if results is not None:
                         i_object = kw_dict_mgr.list_keyword_info(kwd, api, results)
                         text += i_object['limited']
-                        text += '\n\nFull Info URL: {url}'.format(url=rec_info(i_object['full']))
+                        text += '\n\n完整資訊URL: {}'.format(rec_info(i_object['full']))
                     else:
                         text = error.main.miscellaneous(u'資料查詢主體為空。')
 
@@ -551,13 +551,16 @@ def handle_text_message(event):
 
                         if category == 'GRP':
                             sum_data = msg_track.count_sum()
+                            tracking_data = message_tracker.entry_detail_list(msg_track.order_by_recorded_msg_count(), gb)
+
                             text += u'訊息流量統計:'
                             text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg'], sum_data['stk_msg'])
                             text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg_trig'], sum_data['stk_msg_trig'])
                             text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_rep'], sum_data['stk_rep'])
 
                             text = u'\n\n群組訊息統計資料:\n'
-                            text += message_tracker.entry_detail_list(msg_track.order_by_recorded_msg_count(3), gb)
+                            text += tracking_data['limited']
+                            text += '\n\n完整資訊URL: {}'.format(rec_info(i_object['full']))
                         elif category == 'KW':
                             kwpct = kwd.row_count()
 
@@ -588,11 +591,11 @@ def handle_text_message(event):
 
                             text += u'\n\n使用次數最多的回覆組【{}次，{}組】:'.format(first[0][kwdict_col.used_count], len(first))
                             text += u'\n'.join(['ID: {} - {}'.format(entry[kwdict_col.id],
-                                                                     u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in first[0 : limit - 1]])
+                                                                     u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword]) for entry in first[0 : limit - 1]])
                             
                             text += u'\n\n使用次數最少的回覆組 【{}次，{}組】:'.format(last[0][kwdict_col.used_count], len(last))
                             text += u'\n'.join(['ID: {} - {}'.format(entry[kwdict_col.id],
-                                                                     u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in last[0 : limit - 1]])
+                                                                     u'(貼圖ID {})'.format(entry[kwdict_col.keyword]) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword]) for entry in last[0 : limit - 1]])
                             if last_count - limit > 0:
                                 text += u'\n...(還有{}組)'.format(last_count - limit)
                         elif category == 'SYS':

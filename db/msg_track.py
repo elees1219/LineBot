@@ -137,7 +137,7 @@ class message_tracker(object):
         results['stk_rep'] = sql_result[msg_track_col.stk_rep]
         return results
 
-    def order_by_recorded_msg_count(self, limit=10):
+    def order_by_recorded_msg_count(self, limit=1000):
         cmd = u'SELECT *, RANK() OVER (ORDER BY SUM(text_msg) + SUM(text_msg_trig) + SUM(stk_msg) + SUM(stk_msg_trig) DESC) AS total_msg FROM msg_track GROUP BY cid ORDER BY total_msg ASC LIMIT %(limit)s;'
         cmd_dict = {'limit': limit}
         
