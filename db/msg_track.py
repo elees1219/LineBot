@@ -67,7 +67,7 @@ class message_tracker(object):
         None listed code of Type of Event and Illegal channel id length will raise ValueError.
         """
         if len(cid) != self.channel_id_length:
-            raise ValueError();
+            raise ValueError(error.main.incorrect_thing_with_correct_format(u'頻道ID', u'33字元長度', cid));
         else:
             if type_of_event == 1:
                 update_last_message_recv = True
@@ -85,13 +85,18 @@ class message_tracker(object):
                 raise ValueError();
             
             column_to_add = _col_list[type_of_event]
+            
+            cmd = u'SELECT * FROM msg_track WHERE cid = %(cid)s'
+            cmd_dict = {'cid': cid}
+            result = self.sql_cmd(cmd, cmd_dict)
+            
+            if len(result) < 1:
+                self.new_data(cid)
 
             cmd = u'UPDATE msg_track SET {col} = {col} + 1{recv_time} WHERE cid = %(cid)s'.format(
                 recv_time=u', last_msg_recv = NOW()' if update_last_message_recv else u'',
                 col=column_to_add)
-            cmd_dict = {'cid': cid}
             self.sql_cmd(cmd, cmd_dict)
-            return True
         
     def new_data(self, cid):
         if len(cid) != self.channel_id_length:
@@ -110,7 +115,10 @@ class message_tracker(object):
             cmd = u'SELECT * FROM msg_track WHERE cid = %(cid)s'
             cmd_dict = {'cid': cid}
             result = self.sql_cmd(cmd, cmd_dict)
-            return result[0]
+            if len(result) > 0:
+                return result[0]
+            else:
+                return None
 
     def count_sum(self):
         """
@@ -179,7 +187,7 @@ class message_tracker(object):
             if count - limit > 0:
                 ret['limited'] += u'\n\n...還有{}筆資料'.format(count - limit)
 
-            ret['full'] = u', '.join([message_tracker.entry_detail(data, group_ban) for data in data_list])
+            ret['full'] = u'\n\n'.join([message_tracker.entry_detail(data, group_ban) for data in data_list])
         return ret
 
 
