@@ -512,7 +512,7 @@ def handle_text_message(event):
                     if results is not None:
                         i_object = kw_dict_mgr.list_keyword_info(kwd, api, results)
                         text += i_object['limited']
-                        text += '\n\n完整資訊URL: {}'.format(rec_info(i_object['full']))
+                        text += u'\n\n完整資訊URL: {}'.format(rec_info(i_object['full']))
                     else:
                         text = error.main.miscellaneous(u'資料查詢主體為空。')
 
