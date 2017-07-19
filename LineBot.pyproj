@@ -45,6 +45,9 @@
     <Compile Include="game\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tool\mff.py">
       <SubType>Code</SubType>
     </Compile>

@@ -9,6 +9,7 @@ from urlparse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
 from error import error
+import main
 from flask import Flask, request, abort, url_for
 
 # import for 'SHA'
@@ -21,9 +22,6 @@ import json
 
 # Database import
 from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col
-
-# tool import
-from tool import mff, random_gen
 
 # import from LINE MAPI
 from linebot import (
@@ -258,7 +256,7 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    # TODO: user manual P(out), I(out), RECV_STK (out)
+    command_executor = main.command(kwd)
 
     token = event.reply_token
     text = event.message.text
@@ -309,20 +307,7 @@ def handle_text_message(event):
                 
                 # SQL Command
                 if cmd == 'S':
-                    key = params.pop(1)
-                    sql = params[1]
-
-                    if isinstance(src, SourceUser) and permission_level(key) >= 3:
-                        results = kwd.sql_cmd_only(sql)
-                        text = u'資料庫指令:\n{}\n\n'.format(sql)
-                        if results is not None and len(results) > 0:
-                            text += u'輸出結果(共{}筆):'.format(len(results))
-                            for result in results:
-                                text += u'\n[{}]'.format(', '.join(str(s).decode('utf-8') for s in result))
-                        else:
-                            text += error.main.no_result()
-                    else:
-                        text = error.main.restricted(3)
+                    text = command_executor.S(params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # ADD keyword & ADD top keyword
@@ -752,8 +737,6 @@ def handle_text_message(event):
                     api_reply(token, [TextSendMessage(text=pert), TextSendMessage(text=text)], src)
                 # get CHAT id
                 elif cmd == 'H':
-                    text = get_source_channel_id(src)
-
                     if params[1] is not None:
                         uid = params[1]
                         line_profile = profile(uid)
