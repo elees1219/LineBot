@@ -7,6 +7,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from error import error
 from flask import Flask, request, abort, url_for
+from cgi import escape
 
 # import modules from main.py
 import main
@@ -254,7 +255,7 @@ def html_paragraph(content):
     return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
 
 def html_hyperlink(content, link):
-    return '<a href=\"{link}\">{content}</a>'.format(link=link, content=content)
+    return '<a href=\"{}\">{}</a>'.format(link, content)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
