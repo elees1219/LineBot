@@ -320,48 +320,10 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # DELETE keyword & DELETE top keyword
                 elif cmd == 'D' or cmd == 'R':
-                    org_text = text
-
-                    pinned = cmd_dict[cmd].non_user_permission_required
-                    deletor_uid = src.user_id
-                    if pinned and permission_level(paramA.pop(1)) < 2:
-                        text = error.main.restricted(2)
-                    elif not is_valid_user_id(deletor_uid):
-                        text = error.main.unable_to_receive_user_id()
+                    if cmd_dict[cmd].non_user_permission_required:
+                        text = command_executor.R(src, params, True)
                     else:
-                        if params[2] is None:
-                            kw = params[1]
-
-                            results = kwd.delete_keyword(kw, deletor_uid, pinned)
-                        else:
-                            action = params[1]
-
-                            if action == 'ID':
-                                pair_id = params[2]
-
-                                if string_is_int(pair_id):
-                                    results = kwd.delete_keyword_id(pair_id, deletor_uid, pinned)
-                                else:
-                                    results = None
-                                    text = error.main.incorrect_param(u'參數2', u'整數數字')
-                            else:
-                                results = None
-                                text = error.main.incorrect_param(u'參數1', u'ID')
-
-                    if results is not None and len(results) > 0:
-                        for result in results:
-                            line_profile = profile(result[kwdict_col.creator])
-
-                            text = u'已刪除回覆組。{}\n'.format(u'(置頂)' if pinned else '')
-                            text += kw_dict_mgr.entry_basic_info(result)
-                            text += u'\n此回覆組由 {} 製作。'.format(
-                                '(LINE account data not found)' if line_profile is None else line_profile.display_name)
-                    else:
-                        if string_is_int(kw):
-                            text = error.main.miscellaneous(u'偵測到參數1是整數。若欲使用ID作為刪除根據，請參閱小水母使用說明。')
-                        else:
-                            text = error.main.pair_not_exist_or_insuffieicnt_permission()
-
+                        text = command_executor.D(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # QUERY keyword
