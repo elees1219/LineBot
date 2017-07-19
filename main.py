@@ -66,6 +66,8 @@ class command(object):
 
     def A(self, src, params, pinned=False):
         """'A'DD Keyword Pair"""
+        new_uid = get_source_user_id(src)
+
         if params[4] is not None:
             action_kw = params[1]
             kw = params[2]
