@@ -9,7 +9,7 @@ from error import error
 from flask import Flask, request, abort, url_for
 
 # import some methods defined in app.py
-from app import permission_level
+from app import *
 
 # import for 'SHA'
 import hashlib 
