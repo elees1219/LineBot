@@ -636,6 +636,7 @@ class command_processor(object):
                 else:
                     text = u'找不到使用者ID - {} 的詳細資訊。'.format(uid)
         else:
+            text = get_source_channel_id(src)
             if isinstance(src, SourceUser):
                 source_type = u'頻道種類: 使用者(私訊)'
             elif isinstance(src, SourceGroup):
@@ -645,7 +646,7 @@ class command_processor(object):
             else:
                 source_type = u'頻道種類: 不明'
 
-        return text
+        return [source_type, text]
 
     def SHA(self, src, params):
         target = params[1]
@@ -946,9 +947,9 @@ def handle_text_message(event):
                     api_reply(token, [TextSendMessage(text=pert), TextSendMessage(text=text)], src)
                 # get CHAT id
                 elif cmd == 'H':
-                    text = command_executor.H(src, params)
+                    output = command_executor.H(src, params)
 
-                    api_reply(token, [TextSendMessage(text=source_type), TextSendMessage(text=text)], src)
+                    api_reply(token, [TextSendMessage(text=output[0]), TextSendMessage(text=output[1])], src)
                 # SHA224 generator
                 elif cmd == 'SHA':
                     text = command_executor.SHA(src, params)
