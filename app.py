@@ -854,9 +854,6 @@ def handle_text_message(event):
     
     msg_track.log_message_activity(get_source_channel_id(src), 1)
 
-    
-    print report_content['FullInfo']
-
     if text == administrator:
         rec['Silence'] = not rec['Silence']
         api.reply_message(token, TextSendMessage(text='Bot set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
