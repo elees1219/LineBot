@@ -759,6 +759,9 @@ def rec_query(full_query):
 def rec_info(full_info):
     timestamp = str(int(time.time()))
     report_content['FullInfo'][timestamp] = full_info
+    
+    print report_content['FullInfo']
+
     return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
 
 
