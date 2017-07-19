@@ -272,7 +272,7 @@ def handle_text_message(event):
     msg_track.log_message_activity(get_source_channel_id(src), 1)
 
     
-    print report_content.__hash__
+    print report_content['FullInfo']
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
@@ -764,7 +764,7 @@ def rec_info(full_info):
     timestamp = str(int(time.time()))
     report_content['FullInfo'][timestamp] = full_info
 
-    print report_content.__hash__
+    print report_content['FullInfo']
 
     return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
 
