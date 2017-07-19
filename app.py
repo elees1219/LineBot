@@ -220,8 +220,11 @@ def full_info(timestamp):
     rec['webpage'] += 1
     info = report_content['FullInfo'].get(timestamp)
     
+    print report_content['FullInfo']
+    print info
+    
     if info is None:
-        content = error.webpage.no_content_at_time('info query', float(timestamp))
+        content = error.webpage.no_content_at_time(u'要求資訊', float(timestamp))
     else:
         content = info
         
@@ -759,8 +762,6 @@ def rec_query(full_query):
 def rec_info(full_info):
     timestamp = str(int(time.time()))
     report_content['FullInfo'][timestamp] = full_info
-    
-    print report_content['FullInfo']
 
     return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
 
