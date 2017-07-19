@@ -165,7 +165,7 @@ class kw_dict_mgr(object):
             result = [entry[0] for entry in result]
             return result
         else:
-            return None
+            return []
 
     def user_sort_by_created_pair(self):
         cmd = u'SELECT creator, COUNT(creator) FROM keyword_dict GROUP BY creator ORDER BY COUNT(creator) DESC;'
