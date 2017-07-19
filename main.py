@@ -45,7 +45,7 @@ class command(object):
     def __init__(self, kw_dict_mgr):
         self.kwd = kw_dict_mgr
 
-    def S(self, params_array):
+    def S(self, src, params_array):
         """'S'QL Command"""
         key = params_array.pop(1)
         sql = params_array[1]

@@ -307,7 +307,7 @@ def handle_text_message(event):
                 
                 # SQL Command
                 if cmd == 'S':
-                    text = command_executor.S(params)
+                    text = command_executor.S(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # ADD keyword & ADD top keyword
