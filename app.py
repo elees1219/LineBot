@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import errno, os, sys, tempfile
-import traceback
+import errno, os, sys
 import validators
 import time
 from collections import defaultdict
-from urlparse import urlparse
-from cgi import escape
 from datetime import datetime, timedelta
 from error import error
-import main
 from flask import Flask, request, abort, url_for
+
+# import some methods defined in app.py
+from app import *
 
 # import for 'SHA'
 import hashlib 
@@ -21,7 +20,10 @@ import requests
 import json
 
 # Database import
-from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col
+from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_trk_col
+
+# tool import
+from tool import mff, random_gen
 
 # import from LINE MAPI
 from linebot import (
@@ -348,228 +350,27 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban basic (info)
                 elif cmd == 'G':
-                    if params[1] is not None:
-                        gid = params[1]
-                    else:
-                        gid = get_source_channel_id(src)
+                    text = command_executor.G(src, params)
 
-                    if params[1] is None and isinstance(src, SourceUser):
-                        text = error.main.incorrect_channel(False, True, True)
-                    else:
-                        if is_valid_room_group_id(gid):
-                            group_detail = gb.get_group_by_id(gid)
-
-                            uids = {u'管理員': group_detail[gb_col.admin], u'副管I': group_detail[gb_col.moderator1], 
-                                    u'副管II': group_detail[gb_col.moderator2], u'副管III': group_detail[gb_col.moderator3]}
-
-                            text = u'群組/房間頻道ID: {}\n'.format(gid)
-                            if group_detail is not None:
-                                text += u'\n自動回覆機能狀態【{}】'.format(u'已停用' if group_detail[gb_col.silence] else u'使用中')
-                                for txt, uid in uids.items():
-                                    if uid is not None:
-                                        prof = profile(uid)
-                                        text += u'\n\n{}: {}\n'.format(txt, error.main.line_account_data_not_found() if prof is None else prof.display_name)
-                                        text += u'{} 使用者ID: {}'.format(txt, uid)
-                            else:
-                                text += u'\n自動回覆機能狀態【使用中】'
-
-                            group_tracking_data = msg_track.get_data(gid)
-                            text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg], 
-                                                                                                group_tracking_data[msg_track_col.stk_msg])
-                            text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg_trig], 
-                                                                                             group_tracking_data[msg_track_col.stk_msg_trig])
-                            text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_rep], 
-                                                                            group_tracking_data[msg_track_col.stk_rep])
-                        else:
-                            text = error.main.invalid_thing_with_correct_format(u'群組/房間ID', u'R或C開頭，並且長度為33字元', gid)
-                    
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban advance
                 elif cmd == 'GA':
-                    error_no_action_fetch = 'No command fetched.\nWrong command, parameters or insufficient permission to use the function.'
-                    illegal_source = 'This function can be used in 1v1 CHAT only. Permission key required. Please contact admin.'
-                    
-                    perm_dict = {3: 'Permission: Bot Administrator',
-                                 2: 'Permission: Group Admin',
-                                 1: 'Permission: Group Moderator',
-                                 0: 'Permission: User'}
-                    perm = permission_level(params.pop(1))
-                    pert = perm_dict[perm]
-
-                    param_count = len(params) - params.count(None)
-
-                    if isinstance(src, SourceUser):
-                        text = error_no_action_fetch
-
-                        if perm >= 1 and param_count == 3:
-                            action = params[1]
-                            gid = params[2]
-                            pw = params[3]
-
-                            action_dict = {'SF': True, 'ST': False}
-                            status_silence = {True: 'disabled', False: 'enabled'}
-
-                            if action in action_dict:
-                                settarget = action_dict[action]
-
-                                if gb.set_silence(params[2], str(settarget), pw):
-                                    text = 'Group auto reply function has been {res}.\n\n'.format(res=status_silence[settarget].upper())
-                                    text += 'GID: {gid}'.format(gid=gid)
-                                else:
-                                    text = 'Group auto reply setting not changed.\n\n'
-                                    text += 'GID: {gid}'.format(gid=gid)
-                            else:
-                                text = 'Invalid action: {action}. Recheck User Manual.'.format(action=action)
-                        elif perm >= 2 and param_count == 5:
-                            action = params[1]
-                            gid = params[2]
-                            new_uid = params[3]
-                            pw = params[4]
-                            new_pw = params[5]
-
-                            action_dict = {'SA': gb.change_admin, 
-                                           'SM1': gb.set_mod1,
-                                           'SM2': gb.set_mod2,
-                                           'SM3': gb.set_mod3}
-                            pos_name = {'SA': 'Administrator',
-                                        'SM1': 'Moderator 1',
-                                        'SM2': 'Moderator 2',
-                                        'SM3': 'Moderator 3'}
-
-                            line_profile = profile(new_uid)
-
-                            if line_profile is not None:
-                                try:
-                                    if action_dict[action](gid, new_uid, pw, new_pw):
-                                        position = pos_name[action]
-
-                                        text = u'Group administrator has been changed.\n'
-                                        text += u'Group ID: {gid}\n\n'.format(gid=gid)
-                                        text += u'New {pos} User ID: {uid}\n'.format(uid=new_uid, pos=position)
-                                        text += u'New {pos} User Name: {unm}\n\n'.format(
-                                            unm=line_profile.display_name,
-                                            pos=position)
-                                        text += u'New {pos} Key: {npkey}\n'.format(npkey=new_pw, pos=position)
-                                        text += u'Please protect your key well!'
-                                    else:
-                                        text = '{pos} changing process failed.'
-                                except KeyError as Ex:
-                                    text = 'Invalid action: {action}. Recheck User Manual.'.format(action=action)
-                            else:
-                                text = 'Profile of \'User ID: {uid}\' not found.'.format(uid=new_uid)
-                        elif perm >= 3 and param_count == 4:
-                            action = params[1]
-                            gid = params[2]
-                            uid = params[3]
-                            pw = params[4]
-                            
-                            if action != 'N':
-                                text = 'Illegal action: {action}'.format(action=action)
-                            else:
-                                line_profile = profile(uid)
-
-                                if line_profile is not None:
-                                    if gb.new_data(gid, uid, pw):
-                                        text = u'Group data registered.\n'
-                                        text += u'Group ID: {gid}'.format(gid=gid)
-                                        text += u'Admin ID: {uid}'.format(uid=uid)
-                                        text += u'Admin Name: {name}'.format(gid=line_profile.display_name)
-                                    else:
-                                        text = 'Group data register failed.'
-                                else:
-                                    text = 'Profile of \'User ID: {uid}\' not found.'.format(uid=new_uid)
-                    else:
-                        text = illegal_source
+                    text = command_executor.GA(src, params)
 
                     api_reply(token, [TextSendMessage(text=pert), TextSendMessage(text=text)], src)
                 # get CHAT id
                 elif cmd == 'H':
-                    if params[1] is not None:
-                        uid = params[1]
-                        line_profile = profile(uid)
-                        
-                        source_type = u'使用者詳細資訊'
-
-                        if not is_valid_user_id(uid):
-                            text = error.main.invalid_thing_with_correct_format(u'使用者ID', u'U開頭，並且長度為33字元', uid)
-                        else:
-                            if line_profile is not None:
-                                kwid_arr = kwd.user_created_id_array(uid)
-                                if len(kwid_arr) < 1:
-                                    kwid_arr = [u'無']
-
-                                text = u'使用者ID: {}\n'.format(uid)
-                                text += u'使用者名稱: {}\n'.format(line_profile.display_name)
-                                text += u'使用者頭貼網址: {}\n'.format(line_profile.picture_url)
-                                text += u'使用者狀態訊息: {}\n\n'.format(line_profile.status_message)
-                                text += u'使用者製作的回覆組ID: {}'.format(u', '.join(map(unicode, kwid_arr)))
-                            else:
-                                text = u'找不到使用者ID - {} 的詳細資訊。'.format(uid)
-                    else:
-                        if isinstance(src, SourceUser):
-                            source_type = u'頻道種類: 使用者(私訊)'
-                        elif isinstance(src, SourceGroup):
-                            source_type = u'頻道種類: 群組'
-                        elif isinstance(src, SourceRoom):
-                            source_type = u'頻道種類: 房間'
-                        else:
-                            source_type = u'頻道種類: 不明'
+                    text = command_executor.H(src, params)
 
                     api_reply(token, [TextSendMessage(text=source_type), TextSendMessage(text=text)], src)
                 # SHA224 generator
                 elif cmd == 'SHA':
-                    target = params[1]
-
-                    if target != None:
-                        text = hashlib.sha224(target.encode('utf-8')).hexdigest()
-                    else:
-                        text = 'Illegal Parameter to generate SHA224 hash.'
+                    text = command_executor.SHA(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Look up vocabulary in OXFORD Dictionary
                 elif cmd == 'O':
-                    voc = params[1]
-
-                    if oxford_disabled:
-                        text = u'Dictionary look up function has disabled because of illegal Oxford API key or ID.'
-                    else:
-                        j = oxford_json(voc)
-
-                        if type(j) is int:
-                            code = j
-
-                            text = u'Dictionary look up process returned status code: {status_code} ({explanation}).'.format(
-                                status_code=code,
-                                explanation=httplib.responses[code])
-                        else:
-                            text = u''
-                            section_splitter = '.................................................................'
-
-                            lexents = j['results'][0]['lexicalEntries']
-                            for lexent in lexents:
-                                text += u'=={} ({})=='.format(lexent['text'], lexent['lexicalCategory'])
-                                
-                                lexentarr = lexent['entries']
-                                for lexentElem in lexentarr:
-                                    sens = lexentElem['senses']
-                                    
-                                    text += u'\nDefinition:'
-                                    for index, sen in enumerate(sens, start=1):
-                                        if 'definitions' in sen:
-                                            for de in sen['definitions']:
-                                                text += u'\n{}. {} {}'.format(index, de, u'({})'.format(u', '.join(sen['registers'])) if u'registers' in sen else u'')
-                                                
-                                        if 'crossReferenceMarkers' in sen:
-                                            for crm in sen['crossReferenceMarkers']:
-                                                text += u'\n{}. {} (Cross Reference Marker)'.format(index, crm)
-                                        
-                                        if 'examples' in sen:
-                                            for ex in sen['examples']:
-                                                text += u'\n------{}'.format(ex['text'].decode("utf-8"))
-
-                                text += '\n{}\n'.format(section_splitter)
-
-                            text += u'Powered by Oxford Dictionary.'
+                    text = command_executor.O(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Leave group or room
@@ -588,36 +389,12 @@ def handle_text_message(event):
                             api.leave_group(cid)
                 # RANDOM draw
                 elif cmd == 'RD':
-                    if params[2] is not None:
-                        start_index = params[1]
-                        end_index = params[2]
-                        if not start_index.isnumeric():
-                            text = error.main.invalid_thing_with_correct_format(u'起始抽籤數字', u'整數', start_index)
-                        elif not end_index.isnumeric():
-                            text = error.main.invalid_thing_with_correct_format(u'終止抽籤數字', u'整數', start_index)
-                        else:
-                            text = u'抽籤範圍【{}~{}】\n抽籤結果【{}】'.format(start_index, end_index, random_gen.random_drawer.draw_number(start_index, end_index))
-                    elif params[1] is not None:
-                        if '\n' in params[1]:
-                            text_list = params[1].split('\n')
-                            text = u'抽籤範圍【{}】\n抽籤結果【{}】'.format(', '.join(text_list), random_gen.random_drawer.draw_text(text_list))
-                        elif params[1].endswith('%') and params[1].count('%') == 1:
-                            text = u'抽籤機率【{}】\n抽籤結果【{}】'.format(
-                                params[1], 
-                                u'恭喜中獎' if random_gen.random_drawer.draw_probability(float(params[1].replace('%', '')) / 100.0) else u'銘謝惠顧')
-                        else:
-                            text = error.main.invalid_thing(u'參數1', params[1])
-                    else:
-                        text = error.main.lack_of_thing(u'參數')
+                    text = command_executor.RD(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # last STICKER message
                 elif cmd == 'STK':
-                    last_sticker = rec['last_stk'][get_source_channel_id(src)]
-                    if last_sticker is not None:
-                        text = u'最後一個貼圖的貼圖ID為{}。'.format(last_sticker)
-                    else:
-                        text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。'
+                    text = command_executor.STK(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:

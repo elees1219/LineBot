@@ -158,7 +158,6 @@ class message_tracker(object):
     @staticmethod
     def entry_detail(data, group_ban=None):
         gid = data[msg_track_col.cid]
-        print data
 
         if group_ban is not None:
             if gid.startswith('U'):
