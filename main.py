@@ -45,10 +45,10 @@ class command(object):
     def __init__(self, kw_dict_mgr):
         self.kwd = kw_dict_mgr
 
-    def S(self, src, params_array):
+    def S(self, src, params):
         """'S'QL Command"""
-        key = params_array.pop(1)
-        sql = params_array[1]
+        key = params.pop(1)
+        sql = params[1]
 
         if isinstance(src, SourceUser) and permission_level(key) >= 3:
             results = self.kwd.sql_cmd_only(sql)
@@ -64,7 +64,7 @@ class command(object):
 
         return text
 
-    def A(self, src, params_array, pinned=False):
+    def A(self, src, params, pinned=False):
         """'A'DD Keyword Pair"""
         if params[4] is not None:
             action_kw = params[1]
@@ -137,13 +137,13 @@ class command(object):
 
         return text
 
-    def M(self, src, params_array, pinned):
+    def M(self, src, params, pinned):
         """'M'AKE pinned Keyword Pair"""
         if pinned and permission_level(params.pop(1)) < 1:
             text = error.main.restricted(1)
         elif not is_valid_user_id(new_uid):
             text = error.main.unable_to_receive_user_id()
         else:
-            text = self.A(src, params_array)
+            text = self.A(src, params)
 
             return text
