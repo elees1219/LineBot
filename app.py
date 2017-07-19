@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 from error import error
 from flask import Flask, request, abort, url_for
 
-# import some methods defined in app.py
-from app import *
+# import modules from main.py
+import main
 
 # import for 'SHA'
 import hashlib 
