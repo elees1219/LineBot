@@ -271,6 +271,9 @@ def handle_text_message(event):
     
     msg_track.log_message_activity(get_source_channel_id(src), 1)
 
+    
+    print report_content.__hash__
+
     if text == administrator:
         rec['Silence'] = not rec['Silence']
         api.reply_message(token, TextSendMessage(text='Bot set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
@@ -760,6 +763,8 @@ def rec_query(full_query):
 def rec_info(full_info):
     timestamp = str(int(time.time()))
     report_content['FullInfo'][timestamp] = full_info
+
+    print report_content.__hash__
 
     return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
 
