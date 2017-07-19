@@ -767,7 +767,8 @@ def handle_text_message(event):
                                 text = u'使用者ID: {}\n'.format(uid)
                                 text += u'使用者名稱: {}\n'.format(line_profile.display_name)
                                 text += u'使用者頭貼網址: {}\n'.format(line_profile.picture_url)
-                                text += u'使用者狀態訊息: {}'.format(line_profile.status_message)
+                                text += u'使用者狀態訊息: {}\n\n'.format(line_profile.status_message)
+                                text += u'使用者製作的回覆組ID: {}'.format(u', '.join(kwd.user_created_id_array(uid)))
                             else:
                                 text = u'找不到使用者ID - {} 的詳細資訊。'.format(uid)
                     else:

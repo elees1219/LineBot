@@ -157,6 +157,16 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd, cmd_dict)
         return result
 
+    def user_created_id_array(self, uid):
+        cmd = u'SELECT id FROM keyword_dict WHERE creator = %(uid)s ORDER BY id ASC'
+        cmd_dict = {'uid': uid}
+        result = self.sql_cmd(cmd, cmd_dict)
+        if len(result) > 0:
+            result = [entry[0] for entry in result]
+            return result
+        else:
+            return None
+
     def user_sort_by_created_pair(self):
         cmd = u'SELECT creator, COUNT(creator) FROM keyword_dict GROUP BY creator ORDER BY COUNT(creator) DESC;'
         result = self.sql_cmd_only(cmd)
