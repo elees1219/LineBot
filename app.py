@@ -256,7 +256,7 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    command_executor = main.command(kwd)
+    command_executor = main.command(kwd, gb, msg_track)
 
     token = event.reply_token
     text = event.message.text
