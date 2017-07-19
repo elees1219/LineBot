@@ -20,7 +20,7 @@ import requests
 import json
 
 # Database import
-from db import kw_dict_mgr, self.kwdict_col, group_ban, gb_col, message_tracker, msg_track_col
+from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col
 
 # tool import
 from tool import mff, random_gen
