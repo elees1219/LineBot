@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import errno, os, sys
+import errno, os, sys, tempfile
+import traceback
 import validators
 import time
 from collections import defaultdict
+from urlparse import urlparse
+from cgi import escape
 from datetime import datetime, timedelta
 from error import error
 from flask import Flask, request, abort, url_for
-from cgi import escape
 
 # import modules from main.py
 import main
@@ -268,9 +270,6 @@ def handle_text_message(event):
     splitter_mff = '\n'
     
     msg_track.log_message_activity(get_source_channel_id(src), 1)
-
-    
-    print report_content['FullInfo']
 
     if text == administrator:
         rec['Silence'] = not rec['Silence']
