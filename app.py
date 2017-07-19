@@ -764,11 +764,15 @@ def handle_text_message(event):
                             text = error.main.invalid_thing_with_correct_format(u'使用者ID', u'U開頭，並且長度為33字元', uid)
                         else:
                             if line_profile is not None:
+                                kwid_arr = kwd.user_created_id_array(uid)
+                                if len(kwid_arr) < 1:
+                                    kwid_arr = [u'無']
+
                                 text = u'使用者ID: {}\n'.format(uid)
                                 text += u'使用者名稱: {}\n'.format(line_profile.display_name)
                                 text += u'使用者頭貼網址: {}\n'.format(line_profile.picture_url)
                                 text += u'使用者狀態訊息: {}\n\n'.format(line_profile.status_message)
-                                text += u'使用者製作的回覆組ID: {}'.format(u', '.join(kwd.user_created_id_array(uid)))
+                                text += u'使用者製作的回覆組ID: {}'.format(u', '.join(map(str, kwid_arr)))
                             else:
                                 text = u'找不到使用者ID - {} 的詳細資訊。'.format(uid)
                     else:
