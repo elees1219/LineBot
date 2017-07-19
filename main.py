@@ -51,7 +51,7 @@ class command(object):
         sql = params[1]
 
         if isinstance(src, SourceUser) and permission_level(key) >= 3:
-            results = self.kwd.sql_cmd_only(sql)
+            results = self.self.kwd.sql_cmd_only(sql)
             text = u'資料庫指令:\n{}\n\n'.format(sql)
             if results is not None and len(results) > 0:
                 text += u'輸出結果(共{}筆):'.format(len(results))
@@ -89,7 +89,7 @@ class command(object):
                     url_val_result = url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
 
                 if type(url_val_result) is bool and url_val_result:
-                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, True)
+                    results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, True, True)
                 else:
                     results = None
                     text = error.main.incorrect_param(u'參數4', u'HTTPS協定，並且是合法的網址。')
@@ -106,7 +106,7 @@ class command(object):
                     url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
 
                 if type(url_val_result) is bool and url_val_result:
-                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
+                    results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
                 else:
                     results = None
                     text = error.main.incorrect_param(u'參數3', u'HTTPS協定，並且是合法的網址。')
@@ -114,7 +114,7 @@ class command(object):
                 kw = params[2]
 
                 if string_is_int(kw):
-                    results = kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
+                    results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
                 else:
                     results = None
                     text = error.main.incorrect_param(u'參數2', u'整數數字')
@@ -125,7 +125,7 @@ class command(object):
             kw = params[1]
             rep = params[2]
 
-            results = kwd.insert_keyword(kw, rep, new_uid, pinned, False, False)
+            results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, False, False)
         else:
             results = None
             text = error.main.lack_of_thing(u'參數')
