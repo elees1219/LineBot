@@ -761,8 +761,7 @@ class command_processor(object):
                     text = u'猜拳遊戲已刪除。'
                 elif action == u'RST':
                     rps_obj = game_object['rps'][cid]
-                    print rps_obj
-                    if rps_obj is not None:
+                    if rps_obj is not None and isinstance(rps_obj, game.rps):
                         rps_obj.reset_statistics()
                         text = u'猜拳遊戲統計資料已重設。'
                     else:
@@ -771,7 +770,7 @@ class command_processor(object):
                     text = error.main.incorrect_param(u'參數1', u'DEL')
             else:
                 rps_obj = game_object['rps'][cid]
-                if rps_obj is not None:
+                if rps_obj is not None and isinstance(rps_obj, game.rps):
                     if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
                         text = u'\n\n'
                         text += game.rps.player_stats_text(rps_obj.player_dict)
