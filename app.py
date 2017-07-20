@@ -1123,7 +1123,7 @@ def handle_sticker_message(event):
             else:
                 text = rps_obj.result_analyze()
 
-        api_reply(reply_token, TextSendMessage(text=text), src)
+        api_reply(rep, TextSendMessage(text=text), src)
     else:
         if isinstance(event.source, SourceUser):
             results = kwd.get_reply(sticker_id, True)
