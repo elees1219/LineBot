@@ -752,6 +752,7 @@ class command_processor(object):
             if rps_obj_reg_result is None:
                 text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}\n'.format(scissor, rock, paper)
                 game_object['rps'][cid] = rps_obj
+                print game_object
             else:
                 text = rps_obj_reg_result
         elif params[1] is not None:
@@ -1116,8 +1117,6 @@ def handle_sticker_message(event):
 
     rec['last_stk'][cid] = sticker_id
     rps_obj = game_object['rps'].get(cid)
-    print game_object
-    print rps_obj
     msg_track.log_message_activity(cid, 3)
 
     if rps_obj is not None and rps_obj.in_battle_dict(sticker_id):
