@@ -112,7 +112,7 @@ class rps(object):
         player_obj = self._player_dict.get(player_uid)
         if player_obj is not None:
             self._player1 = player_obj
-            player_obj.last_item = self._battle_dict[item]
+            self._player1.last_item = item
             self._play_begin_time = time.time()
 
             if self._vs_bot:
@@ -124,7 +124,7 @@ class rps(object):
         player_obj = self._player_dict.get(player_uid)
         if player_obj is not None:
             self._player2 = player_obj
-            player_obj.last_item = self._battle_dict[item]
+            self._player1.last_item = item
             self._gap_time = time.time() - self._play_begin_time
             self._play_entered = False
             self._calculate_result()

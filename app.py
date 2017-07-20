@@ -1395,13 +1395,16 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 def minigame_rps_capturing(rps_obj, is_sticker, content):
     if rps_obj is not None:
         battle_item = rps_obj.find_battle_item(is_sticker, content)
-        print battle_item
         if battle_item is not game.battle_item.none:
             result = rps_obj.play(battle_item, 1 if rps_obj.is_waiting_next else 2)
-            print result
             if result is not None:
                 return result
             else:
+                print rps_obj.is_waiting_next
+                print rps_obj.result_generated
+                print rps_obj._player1
+                print rps_obj._player2
+
                 if rps_obj.is_waiting_next:
                     return u'等待下一個玩家出拳中...'
                 if rps_obj.result_generated:
