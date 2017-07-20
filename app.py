@@ -290,7 +290,7 @@ class command_processor(object):
 
         if results is not None and len(results) > 0:
             for result in results:
-                line_profile = profile(result[self.kwdict_col.creator])
+                line_profile = profile(result[kwdict_col.creator])
 
                 text = u'已刪除回覆組。{}\n'.format(u'(置頂)' if pinned else '')
                 text += kw_dict_mgr.entry_basic_info(result)
@@ -1393,6 +1393,8 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 
 
 def minigame_rps_capturing(rps_obj, is_sticker, content):
+    print rps_obj
+    print game_object
     if rps_obj is not None:
         battle_item = rps_obj.find_battle_item(is_sticker, content)
         if battle_item is not game.battle_item.none:
