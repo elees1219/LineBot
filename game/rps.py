@@ -35,17 +35,17 @@ class rps(object):
             return self._play1(item, player)
 
     def result_analyze(self):
-        if result_enum == battle_result.tie:
+        if self._result_enum == battle_result.tie:
             text = u'平手'
-        elif result_enum == battle_result.win1:
+        elif self._result_enum == battle_result.win1:
             text = u'{} 勝利'.format(self._player1_name)
-        elif result_enum == battle_result.win2:
+        elif self._result_enum == battle_result.win2:
             text = u'{} 勝利'.format(self._player2_name)
         else:
             raise ValueError(error.main.invalid_thing(u'猜拳結果', result_enum))
 
         if instance_rps is not None:
-            text += u'\n\n兩拳間格時間 {:.2f} 秒'.format(instance_rps._gap_time)
+            text += u'\n\n兩拳間格時間 {:.2f} 秒'.format(self._gap_time)
 
         return text
 
@@ -62,7 +62,7 @@ class rps(object):
 
             if self._vs_bot:
                 self._gap_time = 0
-                return self._play2(random_gen.random_drawer.draw_number(1, 3), u'(Auto)')
+                self._play2(random_gen.random_drawer.draw_number(1, 3), u'(Auto)')
             else:
                 self._play_entered = True
                 self._play_begin_time = time.time()
@@ -75,7 +75,7 @@ class rps(object):
             self._play2 = self._battle_dict[item]
             self._player2_name = player
             self._gap_time = time.time() - self._play_begin_time
-            return self._calculate_result()
+            self._calculate_result()
         except KeyError:
             pass
 
@@ -83,7 +83,7 @@ class rps(object):
         result = int(self._play1) - int(self._play2)
         result = result % 3
         self._play_entered = False
-        return battle_result(result)
+        self._result_enum = battle_result(result)
 
     @property
     def gap_time(self):
