@@ -28,6 +28,9 @@ from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_
 # tool import
 from tool import mff, random_gen
 
+# games import
+from game import rps
+
 # import from LINE MAPI
 from linebot import (
     LineBotApi, WebhookHandler, exceptions
@@ -60,6 +63,7 @@ report_content = {'Error': {},
                   'FullQuery': {}, 
                   'FullInfo': {},
                   'Text': {}}
+game_object = {'rps': defaultdict(str)}
 
 class command(object):
     def __init__(self, min_split=2, max_split=2, non_user_permission_required=False):
@@ -110,7 +114,8 @@ cmd_dict = {'S': command(1, 1, True),
             'O': command(1, 1, False), 
             'B': command(0, 0, False), 
             'RD': command(1, 2, False),
-            'STK': command(0, 0, False)}
+            'STK': command(0, 0, False),
+            'RPS': command(3, 3, False)}
 
 # Line Bot Environment initialization
 MAIN_UID_OLD = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
@@ -611,7 +616,7 @@ class command_processor(object):
         else:
             text = error.main.incorrect_channel()
 
-        return text
+        return pert, text
 
     def H(self, src, params):
         if params[1] is not None:
@@ -734,6 +739,32 @@ class command_processor(object):
             text = u'最後一個貼圖的貼圖ID為{}。'.format(last_sticker)
         else:
             text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。'
+
+        return text
+
+    def RPS(self, src, params):
+        if params[3] is not None:
+            cid = get_source_channel_id(src)
+            scissor = params[1]
+            rock = params[2]
+            paper = params[3]
+
+            rps_obj = rps(True if isinstance(src, SourceUser) else False)
+            rps_obj_reg_result = rps_obj.register(rock, paper, scissor)
+            if rps_obj_reg_result is None:
+                text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}\n'.format(scissor, rock, paper)
+                game_object['rps'][cid] = rps_obj
+            else:
+                text = rps_obj_reg_result
+        elif params[1] is not None:
+            if params[1] == 'DEL':
+                text = u'猜拳遊戲已刪除。'
+                
+                game_object['rps'][cid] = None
+            else:
+                text = error.main.lack_of_thing(u'參數')
+        else:
+            text = error.main.lack_of_thing(u'參數')
 
         return text
 
@@ -941,9 +972,9 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban advance
                 elif cmd == 'GA':
-                    text = command_executor.GA(src, params)
+                    texts = command_executor.GA(src, params)
 
-                    api_reply(token, [TextSendMessage(text=pert), TextSendMessage(text=text)], src)
+                    api_reply(token, [TextSendMessage(text=text) for text in texts], src)
                 # get CHAT id
                 elif cmd == 'H':
                     text = command_executor.H(src, params)
@@ -981,6 +1012,11 @@ def handle_text_message(event):
                 # last STICKER message
                 elif cmd == 'STK':
                     text = command_executor.STK(src, params)
+
+                    api_reply(token, TextSendMessage(text=text), src)
+                # GAME - Rock-Paper-Scissor
+                elif cmd == 'RPS':
+                    text = command_executor.RPS(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
@@ -1081,26 +1117,41 @@ def handle_sticker_message(event):
     cid = get_source_channel_id(src)
 
     rec['last_stk'][cid] = sticker_id
+    rps_obj = game_object['rps'].get(cid)
     msg_track.log_message_activity(cid, 3)
 
-    if isinstance(event.source, SourceUser):
-        results = kwd.get_reply(sticker_id, True)
-        
-        if results is not None:
-            kwdata = u'相關回覆組ID: {id}。\n'.format(id=u', '.join([unicode(result[kwdict_col.id]) for result in results]))
+    if rps_obj is not None and rps_obj.in_battle_dict(sticker_id):
+        rps_obj.play(sticker_id, profile(get_source_user_id(src)))
+        if rps_obj.vs_bot:
+            text = rps_obj.result_analyze()
         else:
-            kwdata = u'無相關回覆組ID。\n'
+            if rps_obj.player2 is None:
+                text = u'玩家1({})已出拳，等候下一位出拳中...'.format(rps_obj.player1)
+            else:
+                text = rps_obj.result_analyze()
 
-        api_reply(
-            rep,
-            [TextSendMessage(text=kwdata + u'貼圖圖包ID: {}\n貼圖圖片ID: {}'.format(package_id, sticker_id)),
-             TextSendMessage(text=u'圖片路徑(Android):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{}\\{}'.format(package_id, sticker_id)),
-             TextSendMessage(text=u'圖片路徑(Windows):\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{}\\{}'.format(package_id, sticker_id)),
-             TextSendMessage(text=u'圖片路徑(網路):\n{}'.format(sticker_png_url(sticker_id)))],
-            src
-        )
+        api_reply(reply_token, TextSendMessage(text=text), src)
     else:
-        reply_message_by_keyword(cid, rep, sticker_id, True, src)
+        if isinstance(event.source, SourceUser):
+            results = kwd.get_reply(sticker_id, True)
+            
+            if results is not None:
+                kwdata = u'相關回覆組ID: {id}。\n'.format(id=u', '.join([unicode(result[kwdict_col.id]) for result in results]))
+            else:
+                kwdata = u'無相關回覆組ID。\n'
+
+            api_reply(
+                rep,
+                [TextSendMessage(text=kwdata + u'貼圖圖包ID: {}\n貼圖圖片ID: {}'.format(package_id, sticker_id)),
+                 TextSendMessage(text=u'圖片路徑(Android):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{}\\{}'.format(package_id, sticker_id)),
+                 TextSendMessage(text=u'圖片路徑(Windows):\nC:\\Users\\USER_NAME\\AppData\\Local\\LINE\\Data\\Sticker\\{}\\{}'.format(package_id, sticker_id)),
+                 TextSendMessage(text=u'圖片路徑(網路):\n{}'.format(sticker_png_url(sticker_id)))],
+                src
+            )
+        else:
+            reply_message_by_keyword(cid, rep, sticker_id, True, src)
+
+
 
 
 # Incomplete

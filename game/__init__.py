@@ -1,3 +1,3 @@
 from .rps import (
-    rps
+    rps, battle_item, battle_result
 )

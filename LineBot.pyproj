@@ -45,7 +45,10 @@
     <Compile Include="game\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="main.py">
+    <Compile Include="msg_handle\text.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="msg_handle\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tool\mff.py">
@@ -64,6 +67,7 @@
   <ItemGroup>
     <Folder Include="db\" />
     <Folder Include="game\" />
+    <Folder Include="msg_handle\" />
     <Folder Include="tool\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
