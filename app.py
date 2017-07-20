@@ -755,15 +755,30 @@ class command_processor(object):
             else:
                 text = rps_obj_reg_result
         elif params[1] is not None:
-            if params[1] == 'DEL':
-                text = u'猜拳遊戲已刪除。'
-                
+            action = params[1]
+            if action == u'DEL':
                 game_object['rps'][cid] = None
-            else:
-                text = error.main.lack_of_thing(u'參數')
-        else:
-            text = error.main.lack_of_thing(u'參數')
 
+                text = u'猜拳遊戲已刪除。'
+            elif action == u'RST':
+                game_object['rps'][cid].reset_statistics()
+                text = u'猜拳遊戲統計資料已重設。'
+            else:
+                text = error.main.incorrect_param(u'參數1', u'DEL')
+        else:
+            rps_obj = game_object['rps'][cid]
+            if rps_obj is not None:
+                if rps_obj.battle_dict is not None:
+                    text = u'剪刀貼圖ID: {}'.format(rps_obj.battle_dict.keys()[battle_dict.values().index(rps.battle_item.scissor)])
+                    text += u'\n石頭貼圖ID: {}'.format(rps_obj.battle_dict.keys()[battle_dict.values().index(rps.battle_item.rock)])
+                    text += u'\n布貼圖ID: {}'.format(rps_obj.battle_dict.keys()[battle_dict.values().index(rps.battle_item.paper)])
+                    text += u'\n\n玩家1: {} ({}勝)'.format(rps_obj.player1_name, rps_obj.player1_win)
+                    text += u'\n玩家2{} ({}勝}'.format(rps_obj.player2_name, rps_obj.player2_win)
+                    text += u'\n平手次數: {}'.format(rps_obj.tied)
+                else:
+                    text = error.main.miscellaneous(u'尚未註冊與剪刀石頭布對應的貼圖。')
+            else:
+                text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
         return text
 
 
@@ -1050,7 +1065,7 @@ def handle_text_message(event):
                 
                 api_reply(token, TextSendMessage(text=text), src)
         else:
-            replied = reply_message_by_keyword(get_source_channel_id(src), token, text, False, src)
+            replied = auto_reply_system(token, text, False, src)
 
             if text.startswith('JC') and ' ' in text and not replied:
                 text = error.main.insufficient_space_for_command();
@@ -1139,7 +1154,7 @@ def handle_sticker_message(event):
                 src
             )
         else:
-            reply_message_by_keyword(cid, rep, sticker_id, True, src)
+            auto_reply_system(rep, sticker_id, True, src)
 
 
 
@@ -1341,36 +1356,41 @@ def intercept_text(event):
     print '==========================================='
 
 
-def reply_message_by_keyword(channel_id, token, keyword, is_sticker_kw, src):
-        if gb.is_group_set_to_silence(channel_id):
-            return False
+def auto_reply_system(token, keyword, is_sticker_kw, src):
+    cid = get_source_channel_id(src)
 
-        res = kwd.get_reply(keyword, is_sticker_kw)
-        if res is not None:
-            msg_track.log_message_activity(get_source_channel_id(src), 4 if is_sticker_kw else 2)
-            result = res[0]
-            reply = result[kwdict_col.reply].decode('utf-8')
-
-            if result[kwdict_col.is_pic_reply]:
-                line_profile = profile(result[kwdict_col.creator])
-
-                api_reply(token, TemplateSendMessage(
-                    alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
-                    template=ButtonsTemplate(text=u'ID: {id}\nCreated by {creator}.'.format(
-                        creator=u'(LINE account data not found)' if line_profile is None else line_profile.display_name,
-                        id=result[kwdict_col.id]), 
-                                             thumbnail_image_url=reply,
-                                             actions=[
-                                                 URITemplateAction(label=u'Original Picture', uri=reply)
-                                             ])), src)
-                return True
-            else:
-                api_reply(token, 
-                          TextSendMessage(text=reply),
-                          src)
-                return True
-
+    if gb.is_group_set_to_silence(cid):
         return False
+
+    res = kwd.get_reply(keyword, is_sticker_kw)
+    if res is not None:
+        msg_track.log_message_activity(get_source_channel_id(src), 4 if is_sticker_kw else 2)
+        result = res[0]
+        reply = result[kwdict_col.reply].decode('utf-8')
+
+        if result[kwdict_col.is_pic_reply]:
+            line_profile = profile(result[kwdict_col.creator])
+
+            api_reply(token, TemplateSendMessage(
+                alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
+                template=ButtonsTemplate(text=u'ID: {}\nCreated by {}.'.format(
+                    u'(LINE account data not found)' if line_profile is None else line_profile.display_name,
+                    result[kwdict_col.id]), 
+                                         thumbnail_image_url=reply,
+                                         actions=[
+                                             URITemplateAction(label=u'Original Picture', uri=reply)
+                                         ])), src)
+            return True
+        else:
+            api_reply(token, 
+                      TextSendMessage(text=reply),
+                      src)
+            return True
+
+    return False
+
+
+def minigame_rps_capturing(channel_id, token, is_sticker, content)
 
 
 def rec_error(details, channel_id):
