@@ -775,7 +775,7 @@ class command_processor(object):
                     text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
         else:
             text = error.main.miscellaneous(u'因功能尚未健全，故本功能暫時無法在房間、群組頻道中使用，不便之處請見諒。')
-            # TODO: multi-player in group
+            # TODO: multi-player in group, register new representative, register new player
 
         return text
 
@@ -1425,8 +1425,6 @@ def rec_query(full_query):
 def rec_info(full_info):
     timestamp = str(int(time.time()))
     report_content['FullInfo'][timestamp] = full_info
-
-    print report_content['FullInfo']
 
     return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
 
