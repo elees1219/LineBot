@@ -951,7 +951,7 @@ def handle_text_message(event):
                 # DELETE keyword & DELETE top keyword
                 elif cmd == 'D' or cmd == 'R':
                     if cmd_dict[cmd].non_user_permission_required:
-                        text = command_executor.R(src, params, True)
+                        text = command_executor.R(src, params)
                     else:
                         text = command_executor.D(src, params)
 
