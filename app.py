@@ -268,6 +268,7 @@ class command_processor(object):
         return text
 
     def D(self, src, params, pinned=False):
+        deletor_uid = get_source_user_id(src)
         if params[2] is None:
             kw = params[1]
 
