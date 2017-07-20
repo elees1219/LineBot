@@ -25,6 +25,8 @@ class rps(object):
         self._battle_dict = {rock: battle_item.rock,
                              paper: battle_item.paper,
                              scissor: battle_item.scissor}
+        
+        self._play_entered = False
 
     def play(self, item, player):
         if self._play_entered:
