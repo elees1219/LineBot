@@ -101,7 +101,7 @@ class rps(object):
             player.reset_statistics() 
 
     def find_battle_item(self, is_sticker, content):
-        for battle_item_key, representatives in self._battle_dict:
+        for battle_item_key, representatives in self._battle_dict.iteritems():
             for representative in representatives:
                 if representative.is_sticker == is_sticker and representative.content == content:
                     return battle_item_key
