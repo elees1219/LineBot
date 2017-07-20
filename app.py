@@ -1393,12 +1393,12 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 
 
 def minigame_rps_capturing(rps_obj, is_sticker, content):
-    print rps_obj
-    print game_object
     if rps_obj is not None:
         battle_item = rps_obj.find_battle_item(is_sticker, content)
+        print battle_item
         if battle_item is not game.battle_item.none:
             result = rps_obj.play(battle_item, 1 if rps_obj.is_waiting_next else 2)
+            print result
             if result is not None:
                 return result
             else:
