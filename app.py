@@ -26,7 +26,7 @@ from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_
 from tool import mff, random_gen
 
 # games import
-from game import rps
+import game
 
 # import from LINE MAPI
 from linebot import (
@@ -156,7 +156,8 @@ oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + langu
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-# TODO: Move to main.py
+# TDOD: User manual log all commands before moving
+# TODO: Move msg_handle
 class command_processor(object):
     def __init__(self, kw_dict_mgr, group_ban, msg_trk):
         self.kwd = kw_dict_mgr
@@ -741,44 +742,46 @@ class command_processor(object):
         return text
 
     def RPS(self, src, params, game_object):
-        if params[3] is not None:
-            cid = get_source_channel_id(src)
-            scissor = params[1]
-            rock = params[2]
-            paper = params[3]
+        if isinstance(src, SourceUser):
+            if params[3] is not None:
+                cid = get_source_channel_id(src)
+                scissor = params[1]
+                rock = params[2]
+                paper = params[3]
 
-            rps_obj = rps(True if isinstance(src, SourceUser) else False)
-            rps_obj_reg_result = rps_obj.register(rock, paper, scissor)
-            if rps_obj_reg_result is None:
-                text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
-                game_object['rps'][cid] = rps_obj
-            else:
-                text = rps_obj_reg_result
-        elif params[1] is not None:
-            action = params[1]
-            if action == u'DEL':
-                game_object['rps'][cid] = None
-
-                text = u'猜拳遊戲已刪除。'
-            elif action == u'RST':
-                game_object['rps'][cid].reset_statistics()
-                text = u'猜拳遊戲統計資料已重設。'
-            else:
-                text = error.main.incorrect_param(u'參數1', u'DEL')
-        else:
-            rps_obj = game_object['rps'][cid]
-            if rps_obj is not None:
-                if rps_obj.battle_dict is not None:
-                    text = u'剪刀貼圖ID: {}'.format(rps_obj.battle_dict.keys()[battle_dict.values().index(rps.battle_item.scissor)])
-                    text += u'\n石頭貼圖ID: {}'.format(rps_obj.battle_dict.keys()[battle_dict.values().index(rps.battle_item.rock)])
-                    text += u'\n布貼圖ID: {}'.format(rps_obj.battle_dict.keys()[battle_dict.values().index(rps.battle_item.paper)])
-                    text += u'\n\n玩家1: {} ({}勝)'.format(rps_obj.player1_name, rps_obj.player1_win)
-                    text += u'\n玩家2{} ({}勝}'.format(rps_obj.player2_name, rps_obj.player2_win)
-                    text += u'\n平手次數: {}'.format(rps_obj.tied)
+                rps_obj = game.rps(True if isinstance(src, SourceUser) else False)
+                rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
+                if rps_obj_reg_result is None:
+                    rps_obj.register_player(profile(get_source_user_id(src)), 1)
+                    text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
+                    game_object['rps'][cid] = rps_obj
                 else:
-                    text = error.main.miscellaneous(u'尚未註冊與剪刀石頭布對應的貼圖。')
+                    text = rps_obj_reg_result
+            elif params[1] is not None:
+                action = params[1]
+                if action == u'DEL':
+                    game_object['rps'][cid] = None
+
+                    text = u'猜拳遊戲已刪除。'
+                elif action == u'RST':
+                    game_object['rps'][cid].reset_statistics()
+                    text = u'猜拳遊戲統計資料已重設。'
+                else:
+                    text = error.main.incorrect_param(u'參數1', u'DEL')
             else:
-                text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
+                rps_obj = game_object['rps'][cid]
+                if rps_obj is not None:
+                    if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
+                        text = u'\n\n【最新玩家結果】'
+                        text += u'\n'.join([u'{} - {}W {}L {}T'.format(player.name, player.win, player.lose, player.tied) for player in rps_obj.player_dict])
+                    else:
+                        text = error.main.miscellaneous(u'無玩家資料。')
+                else:
+                    text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
+        else:
+            text = error.main.miscellaneous(u'因功能尚未健全，故本功能暫時無法在房間、群組頻道中使用，不便之處請見諒。')
+            # TODO: multi-player in group
+
         return text
 
 
@@ -1065,6 +1068,13 @@ def handle_text_message(event):
                 
                 api_reply(token, TextSendMessage(text=text), src)
         else:
+            rps_obj = game_object['rps'].get(cid)
+            if rps_obj is not None:
+                text = minigame_rps_capturing(rps_obj, False, text)
+                if text is not None:
+                    api_reply(rep, TextSendMessage(text=text), src)
+                    return
+
             replied = auto_reply_system(token, text, False, src)
 
             if text.startswith('JC') and ' ' in text and not replied:
@@ -1125,27 +1135,21 @@ def handle_sticker_message(event):
     rps_obj = game_object['rps'].get(cid)
     msg_track.log_message_activity(cid, 3)
 
-    if rps_obj is not None and rps_obj.in_battle_dict(sticker_id):
-        rps_obj.play(sticker_id, profile(get_source_user_id(src)).display_name)
-        if rps_obj.vs_bot:
-            text = rps_obj.result_analyze()
+    if rps_obj is not None:
+        text = minigame_rps_capturing(rps_obj, True, sticker_id)
+        if text is not None:
+            api_reply(rep, TextSendMessage(text=text), src)
+            return
+
+    if isinstance(event.source, SourceUser):
+        results = kwd.get_reply(sticker_id, True)
+        
+        if results is not None:
+            kwdata = u'相關回覆組ID: {id}。\n'.format(id=u', '.join([unicode(result[kwdict_col.id]) for result in results]))
         else:
-            if rps_obj.player2 is None:
-                text = u'玩家1({})已出拳，等候下一位出拳中...'.format(rps_obj.player1)
-            else:
-                text = rps_obj.result_analyze()
+            kwdata = u'無相關回覆組ID。\n'
 
-        api_reply(rep, TextSendMessage(text=text), src)
-    else:
-        if isinstance(event.source, SourceUser):
-            results = kwd.get_reply(sticker_id, True)
-            
-            if results is not None:
-                kwdata = u'相關回覆組ID: {id}。\n'.format(id=u', '.join([unicode(result[kwdict_col.id]) for result in results]))
-            else:
-                kwdata = u'無相關回覆組ID。\n'
-
-            api_reply(
+        api_reply(
                 rep,
                 [TextSendMessage(text=kwdata + u'貼圖圖包ID: {}\n貼圖圖片ID: {}'.format(package_id, sticker_id)),
                  TextSendMessage(text=u'圖片路徑(Android):\nemulated\\0\\Android\\data\\jp.naver.line.android\\stickers\\{}\\{}'.format(package_id, sticker_id)),
@@ -1153,8 +1157,8 @@ def handle_sticker_message(event):
                  TextSendMessage(text=u'圖片路徑(網路):\n{}'.format(sticker_png_url(sticker_id)))],
                 src
             )
-        else:
-            auto_reply_system(rep, sticker_id, True, src)
+    else:
+        auto_reply_system(rep, sticker_id, True, src)
 
 
 
@@ -1390,10 +1394,18 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
     return False
 
 
-def minigame_rps_capturing(channel_id, token, is_sticker, content):
-    rps_obj = game_object['rps'].get(channel_id)
+def minigame_rps_capturing(rps_obj, is_sticker, content):
     if rps_obj is not None:
         battle_item = rps_obj.find_battle_item(is_sticker, content)
+        if battle_item is not game.battle_item.none:
+            result = rps_obj.play(battle_item, 1 if rps_obj.is_waiting_next else 2)
+            if result is not None:
+                return result
+            else:
+                if rps_obj.is_waiting_next:
+                    return u'等待下一個玩家出拳中...'
+                if rps_obj.result_generated:
+                    return rps_obj.result_text
 
 
 

@@ -15,9 +15,13 @@ class rps(object):
         self._battle_dict = {battle_item.rock: [],
                              battle_item.paper: [],
                              battle_item.scissor: []}
+        self._result_generated = False
 
     def init_register(self, rock, paper, scissor):
-        """Initially register process must use sticker ID to create instance"""
+        """
+        Initially register process must use sticker ID to create instance
+        Return void when successfully initialized
+        """
         try:
             int(rock)
         except ValueError:
@@ -68,7 +72,7 @@ class rps(object):
             else:
                 self._play1(item, player_uid)
 
-    def result_analyze(self):
+    def result_text(self):
         """
         Player object will be released after calling this method.
         """
@@ -91,12 +95,6 @@ class rps(object):
 
         self._reset()
         return text
-
-    def in_battle_dict(self, sticker_id):
-        try:
-            return sticker_id in self._battle_dict.iterkeys()
-        except NameError:
-            return False
 
     def reset_statistics(self):
         for player in self._player_dict:
@@ -128,12 +126,12 @@ class rps(object):
             self._player2 = player_obj
             player_obj.last_item = self._battle_dict[item]
             self._gap_time = time.time() - self._play_begin_time
+            self._play_entered = False
             self._calculate_result()
 
     def _calculate_result(self):
         result = self._player1.last_item - self._player2.last_item
         result = result % 3
-        self._play_entered = False
         self._result_enum = battle_result(result)
         if self._result_enum == battle_result.win1:
             self._player1.win()
@@ -144,9 +142,11 @@ class rps(object):
         elif self._result_enum == battle_result.tie:
             self._player1.tied()
             self._player2.tied()
+        self._result_generated = True
             
     def _reset(self):
         self._play_entered = False
+        self._result_generated = False
         self._play_begin_time = 0
         self._result_enum = battle_result.undefined
         self._player1 = None
@@ -173,6 +173,17 @@ class rps(object):
             return self._player_dict
         except NameError:
             pass
+
+    @property
+    def is_waiting_next(self):
+        try:
+            return self._play_entered
+        except NameError:
+            pass
+
+    @property
+    def result_generated(self):
+        return self._result_generated
 
 
 class battle_item(Enum):
