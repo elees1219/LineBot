@@ -739,8 +739,8 @@ class command_processor(object):
 
     def RPS(self, src, params, game_object):
         if isinstance(src, SourceUser):
+            cid = get_source_channel_id(src)
             if params[3] is not None:
-                cid = get_source_channel_id(src)
                 scissor = params[1]
                 rock = params[2]
                 paper = params[3]
@@ -1066,9 +1066,9 @@ def handle_text_message(event):
         else:
             rps_obj = game_object['rps'].get(get_source_channel_id(src))
             if rps_obj is not None:
-                text = minigame_rps_capturing(rps_obj, False, text)
-                if text is not None:
-                    api_reply(rep, TextSendMessage(text=text), src)
+                rps_text = minigame_rps_capturing(rps_obj, False, text)
+                if rps_text is not None:
+                    api_reply(rep, TextSendMessage(text=rps_text), src)
                     return
 
             replied = auto_reply_system(token, text, False, src)
