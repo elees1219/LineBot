@@ -52,8 +52,7 @@ class rps(object):
         else:
             raise ValueError(error.main.invalid_thing(u'猜拳結果', result_enum))
 
-        if instance_rps is not None:
-            text += u'\n\n兩拳間格時間 {:.2f} 秒'.format(self._gap_time)
+        text += u'\n\n兩拳間格時間 {:.2f} 秒'.format(self._gap_time)
 
         return text
 
