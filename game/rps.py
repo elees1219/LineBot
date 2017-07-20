@@ -36,9 +36,9 @@ class rps(object):
 
     def play(self, item, player):
         if self._play_entered:
-            return self._play2(item, player)
+            self._play2(item, player)
         else:
-            return self._play1(item, player)
+            self._play1(item, player)
 
     def result_analyze(self):
         if self._result_enum == battle_result.tie:
