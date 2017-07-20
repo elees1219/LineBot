@@ -112,7 +112,7 @@ class group_ban(object):
         if len(results) >= 1:
             cmd = u'UPDATE group_ban SET admin = %(adm)s, admin_sha = %(sha)s WHERE groupId = %(id)s'
             cmd_dict = {'id': groupId, 'adm': newAdminUID, 'sha': hashlib.sha224(newkey).hexdigest()}
-            self.sql_cmd(cmd)
+            self.sql_cmd(cmd, cmd_dict)
             return True
         else:
             return False

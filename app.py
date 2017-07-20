@@ -584,11 +584,11 @@ class command_processor(object):
                             text += u'New {pos} Key: {npkey}\n'.format(npkey=new_pw, pos=position)
                             text += u'Please protect your key well!'
                         else:
-                            text = '{pos} changing process failed.'
+                            text = '{} changing process failed.'.format(pos_name[action])
                     except KeyError as Ex:
                         text = 'Invalid action: {action}. Recheck User Manual.'.format(action=action)
                 else:
-                    text = 'Profile of \'User ID: {uid}\' not found.'.format(uid=new_uid)
+                    text = 'Profile of \'User ID: {}\' not found.'.format(new_uid)
             elif perm >= 3 and param_count == 4:
                 action = params[1]
                 gid = params[2]
