@@ -156,6 +156,7 @@ oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + langu
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
+# TODO: User manual add auto-reply can be disabled in related command page
 # TDOD: User manual log all commands before moving
 # TODO: Move msg_handle
 class command_processor(object):
@@ -1068,7 +1069,7 @@ def handle_text_message(event):
                 
                 api_reply(token, TextSendMessage(text=text), src)
         else:
-            rps_obj = game_object['rps'].get(cid)
+            rps_obj = game_object['rps'].get(get_source_channel_id(cid))
             if rps_obj is not None:
                 text = minigame_rps_capturing(rps_obj, False, text)
                 if text is not None:
