@@ -81,7 +81,7 @@ class rps(object):
             pass
 
     def _calculate_result(self):
-        result = int(self._play1_item) - int(self._play2_item)
+        result = self._play1_item.value - self._play2_item.value
         result = result % 3
         self._play_entered = False
         self._result_enum = battle_result(result)
