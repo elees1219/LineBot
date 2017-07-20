@@ -751,8 +751,6 @@ class command_processor(object):
             rps_obj_reg_result = rps_obj.register(rock, paper, scissor)
             if rps_obj_reg_result is None:
                 text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}\n'.format(scissor, rock, paper)
-                game_object['rps'][cid] = rps_obj
-                print game_object
             else:
                 text = rps_obj_reg_result
         elif params[1] is not None:
@@ -765,7 +763,7 @@ class command_processor(object):
         else:
             text = error.main.lack_of_thing(u'參數')
 
-        return text
+        return text, rps_obj
 
 
 # function for create tmp dir for download content
@@ -1016,8 +1014,9 @@ def handle_text_message(event):
                 # GAME - Rock-Paper-Scissor
                 elif cmd == 'RPS':
                     text = command_executor.RPS(src, params)
+                    game_object['rps'][cid] = text[1]
 
-                    api_reply(token, TextSendMessage(text=text), src)
+                    api_reply(token, TextSendMessage(text=text[0]), src)
                 else:
                     cmd_dict[cmd].count -= 1
         elif len(text.split(splitter_mff)) >= 2 and text.startswith('MFF'):
