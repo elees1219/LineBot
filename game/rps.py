@@ -38,9 +38,9 @@ class rps(object):
         if result_enum == battle_result.tie:
             text = u'平手'
         elif result_enum == battle_result.win1:
-            text = u'{} 勝利'.format(self._player1)
+            text = u'{} 勝利'.format(self._player1_name)
         elif result_enum == battle_result.win2:
-            text = u'{} 勝利'.format(self._player2)
+            text = u'{} 勝利'.format(self._player2_name)
         else:
             raise ValueError(error.main.invalid_thing(u'猜拳結果', result_enum))
 
@@ -58,11 +58,11 @@ class rps(object):
     def _play1(self, item, player):
         try:
             self._play1 = self._battle_dict[item]
-            self._player1 = player
+            self._player1_name = player
 
             if self._vs_bot:
                 self._gap_time = 0
-                return self._play2(random_gen.random_drawer.draw_number(1, 3))
+                return self._play2(random_gen.random_drawer.draw_number(1, 3), u'(Auto)')
             else:
                 self._play_entered = True
                 self._play_begin_time = time.time()
@@ -73,7 +73,7 @@ class rps(object):
     def _play2(self, item, player):
         try:
             self._play2 = self._battle_dict[item]
-            self._player2 = player
+            self._player2_name = player
             self._gap_time = time.time() - self._play_begin_time
             return self._calculate_result()
         except KeyError:
@@ -97,16 +97,16 @@ class rps(object):
             return False
 
     @property
-    def player1(self):
+    def player1_name(self):
         try:
-            return self._player1
+            return self._player1_name
         except NameError:
             pass
 
     @property
-    def player2(self):
+    def player2_name(self):
         try:
-            return self._player2
+            return self._player2_name
         except NameError:
             pass
 

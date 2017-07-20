@@ -1108,7 +1108,6 @@ def handle_sticker_message(event):
 
     rec['last_stk'][cid] = sticker_id
     rps_obj = game_object['rps'].get(cid)
-    print rps_obj
     msg_track.log_message_activity(cid, 3)
 
     if rps_obj is not None and rps_obj.in_battle_dict(sticker_id):
