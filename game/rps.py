@@ -27,6 +27,12 @@ class rps(object):
                              scissor: battle_item.scissor}
         
         self._play_entered = False
+        self._play1 = battle_item.none
+        self._play2 = battle_item.none
+        self._player1_name = u'(Undefined)'
+        self._player2_name = u'(Undefined)'
+        self._result_enum = battle_result.undefined
+        self._play_begin_time = 0
 
     def play(self, item, player):
         if self._play_entered:
@@ -41,6 +47,8 @@ class rps(object):
             text = u'{} 勝利'.format(self._player1_name)
         elif self._result_enum == battle_result.win2:
             text = u'{} 勝利'.format(self._player2_name)
+        elif self._result_enum == battle_result.undefined:
+            text = u'尚未猜拳'
         else:
             raise ValueError(error.main.invalid_thing(u'猜拳結果', result_enum))
 
@@ -48,12 +56,6 @@ class rps(object):
             text += u'\n\n兩拳間格時間 {:.2f} 秒'.format(self._gap_time)
 
         return text
-
-    def in_battle_dict(self, sticker_id):
-        try:
-            return sticker_id in self._battle_dict.iterkeys()
-        except NameError:
-            return False
 
     def _play1(self, item, player):
         try:
@@ -84,6 +86,12 @@ class rps(object):
         result = result % 3
         self._play_entered = False
         self._result_enum = battle_result(result)
+
+    def in_battle_dict(self, sticker_id):
+        try:
+            return sticker_id in self._battle_dict.iterkeys()
+        except NameError:
+            return False
 
     @property
     def gap_time(self):
@@ -118,8 +126,10 @@ class battle_item(Enum):
     rock = 1
     paper = 2
     scissor = 3
+    none = -1
 
 class battle_result(Enum):
+    undefined = -1
     tie = 0
     win1 = 1
     win2 = 2

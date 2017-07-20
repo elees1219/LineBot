@@ -1111,7 +1111,7 @@ def handle_sticker_message(event):
     msg_track.log_message_activity(cid, 3)
 
     if rps_obj is not None and rps_obj.in_battle_dict(sticker_id):
-        rps_obj.play(sticker_id, profile(get_source_user_id(src)))
+        rps_obj.play(sticker_id, profile(get_source_user_id(src)).display_name)
         print rps_obj.player1_name
         print rps_obj.player2_name
         print rps_obj.is_bot
