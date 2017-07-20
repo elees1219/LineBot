@@ -768,8 +768,8 @@ class command_processor(object):
                 rps_obj = game_object['rps'][cid]
                 if rps_obj is not None:
                     if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
-                        text = u'\n\n【最新玩家結果】'
-                        text += u'\n'.join([u'{} - {}W {}L {}T'.format(player.name, player.win, player.lose, player.tied) for player in rps_obj.player_dict])
+                        text = u'\n\n'
+                        text += rps.player_stats_text(rps_obj.player_dict)
                     else:
                         text = error.main.miscellaneous(u'無玩家資料。')
                 else:

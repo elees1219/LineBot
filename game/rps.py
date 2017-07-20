@@ -90,8 +90,8 @@ class rps(object):
             raise ValueError(error.main.invalid_thing(u'猜拳結果', result_enum))
         
         text += u'\n本次猜拳兩拳間格時間(包含程式處理時間) {:.2f} 秒'.format(self._gap_time)
-        text += u'\n\n【最新玩家結果】'
-        text += u'\n'.join([u'{} - {}W {}L {}T'.format(player.name, player.win, player.lose, player.tied) for player in self._player_dict])
+        text += u'\n\n'
+        text += rps.player_stats_text(self._player_dict)
 
         self._reset()
         return text
@@ -185,6 +185,13 @@ class rps(object):
     def result_generated(self):
         return self._result_generated
 
+    @staticmethod
+    def player_stats_text(player_dict):
+        # TODO: Sort by record
+        text + u'【最新玩家結果】\n'
+        text += u'\n'.join([u'{} - {}勝 {}敗 {}平'.format(player.name, player.win, player.lose, player.tied) for player in player_dict])
+        return text
+
 
 class battle_item(Enum):
     rock = 1
@@ -250,15 +257,15 @@ class battle_player(object):
         return self._name
     
     @property
-    def win(self):
+    def win_count(self):
         return self._win
     
     @property
-    def lose(self):
+    def lose_count(self):
         return self._lose
     
     @property
-    def tied(self):
+    def tied_count(self):
         return self._tied
     
     @property
