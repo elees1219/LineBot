@@ -1069,7 +1069,7 @@ def handle_text_message(event):
                 
                 api_reply(token, TextSendMessage(text=text), src)
         else:
-            rps_obj = game_object['rps'].get(get_source_channel_id(cid))
+            rps_obj = game_object['rps'].get(get_source_channel_id(src))
             if rps_obj is not None:
                 text = minigame_rps_capturing(rps_obj, False, text)
                 if text is not None:
