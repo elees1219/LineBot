@@ -761,7 +761,7 @@ class command_processor(object):
                     text = u'猜拳遊戲已刪除。'
                 elif action == u'RST':
                     rps_obj = game_object['rps'][cid]
-                    return rps_obj
+                    print rps_obj
                     if rps_obj is not None:
                         rps_obj.reset_statistics()
                         text = u'猜拳遊戲統計資料已重設。'
