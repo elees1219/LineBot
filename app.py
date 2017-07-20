@@ -1122,6 +1122,7 @@ def handle_sticker_message(event):
     cid = get_source_channel_id(src)
 
     rec['last_stk'][cid] = sticker_id
+    rps_obj = game_object['rps'].get(cid)
     msg_track.log_message_activity(cid, 3)
 
     if rps_obj is not None and rps_obj.in_battle_dict(sticker_id):
@@ -1392,7 +1393,7 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 def minigame_rps_capturing(channel_id, token, is_sticker, content):
     rps_obj = game_object['rps'].get(channel_id)
     if rps_obj is not None:
-        pass
+        battle_item = rps_obj.find_battle_item(is_sticker, content)
 
 
 

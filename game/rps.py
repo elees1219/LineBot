@@ -102,6 +102,14 @@ class rps(object):
         for player in self._player_dict:
             player.reset_statistics() 
 
+    def find_battle_item(self, is_sticker, content):
+        for battle_item_key, representatives in self._battle_dict:
+            for representative in representatives:
+                if representative.is_sticker == is_sticker and representative.content == content:
+                    return battle_item_key
+
+        return battle_item.none
+
     def _play1(self, item, player_uid):
         player_obj = self._player_dict.get(player_uid)
         if player_obj is not None:
@@ -136,14 +144,6 @@ class rps(object):
         elif self._result_enum == battle_result.tie:
             self._player1.tied()
             self._player2.tied()
-
-    def _find_battle_item(self, is_sticker, content):
-        for battle_item_key, representatives in self._battle_dict:
-            for representative in representatives:
-                if representative.is_sticker == is_sticker and representative.content == content:
-                    return battle_item_key
-
-        return battle_item_key.none
             
     def _reset(self):
         self._play_entered = False
