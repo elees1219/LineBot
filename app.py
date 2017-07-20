@@ -764,7 +764,7 @@ class command_processor(object):
         else:
             text = error.main.lack_of_thing(u'參數')
 
-        return text, rps_obj
+        return text
 
 
 # function for create tmp dir for download content
