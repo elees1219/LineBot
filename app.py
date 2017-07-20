@@ -1112,8 +1112,8 @@ def handle_sticker_message(event):
 
     if rps_obj is not None and rps_obj.in_battle_dict(sticker_id):
         rps_obj.play(sticker_id, profile(get_source_user_id(src)).display_name)
-        print rps_obj.player1_name
-        print rps_obj.player2_name
+        print rps_obj.player1_name.encode('utf-8')
+        print rps_obj.player2_name.encode('utf-8')
         print rps_obj.is_bot
         if rps_obj.vs_bot:
             text = rps_obj.result_analyze()
