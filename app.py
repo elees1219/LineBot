@@ -1402,8 +1402,7 @@ def minigame_rps_capturing(rps_obj, is_sticker, content):
             else:
                 print rps_obj.is_waiting_next
                 print rps_obj.result_generated
-                print rps_obj._player1
-                print rps_obj._player2
+                print rps_obj.player_dict
 
                 if rps_obj.is_waiting_next:
                     return u'等待下一個玩家出拳中...'
