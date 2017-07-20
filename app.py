@@ -112,7 +112,7 @@ cmd_dict = {'S': command(1, 1, True),
             'B': command(0, 0, False), 
             'RD': command(1, 2, False),
             'STK': command(0, 0, False),
-            'RPS': command(3, 3, False)}
+            'RPS': command(0, 3, False)}
 
 # Line Bot Environment initialization
 MAIN_UID_OLD = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
