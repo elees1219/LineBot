@@ -260,7 +260,7 @@ class command_processor(object):
     def M(self, src, params, pinned):
         if pinned and permission_level(params.pop(1)) < 1:
             text = error.main.restricted(1)
-        elif not is_valid_user_id(new_uid):
+        elif not is_valid_user_id(get_source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
         else:
             text = A(src, params)
@@ -312,7 +312,7 @@ class command_processor(object):
     def R(self, src, params, pinned):
         if pinned and permission_level(params.pop(1)) < 1:
             text = error.main.restricted(2)
-        elif not is_valid_user_id(new_uid):
+        elif not is_valid_user_id(get_source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
         else:
             text = D(src, params)
