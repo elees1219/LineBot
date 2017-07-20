@@ -760,8 +760,12 @@ class command_processor(object):
 
                     text = u'猜拳遊戲已刪除。'
                 elif action == u'RST':
-                    game_object['rps'][cid].reset_statistics()
-                    text = u'猜拳遊戲統計資料已重設。'
+                    rps_obj = game_object['rps'][cid]
+                    if rps_obj is not None:
+                        rps_obj.reset_statistics()
+                        text = u'猜拳遊戲統計資料已重設。'
+                    else:
+                        text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
                 else:
                     text = error.main.incorrect_param(u'參數1', u'DEL')
             else:
