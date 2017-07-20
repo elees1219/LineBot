@@ -263,7 +263,7 @@ class command_processor(object):
         elif not is_valid_user_id(get_source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
         else:
-            text = A(src, params)
+            text = self.A(src, params)
 
         return text
 
@@ -315,7 +315,7 @@ class command_processor(object):
         elif not is_valid_user_id(get_source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
         else:
-            text = D(src, params)
+            text = self.D(src, params)
 
         return text
 
