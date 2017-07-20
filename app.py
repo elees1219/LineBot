@@ -750,7 +750,7 @@ class command_processor(object):
             rps_obj = rps(True if isinstance(src, SourceUser) else False)
             rps_obj_reg_result = rps_obj.register(rock, paper, scissor)
             if rps_obj_reg_result is None:
-                text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}\n'.format(scissor, rock, paper)
+                text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
                 game_object['rps'][cid] = rps_obj
             else:
                 text = rps_obj_reg_result
@@ -1014,6 +1014,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # GAME - Rock-Paper-Scissor
                 elif cmd == 'RPS':
+                    global game_object
                     text = command_executor.RPS(src, params, game_object)
 
                     api_reply(token, TextSendMessage(text=text), src)
