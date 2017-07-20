@@ -1014,7 +1014,7 @@ def handle_text_message(event):
                 # GAME - Rock-Paper-Scissor
                 elif cmd == 'RPS':
                     text = command_executor.RPS(src, params)
-                    game_object['rps'][cid] = text[1]
+                    game_object['rps'][get_source_channel_id(src)] = text[1]
 
                     api_reply(token, TextSendMessage(text=text[0]), src)
                 else:
