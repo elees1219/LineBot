@@ -27,8 +27,8 @@ class rps(object):
                              scissor: battle_item.scissor}
         
         self._play_entered = False
-        self._play1 = battle_item.none
-        self._play2 = battle_item.none
+        self._play1_item = battle_item.none
+        self._play2_item = battle_item.none
         self._player1_name = u'(Undefined)'
         self._player2_name = u'(Undefined)'
         self._result_enum = battle_result.undefined
@@ -59,7 +59,7 @@ class rps(object):
 
     def _play1(self, item, player):
         try:
-            self._play1 = self._battle_dict[item]
+            self._play1_item = self._battle_dict[item]
             self._player1_name = player
 
             if self._vs_bot:
@@ -74,7 +74,7 @@ class rps(object):
 
     def _play2(self, item, player):
         try:
-            self._play2 = self._battle_dict[item]
+            self._play2_item = self._battle_dict[item]
             self._player2_name = player
             self._gap_time = time.time() - self._play_begin_time
             self._calculate_result()
@@ -82,7 +82,7 @@ class rps(object):
             pass
 
     def _calculate_result(self):
-        result = int(self._play1) - int(self._play2)
+        result = int(self._play1_item) - int(self._play2_item)
         result = result % 3
         self._play_entered = False
         self._result_enum = battle_result(result)
