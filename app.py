@@ -257,8 +257,8 @@ class command_processor(object):
 
         return text
 
-    def M(self, src, params, pinned):
-        if pinned and permission_level(params.pop(1)) < 1:
+    def M(self, src, params):
+        if permission_level(params.pop(1)) < 1:
             text = error.main.restricted(1)
         elif not is_valid_user_id(get_source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
@@ -268,30 +268,24 @@ class command_processor(object):
         return text
 
     def D(self, src, params, pinned=False):
-        deletor_uid = src.user_id
-        if pinned and permission_level(paramA.pop(1)) < 2:
-            text = error.main.restricted(2)
-        elif not is_valid_user_id(deletor_uid):
-            text = error.main.unable_to_receive_user_id()
+        if params[2] is None:
+            kw = params[1]
+
+            results = self.kwd.delete_keyword(kw, deletor_uid, pinned)
         else:
-            if params[2] is None:
-                kw = params[1]
+            action = params[1]
 
-                results = self.kwd.delete_keyword(kw, deletor_uid, pinned)
-            else:
-                action = params[1]
+            if action == 'ID':
+                pair_id = params[2]
 
-                if action == 'ID':
-                    pair_id = params[2]
-
-                    if string_is_int(pair_id):
-                        results = self.kwd.delete_keyword_id(pair_id, deletor_uid, pinned)
-                    else:
-                        results = None
-                        text = error.main.incorrect_param(u'參數2', u'整數數字')
+                if string_is_int(pair_id):
+                    results = self.kwd.delete_keyword_id(pair_id, deletor_uid, pinned)
                 else:
                     results = None
-                    text = error.main.incorrect_param(u'參數1', u'ID')
+                    text = error.main.incorrect_param(u'參數2', u'整數數字')
+            else:
+                results = None
+                text = error.main.incorrect_param(u'參數1', u'ID')
 
         if results is not None and len(results) > 0:
             for result in results:
@@ -309,13 +303,13 @@ class command_processor(object):
 
         return text
 
-    def R(self, src, params, pinned):
-        if pinned and permission_level(params.pop(1)) < 1:
+    def R(self, src, params):
+        if permission_level(params.pop(1)) < 2:
             text = error.main.restricted(2)
         elif not is_valid_user_id(get_source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
         else:
-            text = self.D(src, params)
+            text = self.D(src, params, True)
 
         return text
 
@@ -949,7 +943,7 @@ def handle_text_message(event):
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
                     if cmd_dict[cmd].non_user_permission_required:
-                        text = command_executor.M(src, params, True)
+                        text = command_executor.M(src, params)
                     else:
                         text = command_executor.A(src, params)
 
@@ -1132,6 +1126,8 @@ def handle_sticker_message(event):
     src = event.source
     cid = get_source_channel_id(src)
 
+    
+    global game_object
     rec['last_stk'][cid] = sticker_id
     rps_obj = game_object['rps'].get(cid)
     msg_track.log_message_activity(cid, 3)
