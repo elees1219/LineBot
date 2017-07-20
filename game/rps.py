@@ -63,7 +63,7 @@ class rps(object):
 
             if self._vs_bot:
                 self._gap_time = 0
-                self._play2(random_gen.random_drawer.draw_number(1, 3), u'(Auto)')
+                self._play2(random_gen.random_drawer.draw_text(self._battle_dict.iterkeys()), u'(Auto)')
             else:
                 self._play_entered = True
                 self._play_begin_time = time.time()
