@@ -110,7 +110,6 @@ class rps(object):
 
     def _play1(self, item, player_uid):
         player_obj = self._player_dict.get(player_uid)
-        print player_obj
         if player_obj is not None:
             self._player1 = player_obj
             self._player1.last_item = item
@@ -123,7 +122,6 @@ class rps(object):
 
     def _play2(self, item, player_uid):
         player_obj = self._player_dict.get(player_uid)
-        print player_obj
         if player_obj is not None:
             self._player2 = player_obj
             self._player1.last_item = item
@@ -132,7 +130,7 @@ class rps(object):
             self._calculate_result()
 
     def _calculate_result(self):
-        result = self._player1.last_item - self._player2.last_item
+        result = self._player1.last_item.value - self._player2.last_item.value
         result = result % 3
         self._result_enum = battle_result(result)
         if self._result_enum == battle_result.win1:
