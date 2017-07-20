@@ -189,7 +189,7 @@ class rps(object):
     def player_stats_text(player_dict):
         # TODO: Sort by record
         text = u'【最新玩家結果】\n'
-        text += u'\n'.join([u'{} - {}勝 {}敗 {}平'.format(player.name, player.win_count, player.lose_count, player.tied_count) for player in player_dict.itervalues()])
+        text += u'\n'.join([u'{}勝 {}敗 {}平 - {}'.format(player.win_count, player.lose_count, player.tied_count, player.name) for player in player_dict.itervalues()])
         return text
 
 
