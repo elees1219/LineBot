@@ -97,7 +97,7 @@ class rps(object):
         return text
 
     def reset_statistics(self):
-        for player in self._player_dict:
+        for player in self._player_dict.itervalues():
             player.reset_statistics() 
 
     def find_battle_item(self, is_sticker, content):
