@@ -748,7 +748,7 @@ class command_processor(object):
                 rps_obj = game.rps(True)
                 rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
                 if rps_obj_reg_result is None:
-                    rps_obj.register_player(profile(get_source_user_id(src)), 1)
+                    rps_obj.register_player(profile(get_source_user_id(src)).display_name, 1)
                     text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
                     game_object['rps'][cid] = rps_obj
                 else:
@@ -769,7 +769,7 @@ class command_processor(object):
                 if rps_obj is not None:
                     if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
                         text = u'\n\n'
-                        text += rps.player_stats_text(rps_obj.player_dict)
+                        text += game.rps.player_stats_text(rps_obj.player_dict)
                     else:
                         text = error.main.miscellaneous(u'無玩家資料。')
                 else:
