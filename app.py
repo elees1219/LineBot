@@ -740,7 +740,7 @@ class command_processor(object):
 
         return text
 
-    def RPS(self, src, params):
+    def RPS(self, src, params, game_object):
         if params[3] is not None:
             cid = get_source_channel_id(src)
             scissor = params[1]
@@ -751,6 +751,7 @@ class command_processor(object):
             rps_obj_reg_result = rps_obj.register(rock, paper, scissor)
             if rps_obj_reg_result is None:
                 text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}\n'.format(scissor, rock, paper)
+                game_object['rps'][cid] = rps_obj
             else:
                 text = rps_obj_reg_result
         elif params[1] is not None:
@@ -1013,10 +1014,9 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # GAME - Rock-Paper-Scissor
                 elif cmd == 'RPS':
-                    text = command_executor.RPS(src, params)
-                    game_object['rps'][get_source_channel_id(src)] = text[1]
+                    text = command_executor.RPS(src, params, game_object)
 
-                    api_reply(token, TextSendMessage(text=text[0]), src)
+                    api_reply(token, TextSendMessage(text=text), src)
                 else:
                     cmd_dict[cmd].count -= 1
         elif len(text.split(splitter_mff)) >= 2 and text.startswith('MFF'):
@@ -1097,15 +1097,6 @@ def handle_text_message(event):
         api_reply(event.reply_token, template_message, src)
 
 
-# Incomplete
-@handler.add(PostbackEvent)
-def handle_postback(event):
-    return
-    if event.postback.data == 'ping':
-        api_reply(
-            event.reply_token, TextSendMessage(text='pong'), event.source)
-
-
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
     package_id = event.message.package_id
@@ -1116,6 +1107,7 @@ def handle_sticker_message(event):
 
     rec['last_stk'][cid] = sticker_id
     rps_obj = game_object['rps'].get(cid)
+    print game_object['rps']
     msg_track.log_message_activity(cid, 3)
 
     if rps_obj is not None and rps_obj.in_battle_dict(sticker_id):
@@ -1150,6 +1142,14 @@ def handle_sticker_message(event):
             reply_message_by_keyword(cid, rep, sticker_id, True, src)
 
 
+
+# Incomplete
+@handler.add(PostbackEvent)
+def handle_postback(event):
+    return
+    if event.postback.data == 'ping':
+        api_reply(
+            event.reply_token, TextSendMessage(text='pong'), event.source)
 
 
 # Incomplete
