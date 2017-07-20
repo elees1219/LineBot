@@ -49,7 +49,7 @@ class rps(object):
 
     def in_battle_dict(self, sticker_id):
         try:
-            return sticker_id in self._battle_dict.itervalues()
+            return sticker_id in self._battle_dict.iterkeys()
         except NameError:
             return False
 
