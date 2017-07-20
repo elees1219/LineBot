@@ -110,6 +110,7 @@ class rps(object):
 
     def _play1(self, item, player_uid):
         player_obj = self._player_dict.get(player_uid)
+        print player_obj
         if player_obj is not None:
             self._player1 = player_obj
             self._player1.last_item = item
@@ -122,6 +123,7 @@ class rps(object):
 
     def _play2(self, item, player_uid):
         player_obj = self._player_dict.get(player_uid)
+        print player_obj
         if player_obj is not None:
             self._player2 = player_obj
             self._player1.last_item = item

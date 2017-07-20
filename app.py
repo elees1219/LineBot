@@ -745,7 +745,7 @@ class command_processor(object):
                 rock = params[2]
                 paper = params[3]
 
-                rps_obj = game.rps(True if isinstance(src, SourceUser) else False)
+                rps_obj = game.rps(True)
                 rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
                 if rps_obj_reg_result is None:
                     rps_obj.register_player(profile(get_source_user_id(src)), 1)
@@ -1396,13 +1396,14 @@ def minigame_rps_capturing(rps_obj, is_sticker, content):
     if rps_obj is not None:
         battle_item = rps_obj.find_battle_item(is_sticker, content)
         if battle_item is not game.battle_item.none:
-            result = rps_obj.play(battle_item, 1 if rps_obj.is_waiting_next else 2)
+            result = rps_obj.play(battle_item, 1)
             if result is not None:
                 return result
             else:
                 print rps_obj.is_waiting_next
                 print rps_obj.result_generated
-                print rps_obj.player_dict
+                print rps_obj.player_dict[0].last_item
+                print rps_obj.player_dict[1].last_item
 
                 if rps_obj.is_waiting_next:
                     return u'等待下一個玩家出拳中...'
