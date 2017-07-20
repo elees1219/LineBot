@@ -79,11 +79,11 @@ class rps(object):
         if self._result_enum == battle_result.tie:
             text = u'【平手】'
         elif self._result_enum == battle_result.win1:
-            text = u'【{} 勝利】'.format(self._player1.name)
-            text += u'\n【{} 敗北】'.format(self._player2.name)
+            text = u'【勝利 - {}】'.format(self._player1.name)
+            text += u'\n【敗北 - {}】'.format(self._player2.name)
         elif self._result_enum == battle_result.win2:
-            text = u'【{} 勝利】'.format(self._player2.name)
-            text += u'\n【{} 敗北】'.format(self._player1.name)
+            text = u'【勝利 - {}】'.format(self._player2.name)
+            text += u'\n【敗北 - {}】'.format(self._player1.name)
         elif self._result_enum == battle_result.undefined:
             text = u'【尚未猜拳】'
         else:
