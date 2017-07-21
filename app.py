@@ -936,11 +936,10 @@ def handle_text_message(event):
         return
 
     try:
-        if len(text.split(splitter)) >= 2:
-            parse_result = split(text, splitter, 3)
-            parse_result = {'head': parse_result[0], 'cmd': parse_result[1], 'oth': parse_result[2]}
+        parse_result = split(text, splitter, 3)
+        parse_result = {'head': parse_result[0], 'cmd': parse_result[1], 'oth': parse_result[2]}
 
-            if parse_result['head'] == 'JC':
+        if parse_result['head'] == 'JC':
                 rec['cmd']['JC'] += 1
                 
                 # TODO: put inside cmd proc module - static method - verify command - BEGIN
@@ -1054,7 +1053,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
                     sys_cmd_dict[parse_result['cmd']].count -= 1
-            elif parse_result['head'] == 'HELP':
+        elif parse_result['head'] == 'HELP':
                 rec['cmd']['HELP'] += 1
                 data = split(text, splitter, 2)
 
@@ -1085,7 +1084,7 @@ def handle_text_message(event):
                                                                                             u', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
                     
                     api_reply(token, TextSendMessage(text=text), src)
-            elif parse_result['head'] == 'G':
+        elif parse_result['head'] == 'G':
                 rec['cmd']['GAME'] += 1
 
                 if parse_result['cmd'] not in sys_cmd_dict:
