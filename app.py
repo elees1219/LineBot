@@ -796,7 +796,7 @@ class game_processor(object):
             rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
             if rps_obj_reg_result is None:
                 if is_valid_user_id(uid):
-                    rps_obj.register_player(profile(uid).display_name, 1)
+                    rps_obj.register_player(profile(uid).display_name, uid)
                     text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
                     self._game_object['rps'][cid] = rps_obj
                 else:
