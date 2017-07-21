@@ -60,7 +60,7 @@ report_content = {'Error': {},
                   'FullQuery': {}, 
                   'FullInfo': {},
                   'Text': {}}
-game_object = {'rps': defaultdict(str)}
+game_object = {'rps': defaultdict(game.rps)}
 
 class command(object):
     def __init__(self, min_split=2, max_split=2, non_user_permission_required=False):
@@ -1173,7 +1173,6 @@ def handle_text_message(event):
                     game_cmd_dict[cmd].count -= 1
 
         rps_obj = game_object['rps'].get(get_source_channel_id(src))
-        print rps_obj
         if rps_obj is not None:
             rps_text = minigame_rps_capturing(rps_obj, False, text)
             if rps_text is not None:

@@ -185,8 +185,10 @@ class rps(object):
         return not void if error occurred.
         No action if player not exist.
         """
-        if len(self._player_dict) < 2:
-            return error.main.miscellaneous(u'玩家人數不足，需要先註冊2名玩家以後方可遊玩。')
+        player_count = len(self._player_dict)
+        if player_count < 2:
+            return error.main.miscellaneous(u'玩家人數不足，需要先註冊2名玩家以後方可遊玩。目前已註冊玩家{}名。\n已註冊玩家: {}'.format(
+                player_count, '、'.join([player.name for player in self._player_dict.itervalues()])))
         else:
             if self._play_entered:
                 self._play2(item, player_uid)
