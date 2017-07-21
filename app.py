@@ -756,7 +756,37 @@ class game_processor(object):
         cid = get_source_channel_id(src)
         uid = get_source_user_id(src)
 
-        if params[3] is not None:
+        if params[4] is not None:
+            rps_obj = self._game_object['rps'][cid]
+            action = params[1]
+            if action == 'ADD':
+                item_type = params[2]
+                is_sticker = params[3]
+                content = params[4]
+
+                if item_type == 'R':
+                    battle_item = game.battle_item.rock
+                if item_type == 'P':
+                    battle_item = game.battle_item.paper
+                if item_type == 'S':
+                    battle_item = game.battle_item.scissor
+                else:
+                    battle_item = game.battle_item.none
+
+                if battle_item is not game.battle_item.none:
+                    if is_sticker == 'STK':
+                        rps_obj.register_battle_item(battle_item, True, content)
+                        text = rps_obj.battle_item_dict_text()
+                    elif is_sticker == 'TXT':
+                        rps_obj.register_battle_item(battle_item, False, content)
+                        text = rps_obj.battle_item_dict_text()
+                    else:
+                        text = error.main.incorrect_param(u'參數3', u'STK(是貼圖ID)或TXT(文字訊息)')
+                else:
+                    text = error.main.incorrect_param(u'參數2', u'S(剪刀)、R(石頭)或P(布)')
+            else:
+                text = error.main.incorrect_param(u'參數1', u'ADD')
+        elif params[3] is not None:
             scissor = params[1]
             rock = params[2]
             paper = params[3]
@@ -772,26 +802,53 @@ class game_processor(object):
                     text = error.main.unable_to_receive_user_id()
             else:
                 text = rps_obj_reg_result
-        elif params[1] is not None:
+        elif params[2] is not None:
+            rps_obj = self._game_object['rps'][cid]
             action = params[1]
-            if action == u'DEL':
-                self._game_object['rps'][cid] = None
+            item = params[2]
 
-                text = u'猜拳遊戲已刪除。'
-            elif action == u'RST':
-                rps_obj = self._game_object['rps'][cid]
-                if rps_obj is not None and isinstance(rps_obj, game.rps):
+            if action == 'RST':
+                if item == 'R':
+                    rps_obj.reset_battle_item(game.battle_item.rock)
+                    text = u'已重設代表【石頭】的物件。'
+                if item == 'P':
+                    rps_obj.reset_battle_item(game.battle_item.paper)
+                    text = u'已重設代表【布】的物件。'
+                if item == 'S':
+                    rps_obj.reset_battle_item(game.battle_item.scissor)
+                    text = u'已重設代表【剪刀】的物件。'
+                else:
+                    text = error.main.incorrect_param(u'參數2', u'R(石頭), P(布), S(剪刀)')
+            else:
+                text = error.main.incorrect_param(u'參數1', u'RST')
+        elif params[1] is not None:
+            rps_obj = self._game_object['rps'][cid]
+            action = params[1]
+
+            if rps_obj is not None and isinstance(rps_obj, game.rps):
+                if action == 'DEL':
+                    rps_obj = None
+                    text = u'猜拳遊戲已刪除。'
+                elif action == 'RST':
                     rps_obj.reset_statistics()
                     text = u'猜拳遊戲統計資料已重設。'
+                elif action == 'R':
+                    text = rps_obj.battle_item_dict_text(game.battle_item.rock)
+                elif action == 'P':
+                    text = rps_obj.battle_item_dict_text(game.battle_item.paper)
+                elif action == 'S':
+                    text = rps_obj.battle_item_dict_text(game.battle_item.scissor)
                 else:
-                    text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
+                    text = error.main.incorrect_param(u'參數1', u'DEL, RST, R, P, S')
             else:
-                text = error.main.incorrect_param(u'參數1', u'DEL')
+                text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
         else:
             rps_obj = self._game_object['rps'][cid]
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
                     text = game.rps.player_stats_text(rps_obj.player_dict)
+                    text += '\n'
+                    text += rps_obj.battle_item_dict_text()
                 else:
                     text = error.main.miscellaneous(u'無玩家資料。')
             else:

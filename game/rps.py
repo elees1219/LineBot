@@ -49,7 +49,7 @@ class rps(object):
         self.register_battle_item(battle_item.scissor, True, scissor)
         self._player_dict = defaultdict(battle_player)
         if self._vs_bot:
-            self._player_dict[0] = battle_player(u'電腦', 0)
+            self._player_dict[0] = battle_player(u'(電腦)', 0)
 
         self._reset()
 
@@ -96,6 +96,18 @@ class rps(object):
         self._reset()
         return text
 
+    def battle_item_dict_text(self, item=battle_item.none):
+        if item == battle_item.none:
+            text = u'【剪刀石頭布代表物件】\n'
+            text += self._battle_item_dict_text(battle_item.scissor)
+            text += '\n'
+            text += self._battle_item_dict_text(battle_item.rock)
+            text += '\n'
+            text += self._battle_item_dict_text(battle_item.paper)
+            return text
+        else:
+            return self._battle_item_dict_text(item)
+
     def reset_statistics(self):
         for player in self._player_dict.itervalues():
             player.reset_statistics() 
@@ -107,6 +119,9 @@ class rps(object):
                     return battle_item_key
 
         return battle_item.none
+
+    def reset_battle_item(self, item):
+        self._battle_dict[item] = []
 
     def _play1(self, item, player_uid):
         player_obj = self._player_dict.get(player_uid)
@@ -152,6 +167,19 @@ class rps(object):
         self._player1 = None
         self._player2 = None
 
+    def _battle_item_dict_text(self, item):
+        if item == battle_item.scissor:
+            text = u'【剪刀】\n'
+        elif item == battle_item.rock:
+            text = u'【石頭】\n'
+        elif item == battle_item.paper:
+            text = u'【布】\n'
+        else:
+            return u''
+
+        text += u', '.join([u'(貼圖ID {})'.format(item.content) if item.is_sticker else unicode(item.content) for item in self._battle_dict[item]])
+        return text
+
     @property
     def gap_time(self):
         return self._gap_time
@@ -189,8 +217,8 @@ class rps(object):
     def player_stats_text(player_dict):
         # TODO: Sort by record
         text = u'【最新玩家結果】\n'
-        text += u'\n'.join([u'{}\n{}戰 {}勝 {}敗 {}平 {}連{}中'.format(player.name, player.total_played, player.win_count, player.lose_count, player.tied_count, 
-                                                                      player.consecutive_count, u'勝' if player.consecutive_type else u'敗') 
+        text += u'\n'.join([u'{}\n{}戰 {}勝 {}敗 {}平 {}連{}中 ({.2%})'.format(player.name, player.total_played, player.win_count, player.lose_count, player.tied_count, 
+                                                                      player.consecutive_count, u'勝' if player.consecutive_type else u'敗', player.winning_rate) 
                             for player in sorted(player_dict.values(), reverse=True)])
         return text
 
@@ -294,6 +322,10 @@ class battle_player(object):
     @property
     def consecutive_count(self):
         return self._consecutive_count
+
+    @property
+    def winning_rate(self):
+        return self._win / float(self._win + self._lose)
     
     @property
     def last_item(self):
