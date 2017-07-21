@@ -1174,7 +1174,7 @@ def handle_text_message(event):
 
         rps_obj = game_object['rps'].get(get_source_channel_id(src))
         if rps_obj is not None:
-            rps_text = minigame_rps_capturing(rps_obj, False, text)
+            rps_text = minigame_rps_capturing(rps_obj, False, text, get_source_user_id(src))
             if rps_text is not None:
                 api_reply(rep, TextSendMessage(text=rps_text), src)
                 return
@@ -1243,13 +1243,10 @@ def handle_sticker_message(event):
     global game_object
     rps_obj = game_object['rps'].get(cid)
 
-    print game_object['rps']
-    print rps_obj
-
     msg_track.log_message_activity(cid, 3)
 
     if rps_obj is not None:
-        text = minigame_rps_capturing(rps_obj, True, sticker_id)
+        text = minigame_rps_capturing(rps_obj, True, sticker_id, get_source_user_id(src))
         if text is not None:
             api_reply(rep, TextSendMessage(text=text), src)
             return
@@ -1522,13 +1519,11 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
     return False
 
 
-def minigame_rps_capturing(rps_obj, is_sticker, content):
-    print rps_obj
-    if rps_obj is not None:
+def minigame_rps_capturing(rps_obj, is_sticker, content, uid):
+    if rps_obj is not None and is_valid_user_id(uid):
         battle_item = rps_obj.find_battle_item(is_sticker, content)
-        print battle_item
         if battle_item is not game.battle_item.none:
-            result = rps_obj.play(battle_item, 1)
+            result = rps_obj.play(battle_item, uid)
             game_cmd_dict['RPS'].count += 1
             if result is not None:
                 return result
