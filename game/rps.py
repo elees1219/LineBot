@@ -56,6 +56,8 @@ class battle_player(object):
             self._consecutive_count += 1
         else:
             self._consecutive_count = 1
+        if self._consecutive_count > self._consecutive_win:
+            self._consecutive_win = self._consecutive_count
         self._consecutive_winning = True
         
     def lose(self):
@@ -64,6 +66,8 @@ class battle_player(object):
             self._consecutive_count += 1
         else:
             self._consecutive_count = 1
+        if self._consecutive_count > self._consecutive_lose:
+            self._consecutive_lose = self._consecutive_count
         self._consecutive_winning = False
         
     def tied(self):
@@ -76,6 +80,8 @@ class battle_player(object):
         self._last_item = None
         self._consecutive_winning = False
         self._consecutive_count = 0
+        self._consecutive_win = 0
+        self._consecutive_lose = 0
 
     def is_same_uid(self, uid):
         return self._uid == uid
@@ -110,6 +116,14 @@ class battle_player(object):
         return self._consecutive_count
 
     @property
+    def longest_consecutive_win(self):
+        return self._consecutive_win
+
+    @property
+    def longest_consecutive_lose(self):
+        return self._consecutive_lose
+
+    @property
     def winning_rate(self):
         try:
             return self._win / float(self._win + self._lose)
@@ -135,6 +149,7 @@ class rps(object):
                              battle_item.paper: [],
                              battle_item.scissor: []}
         self._result_generated = False
+        self._enabled = True
 
     def init_register(self, rock, paper, scissor):
         """
@@ -187,18 +202,21 @@ class rps(object):
         return not void if error occurred.
         No action if player not exist.
         """
-        player_count = len(self._player_dict)
-        if player_count < 2:
-            return error.main.miscellaneous(u'玩家人數不足，需要先註冊2名玩家以後方可遊玩。目前已註冊玩家{}名。\n已註冊玩家: {}'.format(
-                player_count, '、'.join([player.name for player in self._player_dict.itervalues()])))
-        else:
-            if self._play_entered:
-                if self._player1.is_same_uid(player_uid):
-                    return error.main.miscellaneous(u'同一玩家不可重複出拳。')
-                else:
-                    self._play2(item, player_uid)
+        if self._enabled:
+            player_count = len(self._player_dict)
+            if player_count < 2:
+                return error.main.miscellaneous(u'玩家人數不足，需要先註冊2名玩家以後方可遊玩。目前已註冊玩家{}名。\n已註冊玩家: {}'.format(
+                    player_count, '、'.join([player.name for player in self._player_dict.itervalues()])))
             else:
-                self._play1(item, player_uid)
+                if self._play_entered:
+                    if self._player1.is_same_uid(player_uid):
+                        return error.main.miscellaneous(u'同一玩家不可重複出拳。')
+                    else:
+                        self._play2(item, player_uid)
+                else:
+                    self._play1(item, player_uid)
+        else:
+            return error.main.miscellaneous(u'遊戲暫停中...')
 
     def result_text(self):
         """
@@ -341,11 +359,19 @@ class rps(object):
     def result_generated(self):
         return self._result_generated
 
+    @property
+    def enabled(self):
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value):
+        self._enabled = value
+
     @staticmethod
     def player_stats_text(player_dict):
         text = u'【最新玩家結果】\n'
-        text += u'\n'.join([u'{}\n{}戰 {}勝 {}敗 {}平 {}連{}中 ({:.2%})'.format(player.name, player.total_played, player.win_count, player.lose_count, player.tied_count, 
-                                                                      player.consecutive_count, u'勝' if player.consecutive_type else u'敗', player.winning_rate) 
+        text += u'\n'.join([u'{}\n{}戰 勝率{:.2%} {}勝 {}敗 {}平 {}連{}中 最長{}連勝、{}連敗'.format(player.name, player.winning_rate, player.total_played, player.win_count, player.lose_count, player.tied_count, 
+                                                                      player.consecutive_count, u'勝' if player.consecutive_type else u'敗', player.longest_consecutive_win, player.longest_consecutive_lose) 
                             for player in sorted(player_dict.values(), reverse=True)])
         return text
         

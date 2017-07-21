@@ -845,7 +845,7 @@ class game_processor(object):
                     text = rps_obj.battle_item_dict_text(game.battle_item.paper)
                 elif action == 'S':
                     text = rps_obj.battle_item_dict_text(game.battle_item.scissor)
-                elif action == 'PL':
+                elif action == 'PLAY':
                     uid = get_source_user_id(src)
                     if is_valid_user_id(uid):
                         player_name = profile(uid).display_name
@@ -856,6 +856,12 @@ class game_processor(object):
                             text = u'玩家 {} 已存在於玩家清單中。'.format(player_name)
                     else:
                         text = error.main.unable_to_receive_user_id()
+                elif action == 'SW':
+                    rps_obj.enabled = not rps_obj.enabled
+                    if rps_obj.enabled:
+                        text = u'遊戲已繼續。'
+                    else:
+                        text = u'遊戲已暫停。'
                 else:
                     text = error.main.incorrect_param(u'參數1', u'DEL, RST, R, P, S')
             else:
@@ -865,7 +871,7 @@ class game_processor(object):
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
                     text = game.rps.player_stats_text(rps_obj.player_dict)
-                    text += '\n'
+                    text += '\n\n'
                     text += rps_obj.battle_item_dict_text()
                 else:
                     text = error.main.miscellaneous(u'無玩家資料。')
