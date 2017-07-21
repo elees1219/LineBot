@@ -1032,10 +1032,10 @@ def handle_text_message(event):
                     cid = get_source_channel_id(src)
 
                     if isinstance(src, SourceUser):
-                        text = 'Unable to leave 1v1 chat.'
+                        text = u'無法離開私訊頻道。'
                         api_reply(token, TextSendMessage(text=text), src)
                     else:
-                        api_reply(token, TextSendMessage(text='Channel ID: {cid}\nBot Contact Link: http://line.me/ti/p/@fcb0332q'.format(cid=cid)), src)
+                        api_reply(token, TextSendMessage(text=u'頻道ID: {}\n機器人聯絡連結: http://line.me/ti/p/@fcb0332q'.format(cid)), src)
 
                         if isinstance(src, SourceRoom):
                             api.leave_room(cid)
@@ -1302,7 +1302,7 @@ def handle_join(event):
         else:
             api_reply(reply_token, 
                       [TextMessage(text=u'群組資料已存在。'),
-                       TextMessage(text=command_exec.G(src, [])),
+                       TextMessage(text=command_exec.G(src, [None, None, None])),
                        introduction_template()], 
                        cid)
 
