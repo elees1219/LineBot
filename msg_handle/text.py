@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 class text_msg(object):
+
     @staticmethod
     def split(text, splitter, size):
         list = []
