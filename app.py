@@ -756,6 +756,8 @@ class game_processor(object):
         cid = get_source_channel_id(src)
         uid = get_source_user_id(src)
 
+        print params
+
         if params[4] is not None:
             rps_obj = self._game_object['rps'][cid]
             action = params[1]
