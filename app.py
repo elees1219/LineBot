@@ -752,6 +752,8 @@ class game_processor(object):
         self._game_object = game_object
 
     def RPS(self, src, params):
+        # IMPORTANT: game result is append, not cover
+
         cid = get_source_channel_id(src)
         uid = get_source_user_id(src)
 
@@ -794,7 +796,7 @@ class game_processor(object):
             rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
             if rps_obj_reg_result is None:
                 if is_valid_user_id(uid):
-                    rps_obj.register_player(profile(uid).display_name, uid)
+                    rps_obj.register_player(profile(uid).display_name, 1)
                     text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
                     self._game_object['rps'][cid] = rps_obj
                 else:
