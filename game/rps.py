@@ -112,7 +112,7 @@ class battle_player(object):
         try:
             return self._win / float(self._win + self._lose)
         except ZeroDivisionError:
-            return 1.0
+            return 1.0 if self._win > 0 else 0.0
     
     @property
     def last_item(self):
@@ -174,7 +174,11 @@ class rps(object):
         self._battle_dict[battle_item].append(battle_item_representative(battle_item, is_sticker, content))
 
     def register_player(self, name, uid):
-        self._player_dict[uid] = battle_player(name, uid)
+        if self._player_dict.get(uid) is None:
+            self._player_dict[uid] = battle_player(name, uid)
+            return True
+        else:
+            return False
 
     def play(self, item, player_uid):
         """

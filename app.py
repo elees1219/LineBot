@@ -794,7 +794,7 @@ class game_processor(object):
             rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
             if rps_obj_reg_result is None:
                 if is_valid_user_id(uid):
-                    rps_obj.register_player(profile(uid).display_name, 1)
+                    rps_obj.register_player(profile(uid).display_name, uid)
                     text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
                     self._game_object['rps'][cid] = rps_obj
                 else:
@@ -840,8 +840,12 @@ class game_processor(object):
                 elif action == 'PL':
                     uid = get_source_user_id(src)
                     if is_valid_user_id(uid):
-                        rps_obj.register_player(profile(uid).display_name, uid)
-                        text = u'玩家 {} 已成功註冊。'
+                        player_name = profile(uid).display_name
+                        reg_success = rps_obj.register_player(player_name, uid)
+                        if reg_success:
+                            text = u'成功註冊玩家 {}。'.format(player_name)
+                        else:
+                            text = u'玩家 {} 已存在於玩家清單中。'.format(player_name)
                     else:
                         text = error.main.unable_to_receive_user_id()
                 else:
