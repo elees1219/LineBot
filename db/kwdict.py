@@ -57,13 +57,11 @@ class kw_dict_mgr(object):
         return cmd
 
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
-        keyword = keyword.replace('  ', ' ')
-        reply = reply.replace('  ', ' ')
-        if keyword == '' or reply == '':
+        if keyword.replace(' ', '') == '' or reply.replace(' ', '') == '':
             return None
         else:
             cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply) \
-                    VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
+                    VALUES(E%(kw)s, E%(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                     RETURNING *;'
             cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
             cmd_override = u'UPDATE keyword_dict SET override = TRUE, deletor = %(dt)s, disabled_time = NOW() \

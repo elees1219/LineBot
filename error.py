@@ -63,11 +63,6 @@ class error(object):
             return u'長度不符。{}的長度應為{}。'.format(thing, length)
 
         @staticmethod
-        def insufficient_space_for_command():
-            return u'偵測到1個空格。\n要使用指令的話，指令和參數之間需要2個空格。詳細使用方法請參閱使用說明書( {} )。'.format(
-                error.user_manual_url)
-
-        @staticmethod
         def unable_to_receive_user_id():
             return u'因LINE政策問題，如果要使用這個功能的話，請先將LINE更新到v7.5.0以上，或是在私訊頻道中重試。\n\n詳細說明請點此查看: https://developers.line.me/messaging-api/obtaining-user-consent'
 

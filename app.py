@@ -936,21 +936,21 @@ def handle_text_message(event):
         return
 
     try:
-        parse_result = split(text, splitter, 3)
-        parse_result = {'head': parse_result[0], 'cmd': parse_result[1], 'oth': parse_result[2]}
+        if splitter in text:
+            head, cmd, oth = split(text, splitter, 3)
 
-        if parse_result['head'] == 'JC':
+            if head == 'JC':
                 rec['cmd']['JC'] += 1
                 
                 # TODO: put inside cmd proc module - static method - verify command - BEGIN
-                if parse_result['cmd'] not in sys_cmd_dict:
-                    text = error.main.invalid_thing(u'指令', parse_result['cmd'])
+                if cmd not in sys_cmd_dict:
+                    text = error.main.invalid_thing(u'指令', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 
-                max_prm = sys_cmd_dict[parse_result['cmd']].split_max
-                min_prm = sys_cmd_dict[parse_result['cmd']].split_min
-                params = split(parse_result['oth'], splitter, max_prm)
+                max_prm = sys_cmd_dict[cmd].split_max
+                min_prm = sys_cmd_dict[cmd].split_min
+                params = split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
                     text = error.main.lack_of_thing(u'參數')
@@ -958,77 +958,77 @@ def handle_text_message(event):
                     return
 
                 params.insert(0, None)
-                sys_cmd_dict[parse_result['cmd']].count += 1
+                sys_cmd_dict[cmd].count += 1
                 # TODO: put inside cmd proc module - static method - verify command - END
                 
                 # SQL Command
-                if parse_result['cmd'] == 'S':
+                if cmd == 'S':
                     text = command_executor.S(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # ADD keyword & ADD top keyword
-                elif parse_result['cmd'] == 'A' or parse_result['cmd'] == 'M':
-                    if sys_cmd_dict[parse_result['cmd']].non_user_permission_required:
+                elif cmd == 'A' or cmd == 'M':
+                    if sys_cmd_dict[cmd].non_user_permission_required:
                         text = command_executor.M(src, params)
                     else:
                         text = command_executor.A(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # DELETE keyword & DELETE top keyword
-                elif parse_result['cmd'] == 'D' or parse_result['cmd'] == 'R':
-                    if sys_cmd_dict[parse_result['cmd']].non_user_permission_required:
+                elif cmd == 'D' or cmd == 'R':
+                    if sys_cmd_dict[cmd].non_user_permission_required:
                         text = command_executor.R(src, params)
                     else:
                         text = command_executor.D(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # QUERY keyword
-                elif parse_result['cmd'] == 'Q':
+                elif cmd == 'Q':
                     text = command_executor.Q(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # INFO of keyword
-                elif parse_result['cmd'] == 'I':
+                elif cmd == 'I':
                     text = command_executor.I(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # RANKING
-                elif parse_result['cmd'] == 'K':
+                elif cmd == 'K':
                     text = command_executor.K(src, params)
                     
                     api_reply(token, TextSendMessage(text=text), src)
                 # SPECIAL record
-                elif parse_result['cmd'] == 'P':
+                elif cmd == 'P':
                     text = command_executor.P(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban basic (info)
-                elif parse_result['cmd'] == 'G':
+                elif cmd == 'G':
                     text = command_executor.G(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban advance
-                elif parse_result['cmd'] == 'GA':
+                elif cmd == 'GA':
                     texts = command_executor.GA(src, params)
 
                     api_reply(token, [TextSendMessage(text=text) for text in texts], src)
                 # get CHAT id
-                elif parse_result['cmd'] == 'H':
+                elif cmd == 'H':
                     output = command_executor.H(src, params)
 
                     api_reply(token, [TextSendMessage(text=output[0]), TextSendMessage(text=output[1])], src)
                 # SHA224 generator
-                elif parse_result['cmd'] == 'SHA':
+                elif cmd == 'SHA':
                     text = command_executor.SHA(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Look up vocabulary in OXFORD Dictionary
-                elif parse_result['cmd'] == 'O':
+                elif cmd == 'O':
                     text = command_executor.O(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Leave group or room
-                elif parse_result['cmd'] == 'B':
+                elif cmd == 'B':
                     cid = get_source_channel_id(src)
 
                     if isinstance(src, SourceUser):
@@ -1042,18 +1042,18 @@ def handle_text_message(event):
                         elif isinstance(src, SourceGroup):
                             api.leave_group(cid)
                 # RANDOM draw
-                elif parse_result['cmd'] == 'RD':
+                elif cmd == 'RD':
                     text = command_executor.RD(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # last STICKER message
-                elif parse_result['cmd'] == 'STK':
+                elif cmd == 'STK':
                     text = command_executor.STK(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
-                    sys_cmd_dict[parse_result['cmd']].count -= 1
-        elif parse_result['head'] == 'HELP':
+                    sys_cmd_dict[cmd].count -= 1
+            elif head == 'HELP':
                 rec['cmd']['HELP'] += 1
                 data = split(text, splitter, 2)
 
@@ -1084,17 +1084,17 @@ def handle_text_message(event):
                                                                                             u', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
                     
                     api_reply(token, TextSendMessage(text=text), src)
-        elif parse_result['head'] == 'G':
+            elif head == 'G':
                 rec['cmd']['GAME'] += 1
 
-                if parse_result['cmd'] not in sys_cmd_dict:
-                    text = error.main.invalid_thing(u'遊戲', parse_result['cmd'])
+                if cmd not in sys_cmd_dict:
+                    text = error.main.invalid_thing(u'遊戲', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
                     return
                 
-                max_prm = sys_cmd_dict[parse_result['cmd']].split_max
-                min_prm = sys_cmd_dict[parse_result['cmd']].split_min
-                params = split(parse_result['oth'], splitter, max_prm)
+                max_prm = sys_cmd_dict[cmd].split_max
+                min_prm = sys_cmd_dict[cmd].split_min
+                params = split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
                     text = error.main.lack_of_thing(u'參數')
@@ -1102,15 +1102,15 @@ def handle_text_message(event):
                     return
 
                 params.insert(0, None)
-                game_cmd_dict[parse_result['cmd']].count += 1
+                game_cmd_dict[cmd].count += 1
 
                 # GAME - Rock-Paper-Scissor
-                if parse_result['cmd'] == 'RPS':
+                if cmd == 'RPS':
                     text = game_executor.RPS(src, params, game_object)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
-                    game_cmd_dict[parse_result['cmd']].count -= 1
+                    game_cmd_dict[cmd].count -= 1
 
         rps_obj = game_object['rps'].get(get_source_channel_id(src))
         if rps_obj is not None:
@@ -1121,21 +1121,24 @@ def handle_text_message(event):
 
         replied = auto_reply_system(token, text, False, src)
 
-        if text.startswith('JC') and ' ' in text and not replied:
-            text = error.main.insufficient_space_for_command();
+        if text.startswith('JC') and ' ' or '  ' in text and not replied:
+            msg = u'小水母指令分隔字元已從【雙空格】修改為【換行】。'
+            msg += u'\n\n如欲輸入指令，請以換行分隔指令，例如:\nJC\nA\n你！\n我？'
+            msg += u'\n\n如果參數中要包含換行的話，請輸入【\n】。\n另外，JC RD的文字抽籤中，原先以換行分隔，現在則以單空格分隔。'
+            text = error.main.miscellaneous(msg)
             api_reply(token, TextSendMessage(text=text), src)
             return
     except exceptions.LineBotApiError as ex:
-        text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
-        text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
+        text = u'開機時間: {}\n\n'.format(boot_up)
+        text += u'LINE API錯誤，狀態碼: {}\n\n'.format(ex.status_code)
         for err in ex.error.details:
-            text += u'Property: {prop}\nMessage: {msg}\n'.format(prop=err.property, msg=err.message.decode("utf-8"))
+            text += u'錯誤內容: {}\n錯誤訊息: {}\n'.format(err.property, err.message.decode("utf-8"))
 
         send_error_url_line(token, text, get_source_channel_id(src))
     except Exception as exc:
-        text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
+        text = u'開機時間: {}\n\n'.format(boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message.decode("utf-8"))
+        text += u'錯誤種類: {}\n錯誤訊息: {}\n第{}行'.format(exc_type, exc.message.decode("utf-8"), exc_tb.tb_lineno)
 
         send_error_url_line(token, text, get_source_channel_id(src))
     return 
