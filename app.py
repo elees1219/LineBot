@@ -476,7 +476,7 @@ class command_processor(object):
                 text += u'\n\n【系統指令相關(包含呼叫失敗)】\n總呼叫次數: {}\n'.format(rec['cmd']['JC'])
                 text += u'\n'.join([u'指令{} - {}'.format(cmd, cmd_obj.count) for cmd, cmd_obj in sys_cmd_dict.items()])
                 text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(rec['cmd']['HELP'])
-                text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(len(game_object['rps']), rec['cmd']['GAME']['rps'])
+                text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(len(game_object['rps']), game_cmd_dict['RPS'])
             else:
                 text = error.main.invalid_thing_with_correct_format(u'參數1', u'GRP、KW或SYS', params[1])
         else:
@@ -1102,7 +1102,6 @@ def handle_text_message(event):
                     return
 
                 params.insert(0, None)
-                game_cmd_dict[cmd].count += 1
 
                 # GAME - Rock-Paper-Scissor
                 if cmd == 'RPS':
@@ -1463,7 +1462,7 @@ def minigame_rps_capturing(rps_obj, is_sticker, content):
         battle_item = rps_obj.find_battle_item(is_sticker, content)
         if battle_item is not game.battle_item.none:
             result = rps_obj.play(battle_item, 1)
-            rec['cmd']['GAME']['rps'] += 1
+            game_cmd_dict['RPS'].count += 1
             if result is not None:
                 return result
             else:
