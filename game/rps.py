@@ -77,6 +77,9 @@ class battle_player(object):
         self._consecutive_winning = False
         self._consecutive_count = 0
 
+    def is_same_uid(uid):
+        return self._uid == uid
+
     @property
     def name(self):
         return self._name
@@ -190,7 +193,10 @@ class rps(object):
                 player_count, '、'.join([player.name for player in self._player_dict.itervalues()])))
         else:
             if self._play_entered:
-                self._play2(item, player_uid)
+                if self._player1.is_same_uid(player_uid):
+                    return error.main.miscellaneous(u'同一玩家不可重複出拳。')
+                else:
+                    self._play2(item, player_uid)
             else:
                 self._play1(item, player_uid)
 
@@ -267,8 +273,6 @@ class rps(object):
             self._calculate_result()
 
     def _calculate_result(self):
-        print self._player1.last_item
-        print self._player2.last_item
         result = self._player1.last_item.value - self._player2.last_item.value
         result = result % 3
         self._result_enum = battle_result(result)
