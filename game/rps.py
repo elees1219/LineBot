@@ -109,7 +109,10 @@ class battle_player(object):
 
     @property
     def winning_rate(self):
-        return self._win / float(self._win + self._lose)
+        try:
+            return self._win / float(self._win + self._lose)
+        except ZeroDivisionError:
+            return 1.0
     
     @property
     def last_item(self):
