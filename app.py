@@ -837,6 +837,13 @@ class game_processor(object):
                     text = rps_obj.battle_item_dict_text(game.battle_item.paper)
                 elif action == 'S':
                     text = rps_obj.battle_item_dict_text(game.battle_item.scissor)
+                elif action == 'PL':
+                    uid = get_source_user_id(src)
+                    if is_valid_user_id(uid):
+                        rps_obj.register_player(profile(uid).display_name, uid)
+                        text = u'玩家 {} 已成功註冊。'
+                    else:
+                        text = error.main.unable_to_receive_user_id()
                 else:
                     text = error.main.incorrect_param(u'參數1', u'DEL, RST, R, P, S')
             else:
