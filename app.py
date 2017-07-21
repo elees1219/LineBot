@@ -345,7 +345,7 @@ class command_processor(object):
         if results is not None:
             q_list = kw_dict_mgr.list_keyword(results)
             text = q_list['limited']
-            text += '\n\n完整搜尋結果顯示: {}'.format(rec_query(q_list['full']))
+            text += u'\n\n完整搜尋結果顯示: {}'.format(rec_query(q_list['full']))
         else:
             if params[2] is not None:
                 text = u'找不到和指定的ID範圍({}~{})有關的結果。'.format(si, ei)
@@ -1027,20 +1027,6 @@ def handle_text_message(event):
                     text = command_executor.O(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
-                # Leave group or room
-                elif cmd == 'B':
-                    cid = get_source_channel_id(src)
-
-                    if isinstance(src, SourceUser):
-                        text = u'無法離開私訊頻道。'
-                        api_reply(token, TextSendMessage(text=text), src)
-                    else:
-                        api_reply(token, TextSendMessage(text=u'頻道ID: {}\n機器人聯絡連結: http://line.me/ti/p/@fcb0332q'.format(cid)), src)
-
-                        if isinstance(src, SourceRoom):
-                            api.leave_room(cid)
-                        elif isinstance(src, SourceGroup):
-                            api.leave_group(cid)
                 # RANDOM draw
                 elif cmd == 'RD':
                     text = command_executor.RD(src, params)
@@ -1105,7 +1091,7 @@ def handle_text_message(event):
 
                 # GAME - Rock-Paper-Scissor
                 if cmd == 'RPS':
-                    text = game_executor.RPS(src, params, game_object)
+                    text = game_executor.RPS(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
