@@ -345,7 +345,7 @@ class command_processor(object):
         if results is not None:
             q_list = kw_dict_mgr.list_keyword(results)
             text = q_list['limited']
-            text += u'\n\n完整搜尋結果顯示: {}'.format(rec_query(q_list['full']))
+            text += '\n\n完整搜尋結果顯示: {}'.format(rec_query(q_list['full']))
         else:
             if params[2] is not None:
                 text = u'找不到和指定的ID範圍({}~{})有關的結果。'.format(si, ei)
