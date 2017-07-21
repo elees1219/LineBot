@@ -261,14 +261,14 @@ class rps(object):
         player_obj = self._player_dict.get(player_uid)
         if player_obj is not None:
             self._player2 = player_obj
-            self._player1.last_item = item
+            self._player2.last_item = item
             self._gap_time = time.time() - self._play_begin_time
             self._play_entered = False
             self._calculate_result()
 
     def _calculate_result(self):
-        print self._player1.last_item.value
-        print self._player2.last_item.value
+        print self._player1.last_item
+        print self._player2.last_item
         result = self._player1.last_item.value - self._player2.last_item.value
         result = result % 3
         self._result_enum = battle_result(result)
