@@ -1120,7 +1120,6 @@ def handle_text_message(event):
 
         replied = auto_reply_system(token, text, False, src)
 
-        print text.decode('utf-8')
         if text.startswith('JC') or text.startswith('HELP') or text.startswith('G') and ((' ' or '  ') in text) and not replied:
             msg = u'小水母指令分隔字元已從【雙空格】修改為【換行】。'
             msg += u'\n\n如欲輸入指令，請以換行分隔指令，例如:\nJC\nA\n你！\n我？'
