@@ -1420,7 +1420,11 @@ def intercept_text(event):
     print 'From Channel ID \'{}\''.format(get_source_channel_id(event.source))
     print 'From User ID \'{}\' ({})'.format(user_id, user_profile.display_name.encode('utf-8') if user_profile is not None else 'unknown')
     print 'Message \'{}\''.format(event.message.text.encode('utf-8'))
-    print '==========================================='
+    print '=================================================================='
+    print 'Received message body: '
+    print event.message
+    print '=================================================================='
+
 
 
 def auto_reply_system(token, keyword, is_sticker_kw, src):
