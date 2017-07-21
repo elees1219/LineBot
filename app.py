@@ -774,6 +774,14 @@ class game_processor(object):
                 else:
                     battle_item = game.battle_item.none
 
+                print battle_item 
+                print params
+                print params[0]
+                print params[1]
+                print params[2]
+                print params[3]
+                print params[4]
+
                 if battle_item is not game.battle_item.none:
                     if is_sticker == 'STK':
                         rps_obj.register_battle_item(battle_item, True, content)
