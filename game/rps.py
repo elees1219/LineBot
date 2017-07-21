@@ -191,7 +191,7 @@ class rps(object):
         text = u'【最新玩家結果】\n'
         text += u'\n'.join([u'{}\n{}戰 {}勝 {}敗 {}平 {}連{}中'.format(player.name, player.total_played, player.win_count, player.lose_count, player.tied_count, 
                                                                       u'勝' if player.consecutive_type else u'敗', player.consecutive_count) 
-                            for player in player_dict.itervalues()])
+                            for player in sorted(player_dict.values(), reverse=True)])
         return text
 
 

@@ -114,7 +114,7 @@ sys_cmd_dict = {'S': command(1, 1, True),
             'STK': command(0, 0, False),
             'RPS': command(0, 3, False)}
 
-game_cmd_dict = {'GRP': command(0, 4, True)}
+game_cmd_dict = {'RPS': command(0, 4, True)}
 
 helper_cmd_dict = {'MFF': command(1, 8, True)}
 
@@ -475,7 +475,7 @@ class command_processor(object):
                 text += u'\n【自動產生網頁相關】\n瀏覽次數: {}'.format(rec['webpage'])
                 text += u'\n\n【系統指令相關(包含呼叫失敗)】\n總呼叫次數: {}\n'.format(rec['cmd']['JC'])
                 text += u'\n'.join([u'指令{} - {}'.format(cmd, cmd_obj.count) for cmd, cmd_obj in sys_cmd_dict.items()])
-                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(rec['cmd']['HELP']['MFF'])
+                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(rec['cmd']['HELP'])
                 text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(len(game_object['rps']), rec['cmd']['GAME']['rps'])
             else:
                 text = error.main.invalid_thing_with_correct_format(u'參數1', u'GRP、KW或SYS', params[1])
@@ -1121,7 +1121,7 @@ def handle_text_message(event):
 
         replied = auto_reply_system(token, text, False, src)
 
-        if text.startswith('JC') and ' ' or '  ' in text and not replied:
+        if text.startswith('JC') or text.startswith('HELP') or text.startswith('G') and ' ' or '  ' in text and not replied:
             msg = u'小水母指令分隔字元已從【雙空格】修改為【換行】。'
             msg += u'\n\n如欲輸入指令，請以換行分隔指令，例如:\nJC\nA\n你！\n我？'
             msg += u'\n\n如果參數中要包含換行的話，請輸入【\\n】。\n另外，JC RD的文字抽籤中，原先以換行分隔，現在則以單空格分隔。'
@@ -1143,7 +1143,7 @@ def handle_text_message(event):
         send_error_url_line(token, text, get_source_channel_id(src))
     return 
 
-    # TODO: use template like confirm in intro template
+    # TODO: use template-like confirm in intro template
     if text == 'confirm':
         confirm_template = ConfirmTemplate(text='Do it?', actions=[
             MessageTemplateAction(label='Yes', text='Yes!'),
@@ -1178,8 +1178,8 @@ def handle_sticker_message(event):
     rep = event.reply_token
     src = event.source
     cid = get_source_channel_id(src)
-
     
+    # TODO: Modulize handle received sticker message 
     global game_object
     rec['last_stk'][cid] = sticker_id
     rps_obj = game_object['rps'].get(cid)
