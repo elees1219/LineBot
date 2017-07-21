@@ -940,7 +940,7 @@ def handle_text_message(event):
             parse_result = split(text, splitter, 3)
             parse_result = {'head': parse_result[0], 'cmd': parse_result[1], 'oth': parse_result[2]}
 
-            if head == 'JC':
+            if parse_result['head'] == 'JC':
                 rec['cmd']['JC'] += 1
                 
                 # TODO: put inside cmd proc module - static method - verify command - BEGIN
@@ -1054,7 +1054,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
                     sys_cmd_dict[parse_result['cmd']].count -= 1
-            elif head == 'HELP':
+            elif parse_result['head'] == 'HELP':
                 rec['cmd']['HELP'] += 1
                 data = split(text, splitter, 2)
 
@@ -1085,7 +1085,7 @@ def handle_text_message(event):
                                                                                             u', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
                     
                     api_reply(token, TextSendMessage(text=text), src)
-            elif head == 'G':
+            elif parse_result['head'] == 'G':
                 rec['cmd']['GAME'] += 1
 
                 if parse_result['cmd'] not in sys_cmd_dict:
@@ -1139,7 +1139,9 @@ def handle_text_message(event):
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message.decode("utf-8"))
 
         send_error_url_line(token, text, get_source_channel_id(src))
+    return 
 
+    # TODO: use template like confirm in intro template
     if text == 'confirm':
         confirm_template = ConfirmTemplate(text='Do it?', actions=[
             MessageTemplateAction(label='Yes', text='Yes!'),
