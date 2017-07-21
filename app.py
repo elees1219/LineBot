@@ -48,10 +48,6 @@ kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
 gb = group_ban("postgres", os.environ["DATABASE_URL"])
 msg_track = message_tracker("postgres", os.environ["DATABASE_URL"])
 
-# Text parser initialization
-command_executor = command_processor(kwd, gb, msg_track)
-game_executor = game_processor(game_object)
-
 # Main initialization
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
@@ -803,6 +799,9 @@ class game_processor(object):
 
         return text
 
+# Text parser initialization
+command_executor = command_processor(kwd, gb, msg_track)
+game_executor = game_processor(game_object)
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
