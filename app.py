@@ -1172,6 +1172,7 @@ def handle_text_message(event):
                 else:
                     game_cmd_dict[cmd].count -= 1
 
+        print game_object['rps']
         rps_obj = game_object['rps'].get(get_source_channel_id(src))
         if rps_obj is not None:
             rps_text = minigame_rps_capturing(rps_obj, False, text)
