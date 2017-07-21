@@ -1527,13 +1527,14 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 
 def minigame_rps_capturing(rps_obj, is_sticker, content, uid):
     if rps_obj is not None and is_valid_user_id(uid):
-        battle_item = rps_obj.find_battle_item(is_sticker, content)
-        if battle_item is not None:
-            result = rps_obj.play(battle_item, uid)
-            game_cmd_dict['RPS'].count += 1
-            if result is not None:
-                return result
-            else:
+        if rps_obj.enabled:
+            battle_item = rps_obj.find_battle_item(is_sticker, content)
+            if battle_item is not None:
+                result = rps_obj.play(battle_item, uid)
+                game_cmd_dict['RPS'].count += 1
+                if result is not None:
+                    return result
+                else:
                 if rps_obj.is_waiting_next:
                     return u'等待下一個玩家出拳中...'
                 if rps_obj.result_generated:
