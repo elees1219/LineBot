@@ -863,7 +863,7 @@ class game_processor(object):
                     else:
                         text = u'遊戲已暫停。'
                 else:
-                    text = error.main.incorrect_param(u'參數1', u'DEL, RST, R, P, S')
+                    text = error.main.incorrect_param(u'參數1', u'DEL, RST, R, P, S, PLAY, SW')
             else:
                 text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
         else:
