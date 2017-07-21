@@ -76,7 +76,7 @@ class kw_dict_mgr(object):
         keyword = keyword.replace('%', '')
         keyword = keyword.replace("'", r"'")
         cmd = u'SELECT * FROM keyword_dict \
-                WHERE keyword = %(kw)s AND deleted = FALSE AND override = FALSE AND is_sticker_kw = %(stk_kw)s\
+                WHERE keyword = E%(kw)s AND deleted = FALSE AND override = FALSE AND is_sticker_kw = %(stk_kw)s\
                 ORDER BY admin DESC, id DESC;'
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
@@ -89,7 +89,7 @@ class kw_dict_mgr(object):
             return None
 
     def search_keyword(self, keyword):
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE %(kw)s OR reply LIKE %(kw)s ORDER BY id DESC;'
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE E%(kw)s OR reply LIKE E%(kw)s ORDER BY id DESC;'
         cmd_dict = {'kw': '%' + keyword + '%'}
         result = self.sql_cmd(cmd, cmd_dict)
         return result
@@ -101,7 +101,7 @@ class kw_dict_mgr(object):
         return result
 
     def get_info(self, keyword):
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword = %(kw)s OR reply = %(kw)s ORDER BY id DESC;'
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = E%(kw)s OR reply = E%(kw)s ORDER BY id DESC;'
         cmd_dict = {'kw': keyword}
         result = self.sql_cmd(cmd, cmd_dict)
         return result
