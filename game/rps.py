@@ -370,7 +370,7 @@ class rps(object):
     @staticmethod
     def player_stats_text(player_dict):
         text = u'【最新玩家結果】\n'
-        text += u'\n'.join([u'{}\n{}戰 勝率{:.2%} {}勝 {}敗 {}平 {}連{}中 最長{}連勝、{}連敗'.format(player.name, player.total_played, player.winning_rate, player.win_count, player.lose_count, player.tied_count, 
+        text += u'\n'.join([u'{}\n{}戰 勝率{:.3f} {}勝 {}敗 {}平 {}連{}中 最長{}連勝、{}連敗'.format(player.name, player.total_played, player.winning_rate, player.win_count, player.lose_count, player.tied_count, 
                                                                       player.consecutive_count, u'勝' if player.consecutive_type else u'敗', player.longest_consecutive_win, player.longest_consecutive_lose) 
                             for player in sorted(player_dict.values(), reverse=True)])
         return text
