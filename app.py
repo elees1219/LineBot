@@ -968,7 +968,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # ADD keyword & ADD top keyword
                 elif parse_result['cmd'] == 'A' or parse_result['cmd'] == 'M':
-                    if sys_cmd_dict[cmd].non_user_permission_required:
+                    if sys_cmd_dict[parse_result['cmd']].non_user_permission_required:
                         text = command_executor.M(src, params)
                     else:
                         text = command_executor.A(src, params)
@@ -976,7 +976,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # DELETE keyword & DELETE top keyword
                 elif parse_result['cmd'] == 'D' or parse_result['cmd'] == 'R':
-                    if sys_cmd_dict[cmd].non_user_permission_required:
+                    if sys_cmd_dict[parse_result['cmd']].non_user_permission_required:
                         text = command_executor.R(src, params)
                     else:
                         text = command_executor.D(src, params)
