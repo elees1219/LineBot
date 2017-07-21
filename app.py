@@ -1141,7 +1141,6 @@ def handle_text_message(event):
         send_error_url_line(token, text, get_source_channel_id(src))
     return 
 
-    # TODO: use template-like confirm in intro template
     if text == 'confirm':
         confirm_template = ConfirmTemplate(text='Do it?', actions=[
             MessageTemplateAction(label='Yes', text='Yes!'),
@@ -1353,7 +1352,8 @@ def introduction_template():
             title=u'機器人簡介', text='歡迎使用小水母！', 
             actions=[
                 URITemplateAction(label=u'點此開啟使用說明', uri='https://sites.google.com/view/jellybot'),
-                URITemplateAction(label=u'點此導向開發者LINE帳號', uri='http://line.me/ti/p/~chris80124')
+                URITemplateAction(label=u'點此導向開發者LINE帳號', uri='http://line.me/ti/p/~raenonx'),
+                MessageTemplateAction(label=u'點此查看群組資料', text='JC\nG')
             ])
     template_message = TemplateSendMessage(
         alt_text=u'機器人簡介', template=buttons_template)
@@ -1506,7 +1506,6 @@ def rec_text(textmsg_list):
         report_content['Text'][timestamp] += txt.text
         report_content['Text'][timestamp] += '\n===============================\n'
     return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
-
 
 
 def send_error_url_line(token, error_text, channel_id):
