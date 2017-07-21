@@ -11,7 +11,6 @@ class battle_item(Enum):
     rock = 1
     paper = 2
     scissor = 3
-    none = -1
 
 
 class battle_item_representative(object):
@@ -74,7 +73,7 @@ class battle_player(object):
         self._win = 0
         self._lose = 0
         self._tied = 0
-        self._last_item = battle_item.none
+        self._last_item = None
         self._consecutive_winning = False
         self._consecutive_count = 0
 
@@ -219,8 +218,8 @@ class rps(object):
         self._reset()
         return text
 
-    def battle_item_dict_text(self, item=battle_item.none):
-        if item == battle_item.none:
+    def battle_item_dict_text(self, item=None):
+        if item is None:
             text = u'【剪刀石頭布代表物件】\n'
             text += self._battle_item_dict_text(battle_item.scissor)
             text += '\n'
@@ -241,7 +240,7 @@ class rps(object):
                 if representative.is_sticker == is_sticker and representative.content == content:
                     return battle_item_key
 
-        return battle_item.none
+        return None
 
     def reset_battle_item(self, item):
         self._battle_dict[item] = []
@@ -268,6 +267,8 @@ class rps(object):
             self._calculate_result()
 
     def _calculate_result(self):
+        print self._player1.last_item.value
+        print self._player2.last_item.value
         result = self._player1.last_item.value - self._player2.last_item.value
         result = result % 3
         self._result_enum = battle_result(result)

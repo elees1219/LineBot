@@ -1522,7 +1522,7 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 def minigame_rps_capturing(rps_obj, is_sticker, content, uid):
     if rps_obj is not None and is_valid_user_id(uid):
         battle_item = rps_obj.find_battle_item(is_sticker, content)
-        if battle_item is not game.battle_item.none:
+        if battle_item is not None:
             result = rps_obj.play(battle_item, uid)
             game_cmd_dict['RPS'].count += 1
             if result is not None:
