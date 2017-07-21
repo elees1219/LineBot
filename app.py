@@ -113,7 +113,7 @@ sys_cmd_dict = {'S': command(1, 1, True),
             'RD': command(1, 2, False),
             'STK': command(0, 0, False)}
 
-game_cmd_dict = {'RPS': command(0, 5, True)}
+game_cmd_dict = {'RPS': command(0, 4, True)}
 
 helper_cmd_dict = {'MFF': command(1, 8, True)}
 
@@ -765,22 +765,20 @@ class game_processor(object):
                 is_sticker = params[3]
                 content = params[4]
 
+                battle_item = game.battle_item.none
+
                 if item_type == 'R':
                     battle_item = game.battle_item.rock
                 if item_type == 'P':
                     battle_item = game.battle_item.paper
                 if item_type == 'S':
                     battle_item = game.battle_item.scissor
-                else:
-                    battle_item = game.battle_item.none
+                    
 
                 print battle_item 
-                print params
-                print params[0]
-                print params[1]
-                print params[2]
-                print params[3]
-                print params[4]
+                print item_type
+                print is_sticker
+                print content
 
                 if battle_item is not game.battle_item.none:
                     if is_sticker == 'STK':
