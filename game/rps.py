@@ -77,7 +77,7 @@ class battle_player(object):
         self._consecutive_winning = False
         self._consecutive_count = 0
 
-    def is_same_uid(uid):
+    def is_same_uid(self, uid):
         return self._uid == uid
 
     @property
