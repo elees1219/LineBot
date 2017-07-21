@@ -189,7 +189,9 @@ class rps(object):
     def player_stats_text(player_dict):
         # TODO: Sort by record
         text = u'【最新玩家結果】\n'
-        text += u'\n'.join([u'{}勝 {}敗 {}平 - {}'.format(player.win_count, player.lose_count, player.tied_count, player.name) for player in player_dict.itervalues()])
+        text += u'\n'.join([u'{}\n{}戰 {}勝 {}敗 {}平 {}連{}中'.format(player.name, player.total_played, player.win_count, player.lose_count, player.tied_count, 
+                                                                      u'勝' if player.consecutive_type else u'敗', player.consecutive_count) 
+                            for player in player_dict.itervalues()])
         return text
 
 
@@ -239,9 +241,19 @@ class battle_player(object):
 
     def win(self):
         self._win += 1
+        if self._consecutive_winning:
+            self._consecutive_count += 1
+        else:
+            self._consecutive_count = 1
+        self._consecutive_winning = True
         
     def lose(self):
         self._lose += 1
+        if not self._consecutive_winning:
+            self._consecutive_count += 1
+        else:
+            self._consecutive_count = 1
+        self._consecutive_winning = False
         
     def tied(self):
         self._tied += 1
@@ -251,6 +263,8 @@ class battle_player(object):
         self._lose = 0
         self._tied = 0
         self._last_item = battle_item.none
+        self._consecutive_winning = False
+        self._consecutive_count = 0
 
     @property
     def name(self):
@@ -267,6 +281,19 @@ class battle_player(object):
     @property
     def tied_count(self):
         return self._tied
+
+    @property
+    def total_played(self):
+        return self._win + self._lose + self._tied
+
+    @property
+    def consecutive_type(self):
+        """True=Win, False=Lose"""
+        return self._consecutive_winning
+
+    @property
+    def consecutive_count(self):
+        return self._consecutive_count
     
     @property
     def last_item(self):

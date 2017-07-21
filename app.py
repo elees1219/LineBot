@@ -48,11 +48,15 @@ kwd = kw_dict_mgr("postgres", os.environ["DATABASE_URL"])
 gb = group_ban("postgres", os.environ["DATABASE_URL"])
 msg_track = message_tracker("postgres", os.environ["DATABASE_URL"])
 
+# Text parser initialization
+command_executor = command_processor(kwd, gb, msg_track)
+game_executor = game_processor(game_object)
+
 # Main initialization
 app = Flask(__name__)
 boot_up = datetime.now() + timedelta(hours=8)
 
-rec = {'JC_called': 0, 'MFF_called': 0, 
+rec = {'cmd': defaultdict(int),
        'last_stk': defaultdict(str), 
        'Silence': False, 'Intercept': True, 
        'webpage': 0}
@@ -94,7 +98,7 @@ class command(object):
         """Required Permission"""
         return self._non_user_permission_required
 
-cmd_dict = {'S': command(1, 1, True), 
+sys_cmd_dict = {'S': command(1, 1, True), 
             'A': command(2, 4, False), 
             'M': command(2, 4, True), 
             'D': command(1, 2, False), 
@@ -113,6 +117,10 @@ cmd_dict = {'S': command(1, 1, True),
             'RD': command(1, 2, False),
             'STK': command(0, 0, False),
             'RPS': command(0, 3, False)}
+
+game_cmd_dict = {'GRP': command(0, 4, True)}
+
+helper_cmd_dict = {'MFF': command(1, 8, True)}
 
 # Line Bot Environment initialization
 MAIN_UID_OLD = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
@@ -464,12 +472,15 @@ class command_processor(object):
                 if last_count - limit > 0:
                     text += u'\n...(還有{}組)'.format(last_count - limit)
             elif category == 'SYS':
+                global game_object
+
                 text = u'【系統統計資料 - 開機後重設】\n'
                 text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
-                text += u'\n自動產生網頁瀏覽次數: {}'.format(rec['webpage'])
-                text += u'\n\n已呼叫系統指令{}次(包含呼叫失敗)。\n'.format(rec['JC_called'])
-                text += u'\n'.join([u'{} - {}次'.format(cmd, cmd_obj.count) for cmd, cmd_obj in cmd_dict.items()])
-                text += u'\n已使用MFF傷害計算輔助系統{}次。'.format(rec['MFF_called'])
+                text += u'\n【自動產生網頁相關】\n瀏覽次數: {}'.format(rec['webpage'])
+                text += u'\n\n【系統指令相關(包含呼叫失敗)】\n總呼叫次數: {}\n'.format(rec['cmd']['JC'])
+                text += u'\n'.join([u'指令{} - {}'.format(cmd, cmd_obj.count) for cmd, cmd_obj in sys_cmd_dict.items()])
+                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(rec['cmd']['HELP']['MFF'])
+                text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(len(game_object['rps']), rec['cmd']['GAME']['rps'])
             else:
                 text = error.main.invalid_thing_with_correct_format(u'參數1', u'GRP、KW或SYS', params[1])
         else:
@@ -530,6 +541,7 @@ class command_processor(object):
         if isinstance(src, SourceUser):
             text = error_no_action_fetch
 
+            # Set bot auto-reply switch
             if perm >= 1 and param_count == 3:
                 action = params[1]
                 gid = params[2]
@@ -549,6 +561,7 @@ class command_processor(object):
                         text += 'GID: {gid}'.format(gid=gid)
                 else:
                     text = 'Invalid action: {}. Recheck User Manual.'.format(action)
+            # Set new admin/moderator 
             elif perm >= 2 and param_count == 5:
                 action = params[1]
                 gid = params[2]
@@ -586,6 +599,7 @@ class command_processor(object):
                         text = 'Invalid action: {action}. Recheck User Manual.'.format(action=action)
                 else:
                     text = 'Profile of \'User ID: {}\' not found.'.format(new_uid)
+            # Add new group - only execute when data not found
             elif perm >= 3 and param_count == 4:
                 action = params[1]
                 gid = params[2]
@@ -714,8 +728,9 @@ class command_processor(object):
             else:
                 text = u'抽籤範圍【{}~{}】\n抽籤結果【{}】'.format(start_index, end_index, random_gen.random_drawer.draw_number(start_index, end_index))
         elif params[1] is not None:
-            if '\n' in params[1]:
-                text_list = params[1].split('\n')
+            text_splitter = ' '
+            if text_splitter in params[1]:
+                text_list = params[1].split(text_splitter)
                 text = u'抽籤範圍【{}】\n抽籤結果【{}】'.format(', '.join(text_list), random_gen.random_drawer.draw_text(text_list))
             elif params[1].endswith('%') and params[1].count('%') == 1:
                 text = u'抽籤機率【{}】\n抽籤結果【{}】'.format(
@@ -736,50 +751,55 @@ class command_processor(object):
             text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。'
 
         return text
+    
+class game_processor(object):
+    def __init__(self, game_object):
+        self._game_object = game_object
 
-    def RPS(self, src, params, game_object):
-        if isinstance(src, SourceUser):
-            cid = get_source_channel_id(src)
-            if params[3] is not None:
-                scissor = params[1]
-                rock = params[2]
-                paper = params[3]
+    def RPS(self, src, params):
+        cid = get_source_channel_id(src)
+        uid = get_source_user_id(src)
 
-                rps_obj = game.rps(True)
-                rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
-                if rps_obj_reg_result is None:
-                    rps_obj.register_player(profile(get_source_user_id(src)).display_name, 1)
+        if params[3] is not None:
+            scissor = params[1]
+            rock = params[2]
+            paper = params[3]
+
+            rps_obj = game.rps(True if isinstance(src, SourceUser) else False)
+            rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
+            if rps_obj_reg_result is None:
+                if is_valid_user_id(uid):
+                    rps_obj.register_player(profile(uid).display_name, 1)
                     text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
-                    game_object['rps'][cid] = rps_obj
+                    self._game_object['rps'][cid] = rps_obj
                 else:
-                    text = rps_obj_reg_result
-            elif params[1] is not None:
-                action = params[1]
-                if action == u'DEL':
-                    game_object['rps'][cid] = None
-
-                    text = u'猜拳遊戲已刪除。'
-                elif action == u'RST':
-                    rps_obj = game_object['rps'][cid]
-                    if rps_obj is not None and isinstance(rps_obj, game.rps):
-                        rps_obj.reset_statistics()
-                        text = u'猜拳遊戲統計資料已重設。'
-                    else:
-                        text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
-                else:
-                    text = error.main.incorrect_param(u'參數1', u'DEL')
+                    text = error.main.unable_to_receive_user_id()
             else:
-                rps_obj = game_object['rps'][cid]
+                text = rps_obj_reg_result
+        elif params[1] is not None:
+            action = params[1]
+            if action == u'DEL':
+                self._game_object['rps'][cid] = None
+
+                text = u'猜拳遊戲已刪除。'
+            elif action == u'RST':
+                rps_obj = self._game_object['rps'][cid]
                 if rps_obj is not None and isinstance(rps_obj, game.rps):
-                    if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
-                        text = game.rps.player_stats_text(rps_obj.player_dict)
-                    else:
-                        text = error.main.miscellaneous(u'無玩家資料。')
+                    rps_obj.reset_statistics()
+                    text = u'猜拳遊戲統計資料已重設。'
                 else:
                     text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
+            else:
+                text = error.main.incorrect_param(u'參數1', u'DEL')
         else:
-            text = error.main.miscellaneous(u'因功能尚未健全，故本功能暫時無法在房間、群組頻道中使用，不便之處請見諒。')
-            # TODO: multi-player in group, register new representative, register new player
+            rps_obj = self._game_object['rps'][cid]
+            if rps_obj is not None and isinstance(rps_obj, game.rps):
+                if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
+                    text = game.rps.player_stats_text(rps_obj.player_dict)
+                else:
+                    text = error.main.miscellaneous(u'無玩家資料。')
+            else:
+                text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
 
         return text
 
@@ -890,22 +910,16 @@ def html_hyperlink(content, link):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    command_executor = command_processor(kwd, gb, msg_track)
+    global game_object
+    global command_executor
+    global game_executor
 
     token = event.reply_token
     text = event.message.text
     src = event.source
-    splitter = '  '
-    splitter_mff = '\n'
+    splitter = '\n'
     
     msg_track.log_message_activity(get_source_channel_id(src), 1)
-
-    if text == administrator:
-        rec['Silence'] = not rec['Silence']
-        api.reply_message(token, TextSendMessage(text='Bot set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
-        return
-    elif rec['Silence']:
-        return
 
     if text == '561563ed706e6f696abbe050ad79cf334b9262da6f83bc1dcf7328f2':
         rec['Intercept'] = not rec['Intercept']
@@ -915,21 +929,30 @@ def handle_text_message(event):
     elif rec['Intercept']:
         intercept_text(event)
 
+    if text == administrator:
+        rec['Silence'] = not rec['Silence']
+        api.reply_message(token, TextSendMessage(text='Bot set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
+        return
+    elif rec['Silence']:
+        return
+
     try:
-        if len(text.split(splitter)) >= 2 and text.startswith('JC'):
-            head, cmd, oth = split(text, splitter, 3)
+        if len(text.split(splitter)) >= 2:
+            parse_result = split(text, splitter, 3)
+            parse_result = {'head': parse_result[0], 'cmd': parse_result[1], 'oth': parse_result[2]}
 
             if head == 'JC':
-                rec['JC_called'] += 1
+                rec['cmd']['JC'] += 1
                 
-                if cmd not in cmd_dict:
-                    text = error.main.invalid_thing(u'指令', cmd)
+                # TODO: put inside cmd proc module - static method - verify command - BEGIN
+                if parse_result['cmd'] not in sys_cmd_dict:
+                    text = error.main.invalid_thing(u'指令', parse_result['cmd'])
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 
-                max_prm = cmd_dict[cmd].split_max
-                min_prm = cmd_dict[cmd].split_min
-                params = split(oth, splitter, max_prm)
+                max_prm = sys_cmd_dict[parse_result['cmd']].split_max
+                min_prm = sys_cmd_dict[parse_result['cmd']].split_min
+                params = split(parse_result['oth'], splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
                     text = error.main.lack_of_thing(u'參數')
@@ -937,76 +960,77 @@ def handle_text_message(event):
                     return
 
                 params.insert(0, None)
-                cmd_dict[cmd].count += 1
+                sys_cmd_dict[parse_result['cmd']].count += 1
+                # TODO: put inside cmd proc module - static method - verify command - END
                 
                 # SQL Command
-                if cmd == 'S':
+                if parse_result['cmd'] == 'S':
                     text = command_executor.S(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # ADD keyword & ADD top keyword
-                elif cmd == 'A' or cmd == 'M':
-                    if cmd_dict[cmd].non_user_permission_required:
+                elif parse_result['cmd'] == 'A' or parse_result['cmd'] == 'M':
+                    if sys_cmd_dict[cmd].non_user_permission_required:
                         text = command_executor.M(src, params)
                     else:
                         text = command_executor.A(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # DELETE keyword & DELETE top keyword
-                elif cmd == 'D' or cmd == 'R':
-                    if cmd_dict[cmd].non_user_permission_required:
+                elif parse_result['cmd'] == 'D' or parse_result['cmd'] == 'R':
+                    if sys_cmd_dict[cmd].non_user_permission_required:
                         text = command_executor.R(src, params)
                     else:
                         text = command_executor.D(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # QUERY keyword
-                elif cmd == 'Q':
+                elif parse_result['cmd'] == 'Q':
                     text = command_executor.Q(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # INFO of keyword
-                elif cmd == 'I':
+                elif parse_result['cmd'] == 'I':
                     text = command_executor.I(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # RANKING
-                elif cmd == 'K':
+                elif parse_result['cmd'] == 'K':
                     text = command_executor.K(src, params)
                     
                     api_reply(token, TextSendMessage(text=text), src)
                 # SPECIAL record
-                elif cmd == 'P':
+                elif parse_result['cmd'] == 'P':
                     text = command_executor.P(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban basic (info)
-                elif cmd == 'G':
+                elif parse_result['cmd'] == 'G':
                     text = command_executor.G(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban advance
-                elif cmd == 'GA':
+                elif parse_result['cmd'] == 'GA':
                     texts = command_executor.GA(src, params)
 
                     api_reply(token, [TextSendMessage(text=text) for text in texts], src)
                 # get CHAT id
-                elif cmd == 'H':
+                elif parse_result['cmd'] == 'H':
                     output = command_executor.H(src, params)
 
                     api_reply(token, [TextSendMessage(text=output[0]), TextSendMessage(text=output[1])], src)
                 # SHA224 generator
-                elif cmd == 'SHA':
+                elif parse_result['cmd'] == 'SHA':
                     text = command_executor.SHA(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Look up vocabulary in OXFORD Dictionary
-                elif cmd == 'O':
+                elif parse_result['cmd'] == 'O':
                     text = command_executor.O(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # Leave group or room
-                elif cmd == 'B':
+                elif parse_result['cmd'] == 'B':
                     cid = get_source_channel_id(src)
 
                     if isinstance(src, SourceUser):
@@ -1020,66 +1044,89 @@ def handle_text_message(event):
                         elif isinstance(src, SourceGroup):
                             api.leave_group(cid)
                 # RANDOM draw
-                elif cmd == 'RD':
+                elif parse_result['cmd'] == 'RD':
                     text = command_executor.RD(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # last STICKER message
-                elif cmd == 'STK':
+                elif parse_result['cmd'] == 'STK':
                     text = command_executor.STK(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
+                else:
+                    sys_cmd_dict[parse_result['cmd']].count -= 1
+            elif head == 'HELP':
+                rec['cmd']['HELP'] += 1
+                data = split(text, splitter, 2)
+
+                # TODO: restruct helper
+                # TODO: Helper modulize
+                if data[1].upper().startswith('MFF'):
+                    api_reply(token, [TextSendMessage(text=mff.mff_dmg_calc.help_code()),
+                                      TextSendMessage(text=u'下則訊息是訊息範本，您可以直接將其複製，更改其內容，然後使用。或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nMFF\nSKC 100%\n魔力 1090%\n魔力 10.9\n\n欲察看更多範例，請前往 https://sites.google.com/view/jellybot/mff傷害計算'),
+                                      TextSendMessage(text=mff.mff_dmg_calc.help_sample())], src)
+                else:
+                    job = mff.mff_dmg_calc.text_job_parser(data[1])
+
+                    dmg_calc_dict = [[u'破防前非爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_weak(job)],
+                                     [u'破防前爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_crt_weak(job)],
+                                     [u'已破防非爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_break_weak(job)],
+                                     [u'已破防爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_break_crt_weak(job)],
+                                     [u'破防前非爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg(job)],
+                                     [u'破防前爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_crt(job)],
+                                     [u'已破防非爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_break(job)],
+                                     [u'已破防爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_break_crt(job)]]
+
+                    text = u'傷害表:'
+                    for title, value in dmg_calc_dict:
+                        text += u'\n\n'
+                        text += u'{}\n首發: {:.0f}\n連發: {:.0f}\n累積傷害(依次): {}'.format(title,
+                                                                                            value['first'],
+                                                                                            value['continual'],
+                                                                                            u', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
+                    
+                    api_reply(token, TextSendMessage(text=text), src)
+            elif head == 'G':
+                rec['cmd']['GAME'] += 1
+
+                if parse_result['cmd'] not in sys_cmd_dict:
+                    text = error.main.invalid_thing(u'遊戲', parse_result['cmd'])
+                    api_reply(token, TextSendMessage(text=text), src)
+                    return
+                
+                max_prm = sys_cmd_dict[parse_result['cmd']].split_max
+                min_prm = sys_cmd_dict[parse_result['cmd']].split_min
+                params = split(parse_result['oth'], splitter, max_prm)
+
+                if min_prm > len(params) - params.count(None):
+                    text = error.main.lack_of_thing(u'參數')
+                    api_reply(token, TextSendMessage(text=text), src)
+                    return
+
+                params.insert(0, None)
+                game_cmd_dict[parse_result['cmd']].count += 1
+
                 # GAME - Rock-Paper-Scissor
-                elif cmd == 'RPS':
-                    global game_object
-                    text = command_executor.RPS(src, params, game_object)
+                if parse_result['cmd'] == 'RPS':
+                    text = game_executor.RPS(src, params, game_object)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
-                    cmd_dict[cmd].count -= 1
-        elif len(text.split(splitter_mff)) >= 2 and text.startswith('MFF'):
-            rec['MFF_called'] += 1
-            data = split(text, splitter_mff, 2)
+                    game_cmd_dict[parse_result['cmd']].count -= 1
 
-            if data[1].upper().startswith('HELP'):
-                api_reply(token, [TextSendMessage(text=mff.mff_dmg_calc.help_code()),
-                                  TextSendMessage(text=u'下則訊息是訊息範本，您可以直接將其複製，更改其內容，然後使用。或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nMFF\nSKC 100%\n魔力 1090%\n魔力 10.9\n\n欲察看更多範例，請前往 https://sites.google.com/view/jellybot/mff傷害計算'),
-                                  TextSendMessage(text=mff.mff_dmg_calc.help_sample())], src)
-            else:
-                job = mff.mff_dmg_calc.text_job_parser(data[1])
-
-                dmg_calc_dict = [[u'破防前非爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_weak(job)],
-                                 [u'破防前爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_crt_weak(job)],
-                                 [u'已破防非爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_break_weak(job)],
-                                 [u'已破防爆擊(弱點屬性)', mff.mff_dmg_calc.dmg_break_crt_weak(job)],
-                                 [u'破防前非爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg(job)],
-                                 [u'破防前爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_crt(job)],
-                                 [u'已破防非爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_break(job)],
-                                 [u'已破防爆擊(非弱點屬性)', mff.mff_dmg_calc.dmg_break_crt(job)]]
-
-                text = u'傷害表:'
-                for title, value in dmg_calc_dict:
-                    text += u'\n\n'
-                    text += u'{}\n首發: {:.0f}\n連發: {:.0f}\n累積傷害(依次): {}'.format(title,
-                                                                                        value['first'],
-                                                                                        value['continual'],
-                                                                                        u', '.join('{:.0f}'.format(x) for x in value['list_of_sum']))
-                
-                api_reply(token, TextSendMessage(text=text), src)
-        else:
-            rps_obj = game_object['rps'].get(get_source_channel_id(src))
-            if rps_obj is not None:
-                rps_text = minigame_rps_capturing(rps_obj, False, text)
-                if rps_text is not None:
-                    api_reply(rep, TextSendMessage(text=rps_text), src)
-                    return
-
-            replied = auto_reply_system(token, text, False, src)
-
-            if text.startswith('JC') and ' ' in text and not replied:
-                text = error.main.insufficient_space_for_command();
-                api_reply(token, TextSendMessage(text=text), src)
+        rps_obj = game_object['rps'].get(get_source_channel_id(src))
+        if rps_obj is not None:
+            rps_text = minigame_rps_capturing(rps_obj, False, text)
+            if rps_text is not None:
+                api_reply(rep, TextSendMessage(text=rps_text), src)
                 return
+
+        replied = auto_reply_system(token, text, False, src)
+
+        if text.startswith('JC') and ' ' in text and not replied:
+            text = error.main.insufficient_space_for_command();
+            api_reply(token, TextSendMessage(text=text), src)
+            return
     except exceptions.LineBotApiError as ex:
         text = u'Boot up time: {boot}\n\n'.format(boot=boot_up)
         text += u'Line Bot Api Error. Status code: {sc}\n\n'.format(sc=ex.status_code)
@@ -1093,7 +1140,6 @@ def handle_text_message(event):
         text += u'Type: {type}\nMessage: {msg}\nLine {lineno}'.format(type=exc_type, lineno=exc_tb.tb_lineno, msg=exc.message.decode("utf-8"))
 
         send_error_url_line(token, text, get_source_channel_id(src))
-    return
 
     if text == 'confirm':
         confirm_template = ConfirmTemplate(text='Do it?', actions=[
@@ -1235,16 +1281,30 @@ def handle_unfollow():
 @handler.add(JoinEvent)
 def handle_join(event):
     src = event.source
+    reply_token = event.reply_token
     cid = get_source_channel_id(src)
 
-    if not isinstance(event.source, SourceUser):
-        added = gb.new_data(cid, MAIN_UID, 'RaenonX')
-        msg_track.new_data(cid)
+    global kwd
+    global gb
+    global msg_track
+    command_exec = command_processor(kwd, gb, msg_track)
 
-        api_reply(event.reply_token, 
-                  [TextMessage(text='Channel data registering {}. Type in \'JC  G\' to get more details.'.format('succeed' if added else 'failed')),
-                   introduction_template()], 
-                   cid)
+    if not isinstance(event.source, SourceUser):
+        group_data = gb.get_group_by_id(cid)
+        if group_data is None:
+            added = gb.new_data(cid, MAIN_UID, administrator)
+            msg_track.new_data(cid)
+
+            api_reply(reply_token, 
+                      [TextMessage(text=u'群組資料註冊{}。'.format(u'成功' if added else u'失敗')),
+                       introduction_template()], 
+                       cid)
+        else:
+            api_reply(reply_token, 
+                      [TextMessage(text=u'群組資料已存在。'),
+                       TextMessage(text=command_exec.G(src, [])),
+                       introduction_template()], 
+                       cid)
 
 
 # Encapsulated Functions
@@ -1400,6 +1460,7 @@ def minigame_rps_capturing(rps_obj, is_sticker, content):
         battle_item = rps_obj.find_battle_item(is_sticker, content)
         if battle_item is not game.battle_item.none:
             result = rps_obj.play(battle_item, 1)
+            rec['cmd']['GAME']['rps'] += 1
             if result is not None:
                 return result
             else:
