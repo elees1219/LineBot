@@ -1176,7 +1176,7 @@ def handle_text_message(event):
         if rps_obj is not None:
             rps_text = minigame_rps_capturing(rps_obj, False, text, get_source_user_id(src))
             if rps_text is not None:
-                api_reply(rep, TextSendMessage(text=rps_text), src)
+                api_reply(token, TextSendMessage(text=rps_text), src)
                 return
 
         replied = auto_reply_system(token, text, False, src)
