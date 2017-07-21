@@ -1172,7 +1172,6 @@ def handle_text_message(event):
                 else:
                     game_cmd_dict[cmd].count -= 1
 
-        print game_object['rps']
         rps_obj = game_object['rps'].get(get_source_channel_id(src))
         if rps_obj is not None:
             rps_text = minigame_rps_capturing(rps_obj, False, text)
@@ -1239,9 +1238,14 @@ def handle_sticker_message(event):
     cid = get_source_channel_id(src)
     
     # TODO: Modulize handle received sticker message 
-    global game_object
     rec['last_stk'][cid] = sticker_id
+
+    global game_object
     rps_obj = game_object['rps'].get(cid)
+
+    print game_object['rps']
+    print rps_obj
+
     msg_track.log_message_activity(cid, 3)
 
     if rps_obj is not None:
@@ -1519,8 +1523,10 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 
 
 def minigame_rps_capturing(rps_obj, is_sticker, content):
+    print rps_obj
     if rps_obj is not None:
         battle_item = rps_obj.find_battle_item(is_sticker, content)
+        print battle_item
         if battle_item is not game.battle_item.none:
             result = rps_obj.play(battle_item, 1)
             game_cmd_dict['RPS'].count += 1
