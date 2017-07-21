@@ -114,7 +114,7 @@ sys_cmd_dict = {'S': command(1, 1, True),
             'STK': command(0, 0, False),
             'RPS': command(0, 3, False)}
 
-game_cmd_dict = {'RPS': command(0, 4, True)}
+game_cmd_dict = {'RPS': command(0, 5, True)}
 
 helper_cmd_dict = {'MFF': command(1, 8, True)}
 
@@ -1146,7 +1146,9 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 
+                print params
                 params.insert(0, None)
+                print params
 
                 # GAME - Rock-Paper-Scissor
                 if cmd == 'RPS':
