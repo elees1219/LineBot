@@ -1535,10 +1535,10 @@ def minigame_rps_capturing(rps_obj, is_sticker, content, uid):
                 if result is not None:
                     return result
                 else:
-                if rps_obj.is_waiting_next:
-                    return u'等待下一個玩家出拳中...'
-                if rps_obj.result_generated:
-                    return rps_obj.result_text()
+                    if rps_obj.is_waiting_next:
+                        return u'等待下一個玩家出拳中...'
+                    if rps_obj.result_generated:
+                        return rps_obj.result_text()
 
 
 
