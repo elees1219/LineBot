@@ -6,6 +6,120 @@ from error import error
 import time
 from collections import defaultdict
 
+
+class battle_item(Enum):
+    rock = 1
+    paper = 2
+    scissor = 3
+    none = -1
+
+
+class battle_item_representative(object):
+    def __init__(self, battle_item, is_sticker, content):
+        if is_sticker:
+            try:
+                int(content)
+            except Exception as ex:
+                raise ex
+        self._battle_item = battle_item
+        self._is_sticker = is_sticker
+        self._content = content
+
+    @property
+    def is_sticker(self):
+        return self._is_sticker
+
+    @property
+    def content(self):
+        return self._content
+
+    @property
+    def battle_item(self):
+        return self._battle_item
+
+
+class battle_result(Enum):
+    undefined = -1
+    tie = 0
+    win1 = 1
+    win2 = 2
+
+
+class battle_player(object):
+    def __init__(self, name, uid):
+        self._name = name
+        self._uid = uid
+        self.reset_statistics()
+
+    def win(self):
+        self._win += 1
+        if self._consecutive_winning:
+            self._consecutive_count += 1
+        else:
+            self._consecutive_count = 1
+        self._consecutive_winning = True
+        
+    def lose(self):
+        self._lose += 1
+        if not self._consecutive_winning:
+            self._consecutive_count += 1
+        else:
+            self._consecutive_count = 1
+        self._consecutive_winning = False
+        
+    def tied(self):
+        self._tied += 1
+
+    def reset_statistics(self):
+        self._win = 0
+        self._lose = 0
+        self._tied = 0
+        self._last_item = battle_item.none
+        self._consecutive_winning = False
+        self._consecutive_count = 0
+
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def win_count(self):
+        return self._win
+    
+    @property
+    def lose_count(self):
+        return self._lose
+    
+    @property
+    def tied_count(self):
+        return self._tied
+
+    @property
+    def total_played(self):
+        return self._win + self._lose + self._tied
+
+    @property
+    def consecutive_type(self):
+        """True=Win, False=Lose"""
+        return self._consecutive_winning
+
+    @property
+    def consecutive_count(self):
+        return self._consecutive_count
+
+    @property
+    def winning_rate(self):
+        return self._win / float(self._win + self._lose)
+    
+    @property
+    def last_item(self):
+        return self._last_item
+
+    @last_item.setter
+    def last_item(self, value):
+        self._last_item = value
+
+
 class rps(object):
     """Game of Rock-Paper-Scissors"""
 
@@ -215,124 +329,10 @@ class rps(object):
 
     @staticmethod
     def player_stats_text(player_dict):
-        # TODO: Sort by record
         text = u'【最新玩家結果】\n'
         text += u'\n'.join([u'{}\n{}戰 {}勝 {}敗 {}平 {}連{}中 ({.2%})'.format(player.name, player.total_played, player.win_count, player.lose_count, player.tied_count, 
                                                                       player.consecutive_count, u'勝' if player.consecutive_type else u'敗', player.winning_rate) 
                             for player in sorted(player_dict.values(), reverse=True)])
         return text
-
-
-class battle_item(Enum):
-    rock = 1
-    paper = 2
-    scissor = 3
-    none = -1
-
-
-class battle_item_representative(object):
-    def __init__(self, battle_item, is_sticker, content):
-        if is_sticker:
-            try:
-                int(content)
-            except Exception as ex:
-                raise ex
-        self._battle_item = battle_item
-        self._is_sticker = is_sticker
-        self._content = content
-
-    @property
-    def is_sticker(self):
-        return self._is_sticker
-
-    @property
-    def content(self):
-        return self._content
-
-    @property
-    def battle_item(self):
-        return self._battle_item
-
-
-class battle_result(Enum):
-    undefined = -1
-    tie = 0
-    win1 = 1
-    win2 = 2
-
-
-class battle_player(object):
-    def __init__(self, name, uid):
-        self._name = name
-        self._uid = uid
-        self.reset_statistics()
-
-    def win(self):
-        self._win += 1
-        if self._consecutive_winning:
-            self._consecutive_count += 1
-        else:
-            self._consecutive_count = 1
-        self._consecutive_winning = True
-        
-    def lose(self):
-        self._lose += 1
-        if not self._consecutive_winning:
-            self._consecutive_count += 1
-        else:
-            self._consecutive_count = 1
-        self._consecutive_winning = False
-        
-    def tied(self):
-        self._tied += 1
-
-    def reset_statistics(self):
-        self._win = 0
-        self._lose = 0
-        self._tied = 0
-        self._last_item = battle_item.none
-        self._consecutive_winning = False
-        self._consecutive_count = 0
-
-    @property
-    def name(self):
-        return self._name
-    
-    @property
-    def win_count(self):
-        return self._win
-    
-    @property
-    def lose_count(self):
-        return self._lose
-    
-    @property
-    def tied_count(self):
-        return self._tied
-
-    @property
-    def total_played(self):
-        return self._win + self._lose + self._tied
-
-    @property
-    def consecutive_type(self):
-        """True=Win, False=Lose"""
-        return self._consecutive_winning
-
-    @property
-    def consecutive_count(self):
-        return self._consecutive_count
-
-    @property
-    def winning_rate(self):
-        return self._win / float(self._win + self._lose)
-    
-    @property
-    def last_item(self):
-        return self._last_item
-
-    @last_item.setter
-    def last_item(self, value):
-        self._last_item = value
         
 
