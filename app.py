@@ -111,8 +111,7 @@ sys_cmd_dict = {'S': command(1, 1, True),
             'O': command(1, 1, False), 
             'B': command(0, 0, False), 
             'RD': command(1, 2, False),
-            'STK': command(0, 0, False),
-            'RPS': command(0, 3, False)}
+            'STK': command(0, 0, False)}
 
 game_cmd_dict = {'RPS': command(0, 5, True)}
 
@@ -756,8 +755,6 @@ class game_processor(object):
         cid = get_source_channel_id(src)
         uid = get_source_user_id(src)
 
-        print params
-
         if params[4] is not None:
             rps_obj = self._game_object['rps'][cid]
             action = params[1]
@@ -1132,13 +1129,13 @@ def handle_text_message(event):
             elif head == 'G':
                 rec['cmd']['GAME'] += 1
 
-                if cmd not in sys_cmd_dict:
+                if cmd not in game_cmd_dict:
                     text = error.main.invalid_thing(u'遊戲', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
                     return
                 
-                max_prm = sys_cmd_dict[cmd].split_max
-                min_prm = sys_cmd_dict[cmd].split_min
+                max_prm = game_cmd_dict[cmd].split_max
+                min_prm = game_cmd_dict[cmd].split_min
                 params = split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
@@ -1146,9 +1143,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 
-                print params
                 params.insert(0, None)
-                print params
 
                 # GAME - Rock-Paper-Scissor
                 if cmd == 'RPS':
