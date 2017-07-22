@@ -731,7 +731,7 @@ class command_processor(object):
                             shot_count += 1
                         else:
                             miss_count += 1
-                    text = u'抽籤機率【{}】\n抽籤結果【中{}次 | 失{}次】\n【中率{:.2%}】'.format(
+                    text = u'抽籤機率【{}%】\n抽籤結果【中{}次 | 失{}次】\n【中率{:.2%}】'.format(
                         opportunity, shot_count, miss_count, shot_count / float(scout_count))
             else:
                 start_index = params[1]
@@ -750,7 +750,7 @@ class command_processor(object):
                 text = u'抽籤範圍【{}】\n抽籤結果【{}】'.format(', '.join(text_list), random_gen.random_drawer.draw_text(text_list))
             elif params[1].endswith('%') and params[1].count('%') == 1:
                 opportunity = params[1].replace('%', '')
-                text = u'抽籤機率【{}】\n抽籤結果【{}】'.format(
+                text = u'抽籤機率【{}%】\n抽籤結果【{}】'.format(
                     opportunity, 
                     u'恭喜中獎' if random_gen.random_drawer.draw_probability(float(opportunity) / 100.0) else u'銘謝惠顧')
             else:
