@@ -715,23 +715,39 @@ class command_processor(object):
 
     def RD(self, src, params):
         if params[2] is not None:
-            start_index = params[1]
-            end_index = params[2]
-            if not start_index.isnumeric():
-                text = error.main.invalid_thing_with_correct_format(u'起始抽籤數字', u'整數', start_index)
-            elif not end_index.isnumeric():
-                text = error.main.invalid_thing_with_correct_format(u'終止抽籤數字', u'整數', start_index)
+            if params[1].endswith('%') and params[1].count('%') == 1:
+                opportunity = params[1].replace('%', '')
+                scout_count = params[2]
+                shot_count = 0
+                miss_count = 0
+                for i in range(scout_count):
+                    result = random_gen.random_drawer.draw_probability(float(opportunity) / 100.0)
+                    if result:
+                        shot_count += 1
+                    else:
+                        miss_count += 1
+                text = u'抽籤機率【{}】\n抽籤結果【中{}次 | 失{}次】\n【中率{:.2%}】'.format(
+                    opportunity, shot_count, miss_count, shot_count / float(scout_count))
             else:
-                text = u'抽籤範圍【{}~{}】\n抽籤結果【{}】'.format(start_index, end_index, random_gen.random_drawer.draw_number(start_index, end_index))
+                start_index = params[1]
+                end_index = params[2]
+                if not start_index.isnumeric():
+                    text = error.main.invalid_thing_with_correct_format(u'起始抽籤數字', u'整數', start_index)
+                elif not end_index.isnumeric():
+                    text = error.main.invalid_thing_with_correct_format(u'終止抽籤數字', u'整數', start_index)
+                else:
+                    text = u'抽籤範圍【{}~{}】\n抽籤結果【{}】'.format(start_index, end_index, random_gen.random_drawer.draw_number(start_index, end_index))
         elif params[1] is not None:
-            text_splitter = ' '
+            text_splitter = '  '
             if text_splitter in params[1]:
-                text_list = params[1].split(text_splitter)
+                texts = params[1]
+                text_list = texts.split(text_splitter)
                 text = u'抽籤範圍【{}】\n抽籤結果【{}】'.format(', '.join(text_list), random_gen.random_drawer.draw_text(text_list))
             elif params[1].endswith('%') and params[1].count('%') == 1:
+                opportunity = params[1].replace('%', '')
                 text = u'抽籤機率【{}】\n抽籤結果【{}】'.format(
-                    params[1], 
-                    u'恭喜中獎' if random_gen.random_drawer.draw_probability(float(params[1].replace('%', '')) / 100.0) else u'銘謝惠顧')
+                    opportunity, 
+                    u'恭喜中獎' if random_gen.random_drawer.draw_probability(float(opportunity) / 100.0) else u'銘謝惠顧')
             else:
                 text = error.main.invalid_thing(u'參數1', params[1])
         else:
