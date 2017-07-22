@@ -159,6 +159,7 @@ oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + langu
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
+# IMPORTANT: \ will cause error
 # TODO: User manual add auto-reply can be disabled in related command page
 # TDOD: User manual log all commands before moving
 # TODO: Move msg_handle
@@ -752,8 +753,6 @@ class game_processor(object):
         self._game_object = game_object
 
     def RPS(self, src, params):
-        # IMPORTANT: game result is append, not cover
-
         cid = get_source_channel_id(src)
         uid = get_source_user_id(src)
 
@@ -834,7 +833,7 @@ class game_processor(object):
 
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 if action == 'DEL':
-                    rps_obj = None
+                    self._game_object['rps'][cid] = None
                     text = u'猜拳遊戲已刪除。'
                 elif action == 'RST':
                     rps_obj.reset_statistics()
