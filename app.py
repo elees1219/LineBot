@@ -731,7 +731,7 @@ class command_processor(object):
                             shot_count += 1
                         else:
                             miss_count += 1
-                    text = u'抽籤機率【{}%】\n抽籤結果【中{}次 | 失{}次】\n【中率{:.2%}】'.format(
+                    text = u'抽籤機率【{}%】\n抽籤結果【中{}次 | 失{}次】\n中率【{:.2%}】'.format(
                         opportunity, shot_count, miss_count, shot_count / float(scout_count))
             else:
                 start_index = params[1]
