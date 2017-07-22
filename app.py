@@ -415,7 +415,7 @@ class command_processor(object):
         if params[1] is not None:
             category = params[1]
 
-            if category == 'GRP':
+            if category == 'MSG':
                 limit = 5
 
                 sum_data = self.msg_trk.count_sum()
@@ -467,7 +467,7 @@ class command_processor(object):
                                                          u'(貼圖ID {})'.format(entry[kwdict_col.keyword].decode('utf-8')) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in last[0 : limit - 1]])
                 if last_count - limit > 0:
                     text += u'\n...(還有{}組)'.format(last_count - limit)
-            elif category == 'MSG':
+            elif category == 'SYS':
                 global game_object
 
                 text = u'【系統統計資料 - 開機後重設】\n'
