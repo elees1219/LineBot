@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# import custom module
+from msg_handle import text_msg
+
 import errno, os, sys, tempfile
 import traceback
 import validators
@@ -21,9 +24,6 @@ from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_
 
 # tool import
 from tool import mff, random_gen
-
-# import custom module
-from msg_handle import text_msg
 
 # games import
 import game
