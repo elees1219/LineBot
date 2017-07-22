@@ -766,7 +766,7 @@ class game_processor(object):
                     is_sticker = params[3]
                     content = params[4]
 
-                    battle_item = game.battle_item.none
+                    battle_item = None
 
                     if item_type == 'R':
                         battle_item = game.battle_item.rock
