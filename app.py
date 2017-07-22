@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # import custom module
-from msg_handle import text_msg
+from bot import text_msg
 
 import errno, os, sys, tempfile
 import traceback
@@ -94,6 +94,7 @@ class command(object):
         """Required Permission"""
         return self._non_user_permission_required
 
+# TODO: cmd dict modulize
 sys_cmd_dict = {'S': command(1, 1, True), 
             'A': command(2, 4, False), 
             'M': command(2, 4, True), 
@@ -155,11 +156,12 @@ if oxford_key is None:
 language = 'en'
 oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/'
 
+# IMPORTANT: switch branch (master->release, create debug branch
 
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-# TODO: move to msg_handle
+# TODO: move to msg_handle_game
 class game_processor(object):
     def __init__(self, game_object):
         self._game_object = game_object
