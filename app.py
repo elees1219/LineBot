@@ -1530,7 +1530,7 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 
             api_reply(token, TemplateSendMessage(
                 alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
-                template=ButtonsTemplate(text=u'ID: {}\nCreated by {}.'.format(
+                template=ButtonsTemplate(text=u'Created by {}\nID: {}.'.format(
                     u'(LINE account data not found)' if line_profile is None else line_profile.display_name,
                     result[kwdict_col.id]), 
                                          thumbnail_image_url=reply,
