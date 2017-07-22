@@ -334,9 +334,14 @@ class rps(object):
         self._reset()
 
     def _init_battle_dict(self, rock=None, paper=None, scissor=None):
-        self.register_battle_item(battle_item.paper, True, paper if paper is not None else self._paper)
-        self.register_battle_item(battle_item.rock, True, rock if rock is not None else self._rock)
-        self.register_battle_item(battle_item.scissor, True, scissor if scissor is not None else self._scissor)
+        if len(self._battle_dict[battle_item.paper]) < 1:
+            self.register_battle_item(battle_item.paper, True, paper if paper is not None else self._paper)
+            
+        if len(self._battle_dict[battle_item.rock]) < 1:
+            self.register_battle_item(battle_item.rock, True, rock if rock is not None else self._rock)
+            
+        if len(self._battle_dict[battle_item.scissor]) < 1:
+            self.register_battle_item(battle_item.scissor, True, scissor if scissor is not None else self._scissor)
 
     @property
     def gap_time(self):
