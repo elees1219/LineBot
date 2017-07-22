@@ -808,16 +808,17 @@ class game_processor(object):
             rps_obj = self._game_object['rps'].get(cid)
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 action = params[1]
-                item = params[2]
+                battle_item_text = params[2]
+                print battle_item_text
 
                 if action == 'RST':
-                    if item == 'R':
+                    if battle_item_text == 'R':
                         rps_obj.reset_battle_item(game.battle_item.rock)
                         text = u'已重設代表【石頭】的物件。'
-                    if item == 'P':
+                    if battle_item_text == 'P':
                         rps_obj.reset_battle_item(game.battle_item.paper)
                         text = u'已重設代表【布】的物件。'
-                    if item == 'S':
+                    if battle_item_text == 'S':
                         rps_obj.reset_battle_item(game.battle_item.scissor)
                         text = u'已重設代表【剪刀】的物件。'
                     else:
