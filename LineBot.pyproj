@@ -26,6 +26,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="app.py" />
+    <Compile Include="bot\system.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="bot\text_msg_handle.py" />
+    <Compile Include="bot\__init__.py" />
     <Compile Include="db\groupban.py">
       <SubType>Code</SubType>
     </Compile>
@@ -45,12 +50,6 @@
     <Compile Include="game\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="msg_handle\text.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="msg_handle\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="tool\mff.py">
       <SubType>Code</SubType>
     </Compile>
@@ -65,9 +64,9 @@
     <InterpreterReference Include="Global|PythonCore|2.7" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="bot\" />
     <Folder Include="db\" />
     <Folder Include="game\" />
-    <Folder Include="msg_handle\" />
     <Folder Include="tool\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
