@@ -272,7 +272,7 @@ class kw_dict_mgr(object):
                 if not limited:
                     ret['limited'] += text
 
-                    if index >= limit:
+                    if index > limit:
                         ret['limited'] += '...(還有{}筆)'.format(count-limit)
                         limited = True
 
@@ -299,7 +299,7 @@ class kw_dict_mgr(object):
                 if not limited:
                     ret['limited'] += text
 
-                    if index >= limit:
+                    if index > limit:
                         ret['limited'] += separator
                         ret['limited'] += u'還有{}筆資料沒有顯示。'.format(count - limit)
                         limited = True
