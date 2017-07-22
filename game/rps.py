@@ -142,7 +142,7 @@ class battle_player(object):
 class rps(object):
     """Game of Rock-Paper-Scissors"""
 
-    def __init__(self, vs_bot):
+    def __init__(self, vs_bot, rock, paper, scissor):
         self._gap_time = -1
         self._vs_bot = vs_bot
         self._battle_dict = {battle_item.rock: [],
@@ -150,44 +150,7 @@ class rps(object):
                              battle_item.scissor: []}
         self._result_generated = False
         self._enabled = True
-
-    def init_register(self, rock, paper, scissor):
-        """
-        Initially register process must use sticker ID to create instance
-        Return void when successfully initialized
-        """
-        try:
-            int(rock)
-        except ValueError:
-            return error.main.invalid_thing_with_correct_format(u'石頭貼圖ID', u'整數', rock)
-        try:
-            int(paper)
-        except ValueError:
-            return error.main.invalid_thing_with_correct_format(u'布貼圖ID', u'整數', rock)
-        try:
-            int(scissor)
-        except ValueError:
-            return error.main.invalid_thing_with_correct_format(u'剪刀貼圖ID', u'整數', rock)
-
-        if scissor == rock == paper:
-            return error.main.miscellaneous(u'剪刀、石頭、布不可相同，請重新輸入。')
-        elif scissor == rock:
-            return error.main.miscellaneous(u'剪刀和石頭的定義衝突(相同)，請重新輸入。')
-        elif rock == paper:
-            return error.main.miscellaneous(u'石頭和布的定義衝突(相同)，請重新輸入。')
-        elif paper == scissor:
-            return error.main.miscellaneous(u'布和剪刀的定義衝突(相同)，請重新輸入。')
-        
-        self._init_battle_dict(rock, paper, scissor)
-        self._rock = rock
-        self._paper = paper
-        self._scissor = scissor
-
-        self._player_dict = defaultdict(battle_player)
-        if self._vs_bot:
-            self._player_dict[0] = battle_player(u'(電腦)', 0)
-
-        self._reset()
+        return self._init_register(rock, paper, scissor)
 
     def register_battle_item(self, battle_item, is_sticker, content):
         self._battle_dict[battle_item].append(battle_item_representative(battle_item, is_sticker, content))
@@ -331,6 +294,44 @@ class rps(object):
 
         text += u', '.join([u'(貼圖ID {})'.format(item.content) if item.is_sticker else unicode(item.content) for item in self._battle_dict[item]])
         return text
+
+    def _init_register(self, rock, paper, scissor):
+        """
+        Initially register process must use sticker ID to create instance
+        Return void when successfully initialized
+        """
+        try:
+            int(rock)
+        except ValueError:
+            return error.main.invalid_thing_with_correct_format(u'石頭貼圖ID', u'整數', rock)
+        try:
+            int(paper)
+        except ValueError:
+            return error.main.invalid_thing_with_correct_format(u'布貼圖ID', u'整數', rock)
+        try:
+            int(scissor)
+        except ValueError:
+            return error.main.invalid_thing_with_correct_format(u'剪刀貼圖ID', u'整數', rock)
+
+        if scissor == rock == paper:
+            return error.main.miscellaneous(u'剪刀、石頭、布不可相同，請重新輸入。')
+        elif scissor == rock:
+            return error.main.miscellaneous(u'剪刀和石頭的定義衝突(相同)，請重新輸入。')
+        elif rock == paper:
+            return error.main.miscellaneous(u'石頭和布的定義衝突(相同)，請重新輸入。')
+        elif paper == scissor:
+            return error.main.miscellaneous(u'布和剪刀的定義衝突(相同)，請重新輸入。')
+        
+        self._init_battle_dict(rock, paper, scissor)
+        self._rock = rock
+        self._paper = paper
+        self._scissor = scissor
+
+        self._player_dict = defaultdict(battle_player)
+        if self._vs_bot:
+            self._player_dict[0] = battle_player(u'(電腦)', 0)
+
+        self._reset()
 
     def _init_battle_dict(rock=None, paper=None, scissor=None):
         self.register_battle_item(battle_item.paper, True, paper if paper is not None else self._paper)

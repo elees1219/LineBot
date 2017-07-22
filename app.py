@@ -794,9 +794,8 @@ class game_processor(object):
             rock = params[2]
             paper = params[3]
 
-            rps_obj = game.rps(True if isinstance(src, SourceUser) else False)
-            rps_obj_reg_result = rps_obj.init_register(rock, paper, scissor)
-            if rps_obj_reg_result is None:
+            rps_obj = game.rps(True if isinstance(src, SourceUser) else False, rock, paper, scissor)
+            if rps_obj is None:
                 if is_valid_user_id(uid):
                     rps_obj.register_player(profile(uid).display_name, uid)
                     text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
@@ -804,7 +803,7 @@ class game_processor(object):
                 else:
                     text = error.main.unable_to_receive_user_id()
             else:
-                text = rps_obj_reg_result
+                text = rps_obj
         elif params[2] is not None:
             rps_obj = self._game_object['rps'].get(cid)
             if rps_obj is not None and isinstance(rps_obj, game.rps):
@@ -828,7 +827,7 @@ class game_processor(object):
             else:
                 text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
         elif params[1] is not None:
-            rps_obj = self._game_object['rps'][cid]
+            rps_obj =  self._game_object['rps'].get(cid)
             action = params[1]
 
             if rps_obj is not None and isinstance(rps_obj, game.rps):
@@ -866,7 +865,7 @@ class game_processor(object):
             else:
                 text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
         else:
-            rps_obj = self._game_object['rps'][cid]
+            rps_obj = self._game_object['rps'].get(cid)
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
                     text = game.rps.player_stats_text(rps_obj.player_dict)
