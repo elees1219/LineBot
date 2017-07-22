@@ -809,7 +809,9 @@ class game_processor(object):
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 action = params[1]
                 battle_item_text = params[2]
-                print battle_item_text
+                print battle_item_text == 'R'
+                print type(battle_item_text)
+                print type('R')
 
                 if action == 'RST':
                     if battle_item_text == 'R':
