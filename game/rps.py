@@ -178,9 +178,11 @@ class rps(object):
         elif paper == scissor:
             return error.main.miscellaneous(u'布和剪刀的定義衝突(相同)，請重新輸入。')
         
-        self.register_battle_item(battle_item.paper, True, paper)
-        self.register_battle_item(battle_item.rock, True, rock)
-        self.register_battle_item(battle_item.scissor, True, scissor)
+        self._init_battle_dict(rock, paper, scissor)
+        self._rock = rock
+        self._paper = paper
+        self._scissor = scissor
+
         self._player_dict = defaultdict(battle_player)
         if self._vs_bot:
             self._player_dict[0] = battle_player(u'(電腦)', 0)
@@ -271,6 +273,7 @@ class rps(object):
 
     def reset_battle_item(self, item):
         self._battle_dict[item] = []
+        self._init_battle_dict()
 
     def _play1(self, item, player_uid):
         player_obj = self._player_dict.get(player_uid)
@@ -328,6 +331,11 @@ class rps(object):
 
         text += u', '.join([u'(貼圖ID {})'.format(item.content) if item.is_sticker else unicode(item.content) for item in self._battle_dict[item]])
         return text
+
+    def _init_battle_dict(rock=None, paper=None, scissor=None):
+        self.register_battle_item(battle_item.paper, True, paper if paper is not None else self._paper)
+        self.register_battle_item(battle_item.rock, True, rock if rock is not None else self._rock)
+        self.register_battle_item(battle_item.scissor, True, scissor if scissor is not None else self._scissor)
 
     @property
     def gap_time(self):
