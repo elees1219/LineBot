@@ -811,15 +811,13 @@ class game_processor(object):
                 battle_item_text = params[2]
 
                 if action == 'RST':
-                    print battle_item_text == 'R'
                     if battle_item_text == 'R':
-                        print 'x'
                         rps_obj.reset_battle_item(game.battle_item.rock)
                         text = u'已重設代表【石頭】的物件。'
-                    if battle_item_text == 'P':
+                    elif battle_item_text == 'P':
                         rps_obj.reset_battle_item(game.battle_item.paper)
                         text = u'已重設代表【布】的物件。'
-                    if battle_item_text == 'S':
+                    elif battle_item_text == 'S':
                         rps_obj.reset_battle_item(game.battle_item.scissor)
                         text = u'已重設代表【剪刀】的物件。'
                     else:
