@@ -57,11 +57,13 @@ class kw_dict_mgr(object):
         return cmd
 
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
+        keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
+        reply = reply.replace('\\', '\\\\').replace(r'\\n', '\n')
         if keyword.replace(' ', '') == '' or reply.replace(' ', '') == '':
             return None
         else:
             cmd = u'INSERT INTO keyword_dict(keyword, reply, creator, used_count, admin, is_sticker_kw, is_pic_reply) \
-                    VALUES(E%(kw)s, E%(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
+                    VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                     RETURNING *;'
             cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
             cmd_override = u'UPDATE keyword_dict SET override = TRUE, deletor = %(dt)s, disabled_time = NOW() \
@@ -73,10 +75,10 @@ class kw_dict_mgr(object):
             return result
 
     def get_reply(self, keyword, is_sticker_kw):
-        keyword = keyword.replace('%', '')
-        keyword = keyword.replace("'", r"'")
+        keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
+        keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
         cmd = u'SELECT * FROM keyword_dict \
-                WHERE keyword = E%(kw)s AND deleted = FALSE AND override = FALSE AND is_sticker_kw = %(stk_kw)s\
+                WHERE keyword = %(kw)s AND deleted = FALSE AND override = FALSE AND is_sticker_kw = %(stk_kw)s\
                 ORDER BY admin DESC, id DESC;'
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
@@ -89,7 +91,8 @@ class kw_dict_mgr(object):
             return None
 
     def search_keyword(self, keyword):
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE E%(kw)s OR reply LIKE E%(kw)s ORDER BY id DESC;'
+        keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword LIKE %(kw)s OR reply LIKE %(kw)s ORDER BY id DESC;'
         cmd_dict = {'kw': '%' + keyword + '%'}
         result = self.sql_cmd(cmd, cmd_dict)
         return result
@@ -107,7 +110,8 @@ class kw_dict_mgr(object):
         return result
 
     def get_info(self, keyword):
-        cmd = u'SELECT * FROM keyword_dict WHERE keyword = E%(kw)s OR reply = E%(kw)s ORDER BY id DESC;'
+        keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = %(kw)s OR reply = %(kw)s ORDER BY id DESC;'
         cmd_dict = {'kw': keyword}
         result = self.sql_cmd(cmd, cmd_dict)
         return result
@@ -143,6 +147,7 @@ class kw_dict_mgr(object):
         return result
 
     def delete_keyword(self, keyword, deletor, is_top):
+        keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() \
                 WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE \
