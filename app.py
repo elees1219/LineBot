@@ -775,7 +775,7 @@ class game_processor(object):
                     if item_type == 'S':
                         battle_item = game.battle_item.scissor
 
-                    if battle_item is not game.battle_item.none:
+                    if battle_item is not None:
                         if is_sticker == 'STK':
                             rps_obj.register_battle_item(battle_item, True, content)
                             text = rps_obj.battle_item_dict_text()
