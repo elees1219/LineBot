@@ -94,6 +94,12 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd, cmd_dict)
         return result
 
+    def search_sticker_keyword(self, sticker_id):
+        cmd = u'SELECT * FROM keyword_dict WHERE keyword = %(kw)s AND is_sticker_kw = TRUE ORDER BY id DESC;'
+        cmd_dict = {'kw': sticker_id}
+        result = self.sql_cmd(cmd, cmd_dict)
+        return result
+
     def search_keyword_index(self, startIndex, endIndex):
         cmd = u'SELECT * FROM keyword_dict WHERE id >= %(si)s AND id <= %(ei)s ORDER BY id DESC;'
         cmd_dict = {'si': startIndex, 'ei': endIndex}
