@@ -776,8 +776,11 @@ class game_processor(object):
 
                     if battle_item is not None:
                         if is_sticker == 'STK':
-                            rps_obj.register_battle_item(battle_item, True, content)
-                            text = rps_obj.battle_item_dict_text()
+                            if string_is_int(content):
+                                rps_obj.register_battle_item(battle_item, True, content)
+                                text = rps_obj.battle_item_dict_text()
+                            else:
+                                error.main.incorrect_param(u'參數4', u'整數，以代表貼圖ID')
                         elif is_sticker == 'TXT':
                             rps_obj.register_battle_item(battle_item, False, content)
                             text = rps_obj.battle_item_dict_text()
