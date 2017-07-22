@@ -266,6 +266,9 @@ class rps(object):
 
         return None
 
+    def has_player(self, player_uid):
+        return self._player_dict.has_key(player_uid)
+
     def reset_battle_item(self, item):
         self._battle_dict[item] = []
 
