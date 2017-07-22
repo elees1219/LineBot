@@ -200,7 +200,7 @@ class rps(object):
         else:
             raise ValueError(error.main.invalid_thing(u'猜拳結果', result_enum))
         
-        text += u'\n本次猜拳兩拳間格時間(包含程式處理時間) {:.2f} 秒'.format(self._gap_time)
+        text += u'\n本次猜拳兩拳間格時間(包含程式處理時間) {:.3f} 秒'.format(self._gap_time)
         text += u'\n\n'
         text += rps.player_stats_text(self._player_dict)
 
