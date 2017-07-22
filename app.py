@@ -262,7 +262,7 @@ class command_processor(object):
         return text
 
     def M(self, src, params):
-        if permission_level(params.pop(1)) < 1:
+        if not isinstance(src, SourceUser) or permission_level(params.pop(1)) < 1:
             text = error.main.restricted(1)
         elif not is_valid_user_id(get_source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
@@ -309,7 +309,7 @@ class command_processor(object):
         return text
 
     def R(self, src, params):
-        if permission_level(params.pop(1)) < 2:
+        if not isinstance(src, SourceUser) or permission_level(params.pop(1)) < 2:
             text = error.main.restricted(2)
         elif not is_valid_user_id(get_source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
@@ -467,7 +467,7 @@ class command_processor(object):
                                                          u'(貼圖ID {})'.format(entry[kwdict_col.keyword].decode('utf-8')) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in last[0 : limit - 1]])
                 if last_count - limit > 0:
                     text += u'\n...(還有{}組)'.format(last_count - limit)
-            elif category == 'SYS':
+            elif category == 'MSG':
                 global game_object
 
                 text = u'【系統統計資料 - 開機後重設】\n'
