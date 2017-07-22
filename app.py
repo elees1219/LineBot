@@ -720,14 +720,19 @@ class command_processor(object):
                 scout_count = params[2]
                 shot_count = 0
                 miss_count = 0
-                for i in range(scout_count):
-                    result = random_gen.random_drawer.draw_probability(float(opportunity) / 100.0)
-                    if result:
-                        shot_count += 1
-                    else:
-                        miss_count += 1
-                text = u'抽籤機率【{}】\n抽籤結果【中{}次 | 失{}次】\n【中率{:.2%}】'.format(
-                    opportunity, shot_count, miss_count, shot_count / float(scout_count))
+                if not string_is_int(opportunity):
+                    text = error.main.incorrect_param(u'參數1(機率)', u'百分比加上符號%')
+                elif not string_is_int(scout_count):
+                    text = error.main.incorrect_param(u'參數2(抽籤次數)', u'整數')
+                else:
+                    for i in range(int(scout_count)):
+                        result = random_gen.random_drawer.draw_probability(float(opportunity) / 100.0)
+                        if result:
+                            shot_count += 1
+                        else:
+                            miss_count += 1
+                    text = u'抽籤機率【{}】\n抽籤結果【中{}次 | 失{}次】\n【中率{:.2%}】'.format(
+                        opportunity, shot_count, miss_count, shot_count / float(scout_count))
             else:
                 start_index = params[1]
                 end_index = params[2]
