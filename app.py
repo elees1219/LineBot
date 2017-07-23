@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # import custom module
-from bot import text_msg
+from bot import text_msg, oxford_dict, webpage_auto_gen
+from bot.system import line_api_proc, string_is_int
 
 import errno, os, sys, tempfile
 import traceback
@@ -12,7 +13,7 @@ from urlparse import urlparse
 from cgi import escape
 from datetime import datetime, timedelta
 from error import error
-from flask import Flask, request, abort, url_for
+from flask import Flask, request, url_for
 
 # import for Oxford Dictionary
 import httplib
@@ -144,19 +145,10 @@ if channel_access_token is None:
     sys.exit(1)
 api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+line_api = line_api_proc(api)
 
 # Oxford Dictionary Environment initialization
-oxford_id = os.getenv('OXFORD_ID', None)
-oxford_key = os.getenv('OXFORD_KEY', None)
-oxford_disabled = False
-if oxford_id is None:
-    oxford_disabled = True
-if oxford_key is None:
-    oxford_disabled = True
-language = 'en'
-oxdict_url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/'
-
-# IMPORTANT: switch branch (master->release, create debug branch
+oxford_dict_obj = oxford_dict('en')
 
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
@@ -167,8 +159,8 @@ class game_processor(object):
         self._game_object = game_object
 
     def RPS(self, src, params):
-        cid = get_source_channel_id(src)
-        uid = get_source_user_id(src)
+        cid = line_api_proc.source_channel_id(src)
+        uid = line_api_proc.source_user_id(src)
 
         if params[4] is not None:
             rps_obj = self._game_object['rps'].get(cid)
@@ -213,8 +205,8 @@ class game_processor(object):
 
             rps_obj = game.rps(True if isinstance(src, SourceUser) else False, rock, paper, scissor)
             if isinstance(rps_obj, game.rps):
-                if is_valid_user_id(uid):
-                    rps_obj.register_player(profile(uid).display_name, uid)
+                if line_api_proc.is_valid_user_id(uid):
+                    rps_obj.register_player(line_api.profile(uid).display_name, uid)
                     text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
                     self._game_object['rps'][cid] = rps_obj
                 else:
@@ -261,9 +253,9 @@ class game_processor(object):
                 elif action == 'S':
                     text = rps_obj.battle_item_dict_text(game.battle_item.scissor)
                 elif action == 'PLAY':
-                    uid = get_source_user_id(src)
-                    if is_valid_user_id(uid):
-                        player_name = profile(uid).display_name
+                    uid = line_api_proc.source_user_id(src)
+                    if line_api_proc.is_valid_user_id(uid):
+                        player_name = line_api.profile(uid).display_name
                         reg_success = rps_obj.register_player(player_name, uid)
                         if reg_success:
                             text = u'成功註冊玩家 {}。'.format(player_name)
@@ -296,8 +288,11 @@ class game_processor(object):
         return text
 
 # Text parser initialization
-command_executor = text_msg(kwd, gb, msg_track)
+command_executor = text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator])
 game_executor = game_processor(game_object)
+
+# Webpage auto generator
+webpage_generator = webpage_auto_gen.webpage()
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -327,63 +322,40 @@ def callback():
 
     return 'OK'
 
-
-
 @app.route("/error", methods=['GET'])
 def get_error_list():
     rec['webpage'] += 1
-    content = 'Boot up at {}\n\nError list:\n'.format(boot_up)
-    content += '\n'.join([html_hyperlink(timestamp, request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]) for timestamp in report_content['Error'].keys()])
+    content = u'開機時間: {}\n\n錯誤清單(根據時間排列):\n'.format(boot_up)
+    content += '\n'.join(
+        [webpage_auto_gen.webpage.html_hyperlink(timestamp, request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]) 
+         for timestamp in webpage_generator.error_list()]
+        )
         
     return content.replace('\n', '<br/>')
 
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
     rec['webpage'] += 1
-    error_message = report_content['Error'].get(timestamp)
-
-    if error_message is None:
-        content = error.webpage.no_content_at_time('error', float(timestamp))
-    else:
-        content = error_message
-        
-    return html_paragraph(content)
+    content = webpage_generator.get_content(webpage_auto_gen.content_type.Error, timestamp)
+    return webpage_auto_gen.webpage.html_paragraph(content)
 
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
     rec['webpage'] += 1
-    query = report_content['FullQuery'].get(timestamp)
-    
-    if query is None:
-        content = error.webpage.no_content_at_time('query', float(timestamp))
-    else:
-        content = query
-        
-    return html_paragraph(content)
+    content = webpage_generator.get_content(webpage_auto_gen.content_type.Query, timestamp)
+    return webpage_auto_gen.webpage.html_paragraph(content)
 
 @app.route("/info/<timestamp>", methods=['GET'])
 def full_info(timestamp):
     rec['webpage'] += 1
-    info = report_content['FullInfo'].get(timestamp)
-    
-    if info is None:
-        content = error.webpage.no_content_at_time(u'要求資訊', float(timestamp))
-    else:
-        content = info
-        
-    return html_paragraph(content)
+    content = webpage_generator.get_content(webpage_auto_gen.content_type.Info, timestamp)
+    return webpage_auto_gen.webpage.html_paragraph(content)
 
 @app.route("/full/<timestamp>", methods=['GET'])
 def full_content(timestamp):
     rec['webpage'] += 1
-    content_text = report_content['Text'].get(timestamp)
-    
-    if content_text is None:
-        content = error.webpage.no_content_at_time('full text', float(timestamp))
-    else:
-        content = content_text
-        
-    return html_paragraph(content)
+    content = webpage_generator.get_content(webpage_auto_gen.content_type.Text, timestamp)
+    return webpage_auto_gen.webpage.html_paragraph(content)
 
 @app.route("/ranking/<type>", methods=['GET'])
 def full_ranking(type):
@@ -395,13 +367,8 @@ def full_ranking(type):
     else:
         content = error.webpage.no_content()
         
-    return html_paragraph(content)
+    return webpage_auto_gen.webpage.html_paragraph(content)
 
-def html_paragraph(content):
-    return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
-
-def html_hyperlink(content, link):
-    return '<a href=\"{}\">{}</a>'.format(link, content)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
@@ -414,7 +381,7 @@ def handle_text_message(event):
     src = event.source
     splitter = '\n'
     
-    msg_track.log_message_activity(get_source_channel_id(src), 1)
+    msg_track.log_message_activity(line_api_proc.source_channel_id(src), 1)
 
     if text == '561563ed706e6f696abbe050ad79cf334b9262da6f83bc1dcf7328f2':
         rec['Intercept'] = not rec['Intercept']
@@ -433,7 +400,7 @@ def handle_text_message(event):
 
     try:
         if splitter in text:
-            head, cmd, oth = split(text, splitter, 3)
+            head, cmd, oth = text_msg.split(text, splitter, 3)
 
             if head == 'JC':
                 rec['cmd']['JC'] += 1
@@ -446,7 +413,7 @@ def handle_text_message(event):
 
                 max_prm = sys_cmd_dict[cmd].split_max
                 min_prm = sys_cmd_dict[cmd].split_min
-                params = split(oth, splitter, max_prm)
+                params = text_msg.split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
                     text = error.main.lack_of_thing(u'參數')
@@ -537,7 +504,7 @@ def handle_text_message(event):
                     sys_cmd_dict[cmd].count -= 1
             elif head == 'HELP':
                 rec['cmd']['HELP'] += 1
-                data = split(text, splitter, 2)
+                data = text_msg.split(text, splitter, 2)
 
                 # TODO: restruct helper
                 # TODO: Helper modulize
@@ -576,7 +543,7 @@ def handle_text_message(event):
                 
                 max_prm = game_cmd_dict[cmd].split_max
                 min_prm = game_cmd_dict[cmd].split_min
-                params = split(oth, splitter, max_prm)
+                params = text_msg.split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
                     text = error.main.lack_of_thing(u'參數')
@@ -593,9 +560,9 @@ def handle_text_message(event):
                 else:
                     game_cmd_dict[cmd].count -= 1
 
-        rps_obj = game_object['rps'].get(get_source_channel_id(src))
+        rps_obj = game_object['rps'].get(line_api_proc.source_channel_id(src))
         if rps_obj is not None:
-            rps_text = minigame_rps_capturing(rps_obj, False, text, get_source_user_id(src))
+            rps_text = minigame_rps_capturing(rps_obj, False, text, line_api_proc.source_user_id(src))
             if rps_text is not None:
                 api_reply(token, TextSendMessage(text=rps_text), src)
                 return
@@ -614,13 +581,13 @@ def handle_text_message(event):
         for err in ex.error.details:
             text += u'錯誤內容: {}\n錯誤訊息: {}\n'.format(err.property, err.message.decode("utf-8"))
 
-        send_error_url_line(token, text, get_source_channel_id(src))
+        send_error_url_line(token, text, line_api_proc.source_channel_id(src))
     except Exception as exc:
         text = u'開機時間: {}\n\n'.format(boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'錯誤種類: {}\n錯誤訊息: {}\n第{}行'.format(exc_type, exc.message.decode("utf-8"), exc_tb.tb_lineno)
 
-        send_error_url_line(token, text, get_source_channel_id(src))
+        send_error_url_line(token, text, line_api_proc.source_channel_id(src))
     return 
 
     if text == 'confirm':
@@ -656,7 +623,7 @@ def handle_sticker_message(event):
     sticker_id = event.message.sticker_id
     rep = event.reply_token
     src = event.source
-    cid = get_source_channel_id(src)
+    cid = line_api_proc.source_channel_id(src)
     
     # TODO: Modulize handle received sticker message 
     rec['last_stk'][cid] = sticker_id
@@ -667,7 +634,7 @@ def handle_sticker_message(event):
     msg_track.log_message_activity(cid, 3)
 
     if rps_obj is not None:
-        text = minigame_rps_capturing(rps_obj, True, sticker_id, get_source_user_id(src))
+        text = minigame_rps_capturing(rps_obj, True, sticker_id, line_api_proc.source_user_id(src))
         if text is not None:
             api_reply(rep, TextSendMessage(text=text), src)
             return
@@ -705,7 +672,7 @@ def handle_postback(event):
 # Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
-    msg_track.log_message_activity(get_source_channel_id(event.source), 1)
+    msg_track.log_message_activity(line_api_proc.source_channel_id(event.source), 1)
     return
 
     api_reply(
@@ -721,7 +688,7 @@ def handle_location_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
-    msg_track.log_message_activity(get_source_channel_id(event.source), 1)
+    msg_track.log_message_activity(line_api_proc.source_channel_id(event.source), 1)
     return
 
     if isinstance(event.message, ImageMessage):
@@ -766,7 +733,7 @@ def handle_unfollow():
 def handle_join(event):
     src = event.source
     reply_token = event.reply_token
-    cid = get_source_channel_id(src)
+    cid = line_api_proc.source_channel_id(src)
 
     global command_executor
 
@@ -788,46 +755,6 @@ def handle_join(event):
                        cid)
 
 
-# Encapsulated Functions
-def split(text, splitter, size):
-    list = []
-  
-    if text is not None:
-        for i in range(size):
-            if splitter not in text or i == size - 1:
-                list.append(text)
-                break
-            list.append(text[0:text.index(splitter)])
-            text = text[text.index(splitter)+len(splitter):]
-  
-    while len(list) < size:
-        list.append(None)
-    
-    return list
-
-
-def permission_level(key):
-    if hashlib.sha224(key).hexdigest() == administrator:
-        return 3
-    elif hashlib.sha224(key).hexdigest() == group_admin:
-        return 2
-    elif hashlib.sha224(key).hexdigest() == group_mod:
-        return 1
-    else:
-        return 0
-
-
-def oxford_json(word):
-    url = oxdict_url + word.lower()
-    r = requests.get(url, headers = {'app_id': oxford_id, 'app_key': oxford_key})
-    status_code = r.status_code
-
-    if status_code != requests.codes.ok:
-        return status_code
-    else:
-        return r.json()
-
-
 def introduction_template():
     buttons_template = ButtonsTemplate(
             title=u'機器人簡介', text='歡迎使用小水母！', 
@@ -841,37 +768,11 @@ def introduction_template():
     return template_message
 
 
-def sticker_png_url(sticker_id):
-    return kw_dict_mgr.sticker_png_url(sticker_id)
-
-
-def get_source_channel_id(source_event):
-    return source_event.sender_id
-
-def get_source_user_id(source_event):
-    return source_event.user_id
-
-
-def is_valid_user_id(uid):
-    return uid is not None and len(uid) == 33 and uid.startswith('U')
-
-def is_valid_room_group_id(uid):
-    return uid is not None and len(uid) == 33 and (uid.startswith('C') or uid.startswith('R'))
-
-
-def string_is_int(s):
-    try: 
-        int(s)
-        return True
-    except ValueError:
-        return False
-
-
 def api_reply(reply_token, msgs, src):
     if isinstance(msgs, TemplateSendMessage):
-        msg_track.log_message_activity(get_source_channel_id(src), 6)
+        msg_track.log_message_activity(line_api_proc.source_channel_id(src), 6)
     elif isinstance(msgs, TextSendMessage):
-        msg_track.log_message_activity(get_source_channel_id(src), 5)
+        msg_track.log_message_activity(line_api_proc.source_channel_id(src), 5)
 
     if not rec['Silence']:
         if not isinstance(msgs, (list, tuple)):
@@ -880,8 +781,7 @@ def api_reply(reply_token, msgs, src):
         for msg in msgs:
             if isinstance(msg, TextSendMessage) and len(msg.text) > 2000:
                 api.reply_message(reply_token, 
-                                  TextSendMessage(
-                                      text=error.main.text_length_too_long(rec_text(msgs))))
+                                  TextSendMessage(text=error.main.text_length_too_long(webpage_generator.rec_text(msgs))))
                 return
 
         api.reply_message(reply_token, msgs)
@@ -893,35 +793,35 @@ def api_reply(reply_token, msgs, src):
 
 
 def intercept_text(event):
-    user_id = get_source_user_id(event.source)
-    user_profile = profile(user_id)
+    user_id = line_api_proc.source_user_id(event.source)
+    user_profile = line_api.profile(user_id)
 
     print '==========================================='
-    print 'From Channel ID \'{}\''.format(get_source_channel_id(event.source))
+    print 'From Channel ID \'{}\''.format(line_api_proc.source_channel_id(event.source))
     print 'From User ID \'{}\' ({})'.format(user_id, user_profile.display_name.encode('utf-8') if user_profile is not None else 'unknown')
     print 'Message \'{}\''.format(event.message.text.encode('utf-8'))
     print '=================================================================='
 
 
 def auto_reply_system(token, keyword, is_sticker_kw, src):
-    cid = get_source_channel_id(src)
+    cid = line_api_proc.source_channel_id(src)
 
     if gb.is_group_set_to_silence(cid):
         return False
 
     res = kwd.get_reply(keyword, is_sticker_kw)
     if res is not None:
-        msg_track.log_message_activity(get_source_channel_id(src), 4 if is_sticker_kw else 2)
+        msg_track.log_message_activity(line_api_proc.source_channel_id(src), 4 if is_sticker_kw else 2)
         result = res[0]
         reply = result[kwdict_col.reply].decode('utf-8')
 
         if result[kwdict_col.is_pic_reply]:
-            line_profile = profile(result[kwdict_col.creator])
+            line_profile = line_api.profile(result[kwdict_col.creator])
 
             api_reply(token, TemplateSendMessage(
-                alt_text='Picture / Sticker Reply.\nID: {id}'.format(id=result[kwdict_col.id]),
-                template=ButtonsTemplate(text=u'ID: {}\nCreated by {}.'.format(
-                    u'(LINE account data not found)' if line_profile is None else line_profile.display_name,
+                alt_text=u'圖片/貼圖回覆.\n關鍵字ID: {}'.format(id=result[kwdict_col.id]),
+                template=ButtonsTemplate(text=u'由{}製作。\n回覆組ID: {}'.format(
+                    error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name,
                     result[kwdict_col.id]), 
                                          thumbnail_image_url=reply,
                                          actions=[
@@ -938,7 +838,7 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 
 
 def minigame_rps_capturing(rps_obj, is_sticker, content, uid):
-    if rps_obj is not None and is_valid_user_id(uid) and rps_obj.has_player(uid):
+    if rps_obj is not None and line_api_proc.is_valid_user_id(uid) and rps_obj.has_player(uid):
         if rps_obj.enabled:
             battle_item = rps_obj.find_battle_item(is_sticker, content)
             if battle_item is not None:
@@ -951,60 +851,6 @@ def minigame_rps_capturing(rps_obj, is_sticker, content, uid):
                         return u'等待下一個玩家出拳中...'
                     if rps_obj.result_generated:
                         return rps_obj.result_text()
-
-
-
-def rec_error(details, channel_id):
-    if details is not None:
-        timestamp = str(int(time.time()))
-        report_content['Error'][timestamp] = 'Error Occurred at {time}\n'.format(time=datetime.now() + timedelta(hours=8))
-        report_content['Error'][timestamp] = 'At channel ID: {cid}'.format(cid=channel_id)
-        report_content['Error'][timestamp] += '\n\n'
-        report_content['Error'][timestamp] += details  
-        return timestamp
-
-
-def rec_query(full_query):
-    timestamp = str(int(time.time()))
-    report_content['FullQuery'][timestamp] = full_query
-    return request.url_root + url_for('full_query', timestamp=timestamp)[1:]
-
-
-def rec_info(full_info):
-    timestamp = str(int(time.time()))
-    report_content['FullInfo'][timestamp] = full_info
-
-    return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
-
-
-def rec_text(textmsg_list):
-    if not isinstance(textmsg_list, (list, tuple)):
-        textmsg_list = [textmsg_list]
-
-    timestamp = str(int(time.time()))
-    report_content['Text'][timestamp] = ''
-    for index, txt in enumerate(textmsg_list, start=1):
-        report_content['Text'][timestamp] += 'Message {index}\n'.format(index=index)
-        report_content['Text'][timestamp] += txt.text
-        report_content['Text'][timestamp] += '\n===============================\n'
-    return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
-
-
-def send_error_url_line(token, error_text, channel_id):
-    timestamp = rec_error(traceback.format_exc(), channel_id)
-    err_detail = u'詳細錯誤URL: {url}\n錯誤清單: {url_full}'.format(
-        url=request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
-        url_full=request.url_root + url_for('get_error_list')[1:])
-    print report_content['Error'][timestamp]
-    api_reply(token, [TextSendMessage(text=error_text), TextSendMessage(text=err_detail)], channel_id)
-
-
-def profile(uid):
-    try:
-        return api.get_profile(uid)
-    except exceptions.LineBotApiError as ex:
-        if ex.status_code == 404:
-            return None
 
 
 if __name__ == "__main__":

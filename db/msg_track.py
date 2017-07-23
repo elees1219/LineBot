@@ -3,6 +3,7 @@
 import os, sys
 from collections import defaultdict
 from error import error
+from enum import Enum
 
 import urlparse
 import psycopg2
@@ -212,10 +213,13 @@ class message_tracker(object):
         )
         self.cur = self.conn.cursor()
 
-_col_list = ['cid', 
-             'text_msg',  'text_msg_trig', 
-             'stk_msg', 'stk_msg_trig', 
-             'text_rep', 'stk_rep',
-             'last_msg_recv']
-_col_tuple = collections.namedtuple('msg_track_col', _col_list)
-msg_track_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7)
+
+class msg_track_col(Enum):
+    cid = 0
+    text_msg = 1
+    text_msg_trig = 2
+    stk_msg = 3
+    stk_msg_trig = 4
+    text_rep = 5
+    stk_rep = 6
+    last_msg_recv = 7

@@ -30,6 +30,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="bot\text_msg_handle.py" />
+    <Compile Include="bot\webpage_auto_gen.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="bot\__init__.py" />
     <Compile Include="db\groupban.py">
       <SubType>Code</SubType>

@@ -171,10 +171,14 @@ class group_ban(object):
         self.cur = self.conn.cursor()
 
 
-_col_list = ['groupId', 'silence', 
-             'admin', 'admin_sha', 
-             'moderator1', 'moderator1_sha', 
-             'moderator2', 'moderator2_sha', 
-             'moderator3', 'moderator3_sha']
-_col_tuple = collections.namedtuple('gb_col', _col_list)
-gb_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+class gb_col(Enum):
+    groupId = 0
+    silence = 1
+    admin = 2
+    admin_sha = 3
+    moderator1 = 4
+    moderator1_sha = 5
+    moderator2 = 6
+    moderator2_sha = 7
+    moderator3 = 8
+    moderator3_sha = 9

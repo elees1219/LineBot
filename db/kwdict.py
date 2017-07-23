@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from enum import Enum
 import os
 
 import urlparse
@@ -361,10 +361,18 @@ class kw_dict_mgr(object):
         )
         self.cur = self.conn.cursor()
 
-
-_col_list = ['id', 'keyword', 'reply', 'deleted', 'override', 'admin', 
-             'used_count', 'creator', 'is_pic_reply', 'is_sticker_kw', 'deletor', 
-             'created_time', 'disabled_time', 
-             'used_rank']
-_col_tuple = collections.namedtuple('kwdict_col', _col_list)
-kwdict_col = _col_tuple(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
+class kwdict_col(Enum):
+    id = 0
+    keyword = 1
+    reply = 2
+    deleted = 3
+    override = 4
+    admin = 5
+    used_count = 6
+    creator = 7
+    is_pic_reply = 8
+    is_sticker_kw = 9
+    deletor = 10
+    created_time = 11
+    disabled_time = 12
+    used_rank = 13

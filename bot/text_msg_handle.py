@@ -2,6 +2,7 @@
 import errno, os, sys
 import validators
 from urlparse import urlparse
+import requests
 
 from flask import Flask, request, abort, url_for
 import hashlib 
@@ -21,30 +22,32 @@ from linebot.models import (
 )
 
 from app import (
-    permission_level, oxford_json,  # Bot-Related
-    get_source_user_id, get_source_channel_id, is_valid_user_id, is_valid_room_group_id, profile, # LINE API
-    rec_query, rec_info, # Auto-Webpage
-    string_is_int, # Built-in
-    boot_up, game_object, rec, sys_cmd_dict, game_cmd_dict, helper_cmd_dict, oxford_disabled # System Variants
+    boot_up, game_object, rec, sys_cmd_dict, game_cmd_dict, helper_cmd_dict # System Variants
 )
 from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col
 
 from error import error
+from bot import system, webpage_auto_gen
+from bot.system import line_api_proc
 
 # tool import
 from tool import mff, random_gen
 
 class text_msg(object):
-    def __init__(self, kw_dict_mgr, group_ban, msg_trk):
+    def __init__(self, api_proc, kw_dict_mgr, group_ban, msg_trk, oxford_obj, permission_key_list):
         self.kwd = kw_dict_mgr
         self.gb = group_ban
         self.msg_trk = msg_trk
+        self.oxford_obj = oxford_obj
+        self._webpage_generator = webpage_auto_gen.webpage()
+        self.permission_verifier = system.permission_verifier(permission_key_list)
+        self.api_proc = api_proc
 
     def S(self, src, params):
         key = params.pop(1)
         sql = params[1]
 
-        if isinstance(src, SourceUser) and permission_level(key) >= 3:
+        if isinstance(src, SourceUser) and self.permission_verifier.permission_level(key) >= system.permission.bot_admin:
             results = self.kwd.sql_cmd_only(sql)
             text = u'資料庫指令:\n{}\n\n'.format(sql)
             if results is not None and len(results) > 0:
@@ -59,7 +62,7 @@ class text_msg(object):
         return text
 
     def A(self, src, params, pinned=False):
-        new_uid = get_source_user_id(src)
+        new_uid = line_api_proc.source_user_id(src)
 
         if params[4] is not None:
             action_kw = params[1]
@@ -70,14 +73,14 @@ class text_msg(object):
             if action_kw != 'STK':
                 results = None
                 text = error.main.incorrect_param(u'參數1', u'STK')
-            elif not string_is_int(kw):
+            elif not system.string_is_int(kw):
                 results = None
                 text = error.main.incorrect_param(u'參數2', u'整數數字')
             elif action_rep != 'PIC':
                 results = None
                 text =  error.main.incorrect_param(u'參數3', u'PIC')
             else:
-                if string_is_int(rep):
+                if system.string_is_int(rep):
                     rep = kw_dict_mgr.sticker_png_url(rep)
                     url_val_result = True
                 else:
@@ -94,7 +97,7 @@ class text_msg(object):
             if params[2] == 'PIC':
                 kw = params[1]
 
-                if string_is_int(rep):
+                if system.string_is_int(rep):
                     rep = kw_dict_mgr.sticker_png_url(rep)
                     url_val_result = True
                 else:
@@ -108,7 +111,7 @@ class text_msg(object):
             elif params[1] == 'STK':
                 kw = params[2]
 
-                if string_is_int(kw):
+                if system.string_is_int(kw):
                     results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
                 else:
                     results = None
@@ -133,9 +136,10 @@ class text_msg(object):
         return text
 
     def M(self, src, params):
-        if not isinstance(src, SourceUser) or permission_level(params.pop(1)) < 1:
+        key = params.pop(1)
+        if not isinstance(src, SourceUser) or self.permission_verifier.permission_level(key) < system.permission.moderator:
             text = error.main.restricted(1)
-        elif not is_valid_user_id(get_source_user_id(src)):
+        elif not line_api_proc.is_valid_user_id(line_api_proc.source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
         else:
             text = self.A(src, params)
@@ -143,7 +147,7 @@ class text_msg(object):
         return text
 
     def D(self, src, params, pinned=False):
-        deletor_uid = get_source_user_id(src)
+        deletor_uid = line_api_proc.source_user_id(src)
         if params[2] is None:
             kw = params[1]
 
@@ -154,7 +158,7 @@ class text_msg(object):
             if action == 'ID':
                 pair_id = params[2]
 
-                if string_is_int(pair_id):
+                if system.string_is_int(pair_id):
                     results = self.kwd.delete_keyword_id(pair_id, deletor_uid, pinned)
                 else:
                     results = None
@@ -165,14 +169,14 @@ class text_msg(object):
 
         if results is not None and len(results) > 0:
             for result in results:
-                line_profile = profile(result[kwdict_col.creator])
+                line_profile = self.api_proc.profile(result[kwdict_col.creator])
 
                 text = u'已刪除回覆組。{}\n'.format(u'(置頂)' if pinned else '')
                 text += kw_dict_mgr.entry_basic_info(result)
                 text += u'\n此回覆組由 {} 製作。'.format(
                     '(LINE account data not found)' if line_profile is None else line_profile.display_name)
         else:
-            if string_is_int(kw):
+            if system.string_is_int(kw):
                 text = error.main.miscellaneous(u'偵測到參數1是整數。若欲使用ID作為刪除根據，請參閱小水母使用說明。')
             else:
                 text = error.main.pair_not_exist_or_insuffieicnt_permission()
@@ -180,9 +184,10 @@ class text_msg(object):
         return text
 
     def R(self, src, params):
-        if not isinstance(src, SourceUser) or permission_level(params.pop(1)) < 2:
+        key = params.pop(1)
+        if not isinstance(src, SourceUser) or self.permission_verifier.permission_level(key) < system.permission.group_admin:
             text = error.main.restricted(2)
-        elif not is_valid_user_id(get_source_user_id(src)):
+        elif not line_api_proc.is_valid_user_id(line_api_proc.source_user_id(src)):
             text = error.main.unable_to_receive_user_id()
         else:
             text = self.D(src, params, True)
@@ -216,7 +221,7 @@ class text_msg(object):
         if results is not None:
             q_list = kw_dict_mgr.list_keyword(results)
             text = q_list['limited']
-            text += '\n\n完整搜尋結果顯示: {}'.format(rec_query(q_list['full']))
+            text += '\n\n完整搜尋結果顯示: {}'.format(self._webpage_generator.rec_query(q_list['full']))
         else:
             if params[2] is not None:
                 text = u'找不到和指定的ID範圍({}~{})有關的結果。'.format(si, ei)
@@ -235,7 +240,7 @@ class text_msg(object):
                 text += error.main.invalid_thing_with_correct_format(u'參數1', u'ID', action)
                 results = None
             else:
-                if string_is_int(pair_id):
+                if system.string_is_int(pair_id):
                     results = self.kwd.get_info_id(pair_id)   
                 else:
                     results = None
@@ -249,7 +254,7 @@ class text_msg(object):
         if results is not None:
             i_object = kw_dict_mgr.list_keyword_info(self.kwd, api, results)
             text += i_object['limited']
-            text += u'\n\n完整資訊URL: {}'.format(rec_info(i_object['full']))
+            text += u'\n\n完整資訊URL: {}'.format(self._webpage_generator.rec_info(i_object['full']))
         else:
             text = error.main.miscellaneous(u'資料查詢主體為空。')
 
@@ -298,12 +303,12 @@ class text_msg(object):
 
                 text += u'\n\n【群組訊息統計資料 - 前{}名】\n'.format(limit)
                 text += tracking_data['limited']
-                text += u'\n\n完整資訊URL: {}'.format(rec_info(tracking_data['full']))
+                text += u'\n\n完整資訊URL: {}'.format(self._webpage_generator.rec_info(tracking_data['full']))
             elif category == 'KW':
                 kwpct = self.kwd.row_count()
 
                 user_list_top = self.kwd.user_sort_by_created_pair()[0]
-                line_profile = profile(user_list_top[0])
+                line_profile = self.api_proc.profile(user_list_top[0])
                 
                 first = self.kwd.most_used()
                 last = self.kwd.least_used()
@@ -358,12 +363,12 @@ class text_msg(object):
         if params[1] is not None:
             gid = params[1]
         else:
-            gid = get_source_channel_id(src)
+            gid = line_api_proc.source_channel_id(src)
 
         if params[1] is None and isinstance(src, SourceUser):
             text = error.main.incorrect_channel(False, True, True)
         else:
-            if is_valid_room_group_id(gid):
+            if line_api_proc.is_valid_room_group_id(gid):
                 group_detail = self.gb.get_group_by_id(gid)
 
                 uids = {u'管理員': group_detail[gb_col.admin], u'副管I': group_detail[gb_col.moderator1], 
@@ -374,7 +379,7 @@ class text_msg(object):
                     text += u'\n自動回覆機能狀態【{}】'.format(u'已停用' if group_detail[gb_col.silence] else u'使用中')
                     for txt, uid in uids.items():
                         if uid is not None:
-                            prof = profile(uid)
+                            prof = self.api_proc.profile(uid)
                             text += u'\n\n{}: {}\n'.format(txt, error.main.line_account_data_not_found() if prof is None else prof.display_name)
                             text += u'{} 使用者ID: {}'.format(txt, uid)
                 else:
@@ -399,7 +404,7 @@ class text_msg(object):
                      2: u'權限: Group Admin',
                      1: u'權限: Group Moderator',
                      0: u'權限: User'}
-        perm = permission_level(params.pop(1))
+        perm = int(self.permission_verifier.permission_level(params.pop(1)))
         pert = perm_dict[perm]
 
         param_count = len(params) - params.count(None)
@@ -442,7 +447,7 @@ class text_msg(object):
                             'SM2': u'群組副管 2',
                             'SM3': u'群組副管 3'}
 
-                line_profile = profile(new_uid)
+                line_profile = self.api_proc.profile(new_uid)
 
                 if line_profile is not None:
                     try:
@@ -475,7 +480,7 @@ class text_msg(object):
                     if len(group_data_test) > 0:
                         text = u'群組資料已存在。'
                     else:
-                        line_profile = profile(uid)
+                        line_profile = self.api_proc.profile(uid)
 
                         if line_profile is not None:
                             if self.gb.new_data(gid, uid, pw):
@@ -495,11 +500,11 @@ class text_msg(object):
     def H(self, src, params):
         if params[1] is not None:
             uid = params[1]
-            line_profile = profile(uid)
+            line_profile = self.api_proc.profile(uid)
             
             source_type = u'使用者詳細資訊'
 
-            if not is_valid_user_id(uid):
+            if not line_api_proc.is_valid_user_id(uid):
                 text = error.main.invalid_thing_with_correct_format(u'使用者ID', u'U開頭，並且長度為33字元', uid)
             else:
                 if line_profile is not None:
@@ -515,7 +520,7 @@ class text_msg(object):
                 else:
                     text = u'找不到使用者ID - {} 的詳細資訊。'.format(uid)
         else:
-            text = get_source_channel_id(src)
+            text = line_api_proc.source_channel_id(src)
             if isinstance(src, SourceUser):
                 source_type = u'頻道種類: 使用者(私訊)'
             elif isinstance(src, SourceGroup):
@@ -540,10 +545,10 @@ class text_msg(object):
     def O(self, src, params):
         voc = params[1]
 
-        if oxford_disabled:
-            text = error.main.miscellaneous('牛津字典功能已停用。可能是因為超過單月查詢次數或無效的API密鑰。')
+        if not self.oxford_obj.enabled:
+            text = error.main.miscellaneous(u'牛津字典功能已停用。可能是因為超過單月查詢次數或無效的API密鑰。')
         else:
-            j = oxford_json(voc)
+            j = self.oxford_obj.get_data_json(voc)
 
             if type(j) is int:
                 code = j
@@ -588,9 +593,9 @@ class text_msg(object):
                 scout_count = params[2]
                 shot_count = 0
                 miss_count = 0
-                if not string_is_int(opportunity):
+                if not system.string_is_int(opportunity):
                     text = error.main.incorrect_param(u'參數1(機率)', u'百分比加上符號%')
-                elif not string_is_int(scout_count):
+                elif not system.string_is_int(scout_count):
                     text = error.main.incorrect_param(u'參數2(抽籤次數)', u'整數')
                 else:
                     for i in range(int(scout_count)):
@@ -628,7 +633,7 @@ class text_msg(object):
         return text
 
     def STK(self, src, params):
-        last_sticker = rec['last_stk'][get_source_channel_id(src)]
+        last_sticker = rec['last_stk'][line_api_proc.source_channel_id(src)]
         if last_sticker is not None:
             text = u'最後一個貼圖的貼圖ID為{}。'.format(last_sticker)
         else:
@@ -653,4 +658,32 @@ class text_msg(object):
         
         return list
 
+class oxford_dict(object):
+    def __init__(self, language):
+        """
+        Set environment variable "OXFORD_ID", "OXFORD_KEY" as presented api id and api key.
+        """
+        self._language = language
+        self._url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/{}/'.format(self._language)
+        self._id = os.getenv('OXFORD_ID', None)
+        self._key = os.getenv('OXFORD_KEY', None)
+        self._enabled = False if self._id is None or self._key is None else True
+
+    def get_data_json(self, word):
+        url = self._url + word.lower()
+        r = requests.get(url, headers = {'app_id': self._id, 'app_key': self._key})
+        status_code = r.status_code
+
+        if status_code != requests.codes.ok:
+            return status_code
+        else:
+            return r.json()
+
+    @property
+    def enabled(self):
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value):
+        self._enabled = value
 
