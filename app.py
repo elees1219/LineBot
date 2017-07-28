@@ -1615,6 +1615,15 @@ def profile(uid):
     except exceptions.LineBotApiError as ex:
         if ex.status_code == 404:
             return None
+        
+
+    
+def string_is_float(s):
+    try: 
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 
 if __name__ == "__main__":
