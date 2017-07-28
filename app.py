@@ -720,9 +720,9 @@ class command_processor(object):
                 scout_count = params[2]
                 shot_count = 0
                 miss_count = 0
-                if not string_is_int(opportunity):
+                if not string_is_float(opportunity):
                     text = error.main.incorrect_param(u'參數1(機率)', u'百分比加上符號%')
-                elif not string_is_int(scout_count):
+                elif not string_is_float(scout_count):
                     text = error.main.incorrect_param(u'參數2(抽籤次數)', u'整數')
                 else:
                     for i in range(int(scout_count)):
