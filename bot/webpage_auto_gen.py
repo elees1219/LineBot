@@ -17,20 +17,19 @@ class webpage(object):
         self._page_content = {self._error_route: {}, self._query_route: {}, self._info_route: {}, self._text_route: {}}
 
     def rec_error(self, err_sum, channel_id):
-        if details is not None:
-            timestamp = str(int(time.time()))
-            err_detail = u'錯誤發生時間: {}\n'.format(datetime.now() + timedelta(hours=8))
-            err_detail += u'頻道ID: {}'.format(channel_id)
-            err_detail += u'\n\n'
-            err_detail += traceback.format_exc()  
+        timestamp = str(int(time.time()))
+        err_detail = u'錯誤發生時間: {}\n'.format(datetime.now() + timedelta(hours=8))
+        err_detail += u'頻道ID: {}'.format(channel_id)
+        err_detail += u'\n\n'
+        err_detail += traceback.format_exc()  
 
-            self._page_content[self._error_route][timestamp] = err_detail
+        self._page_content[self._error_route][timestamp] = err_detail
 
-            err_list = u'詳細錯誤URL: {}\n錯誤清單: {}'.format(
-                request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
-                request.url_root + url_for('get_error_list')[1:])
-            
-            return err_sum, err_list
+        err_list = u'詳細錯誤URL: {}\n錯誤清單: {}'.format(
+            request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
+            request.url_root + url_for('get_error_list')[1:])
+        
+        return err_sum, err_list
     
     def rec_query(self, full_query):
         timestamp = str(int(time.time()))
