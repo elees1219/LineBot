@@ -705,7 +705,7 @@ class command_processor(object):
                             
                             if 'examples' in sen:
                                 for ex in sen['examples']:
-                                    text += u'\n------{}'.format(ex['text'].decode("utf-8"))
+                                    text += u'\n------{}'.format(ex['text'])
 
                     text += '\n{}\n'.format(section_splitter)
 
