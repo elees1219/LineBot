@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 from error import error
+from cgi import escape
 
 import traceback
 
@@ -25,6 +26,7 @@ class webpage(object):
         err_detail += u'\n\n'
         err_detail += traceback.format_exc().decode('utf-8')
 
+        print err_detail
         self._page_content[self._error_route][timestamp] = err_detail
 
         err_list = u'詳細錯誤URL: {}\n錯誤清單: {}'.format(

@@ -327,7 +327,7 @@ def handle_text_message(event):
         intercept_text(event)
 
     if text == administrator:
-        sys_data.silence = sys_data.silence
+        sys_data.silence = not sys_data.silence
         api.reply_message(token, TextSendMessage(text='Bot set to {}.'.format('Silent' if sys_data.silence else 'Active')))
         return
     elif sys_data.silence:
