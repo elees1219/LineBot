@@ -1,7 +1,7 @@
 from .text_msg_handle import (
     text_msg, oxford_dict, line_api_proc
 )
-s
+
 from .system import (
     permission_verifier, permission, line_api_proc, string_is_int, system_data
 )
