@@ -491,7 +491,7 @@ def handle_text_message(event):
                 else:
                     sys_data.game_cmd_dict[cmd].count -= 1
 
-        rps_obj = game_data.get_rps(cid)
+        rps_obj = game_data.get_rps(line_api_proc.source_channel_id(src))
         if rps_obj is not None:
             rps_text = minigame_rps_capturing(rps_obj, False, text, line_api_proc.source_user_id(src))
             if rps_text is not None:
