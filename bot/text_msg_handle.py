@@ -294,7 +294,7 @@ class text_msg(object):
                 limit = 5
 
                 sum_data = self.msg_trk.count_sum()
-                tracking_data = message_tracker.entry_detail_list(msg_track.order_by_recorded_msg_count(), limit, self.gb)
+                tracking_data = message_tracker.entry_detail_list(self.msg_trk.order_by_recorded_msg_count(), limit, self.gb)
 
                 text = u'【訊息流量統計】'
                 text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data[msg_event_type.recv_txt], sum_data[msg_event_type.recv_stk])
@@ -337,7 +337,7 @@ class text_msg(object):
                 text += u'\n'.join([u'ID: {} - {}'.format(entry[int(kwdict_col.id)],
                                                          u'(貼圖ID {})'.format(entry[int(kwdict_col.keyword)].decode('utf-8')) if entry[int(kwdict_col.is_sticker_kw)] else entry[int(kwdict_col.keyword)].decode('utf-8')) for entry in first[0 : limit - 1]])
                 
-                text += u'\n\n使用次數最少的回覆組 【{}次，{}組】:\n'.format(last[0][kwdict_col.used_count], len(last))
+                text += u'\n\n使用次數最少的回覆組 【{}次，{}組】:\n'.format(last[0][int(kwdict_col.used_count)], len(last))
                 text += u'\n'.join([u'ID: {} - {}'.format(entry[int(kwdict_col.id)],
                                                          u'(貼圖ID {})'.format(entry[int(kwdict_col.keyword)].decode('utf-8')) if entry[int(kwdict_col.is_sticker_kw)] else entry[int(kwdict_col.keyword)].decode('utf-8')) for entry in last[0 : limit - 1]])
                 if last_count - limit > 0:
