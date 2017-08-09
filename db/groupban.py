@@ -171,7 +171,6 @@ class group_ban(object):
         )
         self.cur = self.conn.cursor()
 
-
 class gb_col(Enum):
     groupId = 0
     silence = 1
@@ -183,3 +182,6 @@ class gb_col(Enum):
     moderator2_sha = 7
     moderator3 = 8
     moderator3_sha = 9
+
+    def __int__(self):
+        return self.value
