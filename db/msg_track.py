@@ -56,36 +56,14 @@ class message_tracker(object):
         return cmd
 
     def log_message_activity(self, cid, type_of_event):
-        """
-        Type of Event:
-        1 = receive text message
-        2 = receive text message and auto reply system has been triggered
-        3 = receive sticker message
-        4 = receive sticker message and auto reply system has been triggered
-        5 = count of reply with text message
-        6 = count of reply with sticker message
-
-        None listed code of Type of Event and Illegal channel id length will raise ValueError.
-        """
         if len(cid) != self.channel_id_length:
             raise ValueError(error.main.incorrect_thing_with_correct_format(u'頻道ID', u'33字元長度', cid));
         else:
-            if type_of_event == 1:
-                update_last_message_recv = True
-            elif type_of_event == 2:
-                update_last_message_recv = True
-            elif type_of_event == 3:
-                update_last_message_recv = True
-            elif type_of_event == 4:
-                update_last_message_recv = True
-            elif type_of_event == 5:
+            update_last_message_recv = True
+            if type_of_event == msg_event_type.send_stk or type_of_event == msg_event_type.send_txt:
                 update_last_message_recv = False
-            elif type_of_event == 6:
-                update_last_message_recv = False
-            else:
-                raise ValueError();
             
-            column_to_add = _col_list[type_of_event]
+            column_to_add = int(type_of_event)
             
             cmd = u'SELECT * FROM msg_track WHERE cid = %(cid)s'
             cmd_dict = {'cid': cid}
@@ -223,3 +201,11 @@ class msg_track_col(Enum):
     text_rep = 5
     stk_rep = 6
     last_msg_recv = 7
+
+class msg_event_type(Enum):
+    recv_txt = 1
+    recv_txt_repl = 2
+    recv_stk = 3
+    recv_stk_repl = 4
+    send_txt = 5
+    send_stk = 6

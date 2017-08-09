@@ -7,5 +7,5 @@ from .groupban import (
 )
 
 from .msg_track import (
-    message_tracker, msg_track_col
+    message_tracker, msg_track_col, msg_event_type
 )

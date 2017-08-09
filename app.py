@@ -21,7 +21,7 @@ import requests
 import json
 
 # Database import
-from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col
+from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col, msg_event_type
 
 # tool import
 from tool import mff, random_gen
@@ -317,7 +317,7 @@ def handle_text_message(event):
     src = event.source
     splitter = '\n'
     
-    msg_track.log_message_activity(line_api_proc.source_channel_id(src), 1)
+    msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.recv_txt)
 
     if text == '561563ed706e6f696abbe050ad79cf334b9262da6f83bc1dcf7328f2':
         sys_data.intercept = not sys_data.intercept
@@ -562,7 +562,7 @@ def handle_sticker_message(event):
     global game_data
     rps_obj = game_data.get_rps(cid)
 
-    msg_track.log_message_activity(cid, 3)
+    msg_track.log_message_activity(cid, msg_event_type.recv_stk)
 
     if rps_obj is not None:
         text = minigame_rps_capturing(rps_obj, True, sticker_id, line_api_proc.source_user_id(src))
@@ -603,7 +603,7 @@ def handle_postback(event):
 # Incomplete
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
-    msg_track.log_message_activity(line_api_proc.source_channel_id(event.source), 1)
+    msg_track.log_message_activity(line_api_proc.source_channel_id(event.source), msg_event_type.recv_txt)
     return
 
     api_reply(
@@ -619,7 +619,7 @@ def handle_location_message(event):
 # Incomplete
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
-    msg_track.log_message_activity(line_api_proc.source_channel_id(event.source), 1)
+    msg_track.log_message_activity(line_api_proc.source_channel_id(event.source), msg_event_type.recv_txt)
     return
 
     if isinstance(event.message, ImageMessage):
@@ -701,9 +701,9 @@ def introduction_template():
 
 def api_reply(reply_token, msgs, src):
     if isinstance(msgs, TemplateSendMessage):
-        msg_track.log_message_activity(line_api_proc.source_channel_id(src), 6)
+        msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.send_stk)
     elif isinstance(msgs, TextSendMessage):
-        msg_track.log_message_activity(line_api_proc.source_channel_id(src), 5)
+        msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.send_txt)
 
     if not sys_data.silence:
         if not isinstance(msgs, (list, tuple)):
@@ -742,7 +742,7 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
 
     res = kwd.get_reply(keyword, is_sticker_kw)
     if res is not None:
-        msg_track.log_message_activity(line_api_proc.source_channel_id(src), 4 if is_sticker_kw else 2)
+        msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.recv_stk_repl if is_sticker_kw else msg_event_type.recv_txt_repl)
         result = res[0]
         reply = result[kwdict_col.reply].decode('utf-8')
 
