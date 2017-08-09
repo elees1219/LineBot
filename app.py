@@ -512,15 +512,15 @@ def handle_text_message(event):
         for err in ex.error.details:
             text += u'錯誤內容: {}\n錯誤訊息: {}\n'.format(err.property, err.message.decode("utf-8"))
 
-        error_msgs = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
-        api_reply(token, [TextSendMessage(text=msg) for msg in error_msgs], src)
+        error_msg = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
+        api_reply(token, TextSendMessage(text=error_msg), src)
     except Exception as exc:
         text = u'開機時間: {}\n\n'.format(sys_data.boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'錯誤種類: {}\n\n第{}行 - {}'.format(exc_type, exc_tb.tb_lineno, exc.message.decode("utf-8"))
         
-        error_msgs = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
-        api_reply(token, [TextSendMessage(text=msg) for msg in error_msgs], src)
+        error_msg = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
+        api_reply(token, TextSendMessage(text=error_msg), src)
     return 
 
     if text == 'confirm':
@@ -707,9 +707,9 @@ def api_reply(reply_token, msgs, src):
             msgs = [msgs]
 
         for msg in msgs:
-            if isinstance(msgs, TemplateSendMessage):
+            if isinstance(msg, TemplateSendMessage):
                 msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.send_stk)
-            elif isinstance(msgs, TextSendMessage):
+            elif isinstance(msg, TextSendMessage):
                 msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.send_txt)
 
                 if len(msg.text) > 2000:
