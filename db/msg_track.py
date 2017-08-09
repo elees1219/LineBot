@@ -106,12 +106,12 @@ class message_tracker(object):
         cmd = u'SELECT MIN(last_msg_recv), SUM(text_msg), SUM(text_msg_trig), SUM(stk_msg), SUM(stk_msg_trig), SUM(text_rep), SUM(stk_rep) FROM msg_track'
         sql_result = self.sql_cmd_only(cmd)
         sql_result = sql_result[0]
-        results[msg_event_type.recv_txt] = sql_result[msg_track_col.text_msg]
-        results[msg_event_type.recv_txt_repl] = sql_result[msg_track_col.text_msg_trig]
-        results[msg_event_type.recv_stk] = sql_result[msg_track_col.stk_msg]
-        results[msg_event_type.recv_stk_repl] = sql_result[msg_track_col.stk_msg_trig]
-        results[msg_event_type.send_txt] = sql_result[msg_track_col.text_rep]
-        results[msg_event_type.send_stk] = sql_result[msg_track_col.stk_rep]
+        results[msg_event_type.recv_txt] = sql_result[int(msg_track_col.text_msg)]
+        results[msg_event_type.recv_txt_repl] = sql_result[int(msg_track_col.text_msg_trig)]
+        results[msg_event_type.recv_stk] = sql_result[int(msg_track_col.stk_msg)]
+        results[msg_event_type.recv_stk_repl] = sql_result[int(msg_track_col.stk_msg_trig)]
+        results[msg_event_type.send_txt] = sql_result[int(msg_track_col.text_rep)]
+        results[msg_event_type.send_stk] = sql_result[int(msg_track_col.stk_rep)]
         return results
 
     def order_by_recorded_msg_count(self, limit=1000):
@@ -126,7 +126,7 @@ class message_tracker(object):
 
     @staticmethod
     def entry_detail(data, group_ban=None):
-        gid = data[msg_track_col.cid]
+        gid = data[int(msg_track_col.cid)]
 
         if group_ban is not None:
             if gid.startswith('U'):
@@ -134,16 +134,16 @@ class message_tracker(object):
             else:
                 group_data = group_ban.get_group_by_id(gid)
                 if group_data is not None:
-                    activation_status = u'停用回覆' if group_data[gb_col.silence] else u'啟用回覆'
+                    activation_status = u'停用回覆' if group_data[int(gb_col.silence)] else u'啟用回覆'
                 else:
                     activation_status = u'啟用回覆'
         else:
             activation_status = u'啟用回覆'
 
         text = u'群組/房間ID: {} 【{}】'.format(gid, activation_status)
-        text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_msg], data[msg_track_col.stk_msg])
-        text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_msg_trig], data[msg_track_col.stk_msg_trig])
-        text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(data[msg_track_col.text_rep], data[msg_track_col.stk_rep])
+        text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[int(msg_track_col.text_msg)], data[int(msg_track_col.stk_msg)])
+        text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(data[int(msg_track_col.text_msg_trig)], data[int(msg_track_col.stk_msg_trig)])
+        text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(data[int(msg_track_col.text_rep)], data[int(msg_track_col.stk_rep)])
 
         return text
 

@@ -574,7 +574,7 @@ def handle_sticker_message(event):
         results = kwd.search_sticker_keyword(sticker_id)
         
         if results is not None:
-            kwdata = u'相關回覆組ID: {}。\n'.format(u', '.join([unicode(result[kwdict_col.id]) for result in results]))
+            kwdata = u'相關回覆組ID: {}。\n'.format(u', '.join([unicode(result[int(kwdict_col.id)]) for result in results]))
         else:
             kwdata = u'無相關回覆組ID。\n'
 
@@ -744,16 +744,16 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
     if res is not None:
         msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.recv_stk_repl if is_sticker_kw else msg_event_type.recv_txt_repl)
         result = res[0]
-        reply = result[kwdict_col.reply].decode('utf-8')
+        reply = result[int(kwdict_col.reply)].decode('utf-8')
 
-        if result[kwdict_col.is_pic_reply]:
-            line_profile = line_api.profile(result[kwdict_col.creator])
+        if result[int(kwdict_col.is_pic_reply)]:
+            line_profile = line_api.profile(result[int(kwdict_col.creator)])
 
             api_reply(token, TemplateSendMessage(
-                alt_text=u'圖片/貼圖回覆.\n關鍵字ID: {}'.format(id=result[kwdict_col.id]),
+                alt_text=u'圖片/貼圖回覆.\n關鍵字ID: {}'.format(id=result[int(kwdict_col.id)]),
                 template=ButtonsTemplate(text=u'由{}製作。\n回覆組ID: {}'.format(
                     error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name,
-                    result[kwdict_col.id]), 
+                    result[int(kwdict_col.id)]), 
                                          thumbnail_image_url=reply,
                                          actions=[
                                              URITemplateAction(label=u'Original Picture', uri=reply)

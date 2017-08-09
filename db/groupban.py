@@ -152,7 +152,7 @@ class group_ban(object):
     def is_group_set_to_silence(self, groupId):
         group = self.get_group_by_id(groupId)
         if group is not None:
-            return group[gb_col.silence]
+            return group[int(gb_col.silence)]
 
 
 

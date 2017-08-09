@@ -168,7 +168,7 @@ class text_msg(object):
 
         if results is not None and len(results) > 0:
             for result in results:
-                line_profile = self.api_proc.profile(result[kwdict_col.creator])
+                line_profile = self.api_proc.profile(result[int(kwdict_col.creator)])
 
                 text = u'已刪除回覆組。{}\n'.format(u'(置頂)' if pinned else '')
                 text += kw_dict_mgr.entry_basic_info(result)
@@ -332,13 +332,13 @@ class text_msg(object):
                     user_list_top[1],
                     user_list_top[1] / float(kwpct))
 
-                text += u'\n\n使用次數最多的回覆組【{}次，{}組】:\n'.format(first[0][kwdict_col.used_count], len(first))
-                text += u'\n'.join([u'ID: {} - {}'.format(entry[kwdict_col.id],
-                                                         u'(貼圖ID {})'.format(entry[kwdict_col.keyword].decode('utf-8')) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in first[0 : limit - 1]])
+                text += u'\n\n使用次數最多的回覆組【{}次，{}組】:\n'.format(first[0][int(kwdict_col.used_count)], len(first))
+                text += u'\n'.join([u'ID: {} - {}'.format(entry[int(kwdict_col.id)],
+                                                         u'(貼圖ID {})'.format(entry[int(kwdict_col.keyword)].decode('utf-8')) if entry[int(kwdict_col.is_sticker_kw)] else entry[int(kwdict_col.keyword)].decode('utf-8')) for entry in first[0 : limit - 1]])
                 
                 text += u'\n\n使用次數最少的回覆組 【{}次，{}組】:\n'.format(last[0][kwdict_col.used_count], len(last))
-                text += u'\n'.join([u'ID: {} - {}'.format(entry[kwdict_col.id],
-                                                         u'(貼圖ID {})'.format(entry[kwdict_col.keyword].decode('utf-8')) if entry[kwdict_col.is_sticker_kw] else entry[kwdict_col.keyword].decode('utf-8')) for entry in last[0 : limit - 1]])
+                text += u'\n'.join([u'ID: {} - {}'.format(entry[int(kwdict_col.id)],
+                                                         u'(貼圖ID {})'.format(entry[int(kwdict_col.keyword)].decode('utf-8')) if entry[int(kwdict_col.is_sticker_kw)] else entry[int(kwdict_col.keyword)].decode('utf-8')) for entry in last[0 : limit - 1]])
                 if last_count - limit > 0:
                     text += u'\n...(還有{}組)'.format(last_count - limit)
             elif category == 'SYS':
@@ -354,7 +354,7 @@ class text_msg(object):
             else:
                 text = error.main.invalid_thing_with_correct_format(u'參數1', u'GRP、KW或SYS', params[1])
         else:
-            text = error.main.incorrect_param(u'參數1', u'GRP、KW或SYS')
+            text = error.main.incorrect_param(u'參數1', u'MSG、KW或SYS')
 
         return text
 
@@ -370,12 +370,12 @@ class text_msg(object):
             if line_api_proc.is_valid_room_group_id(gid):
                 group_detail = self.gb.get_group_by_id(gid)
 
-                uids = {u'管理員': group_detail[gb_col.admin], u'副管I': group_detail[gb_col.moderator1], 
-                        u'副管II': group_detail[gb_col.moderator2], u'副管III': group_detail[gb_col.moderator3]}
+                uids = {u'管理員': group_detail[int(gb_col.admin)], u'副管I': group_detail[int(gb_col.moderator1)], 
+                        u'副管II': group_detail[int(gb_col.moderator2)], u'副管III': group_detail[int(gb_col.moderator3)]}
 
                 text = u'群組/房間頻道ID: {}\n'.format(gid)
                 if group_detail is not None:
-                    text += u'\n自動回覆機能狀態【{}】'.format(u'已停用' if group_detail[gb_col.silence] else u'使用中')
+                    text += u'\n自動回覆機能狀態【{}】'.format(u'已停用' if group_detail[int(gb_col.silence)] else u'使用中')
                     for txt, uid in uids.items():
                         if uid is not None:
                             prof = self.api_proc.profile(uid)
@@ -385,12 +385,12 @@ class text_msg(object):
                     text += u'\n自動回覆機能狀態【使用中】'
 
                 group_tracking_data = self.msg_trk.get_data(gid)
-                text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg], 
-                                                                                    group_tracking_data[msg_track_col.stk_msg])
-                text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_msg_trig], 
-                                                                                 group_tracking_data[msg_track_col.stk_msg_trig])
-                text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[msg_track_col.text_rep], 
-                                                                group_tracking_data[msg_track_col.stk_rep])
+                text += u'\n\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[int(msg_track_col.text_msg)], 
+                                                                                    group_tracking_data[int(msg_track_col.stk_msg)])
+                text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[int(msg_track_col.text_msg_trig)], 
+                                                                                 group_tracking_data[int(msg_track_col.stk_msg_trig)])
+                text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(group_tracking_data[int(msg_track_col.text_rep)], 
+                                                                    group_tracking_data[int(msg_track_col.stk_rep)])
             else:
                 text = error.main.invalid_thing_with_correct_format(u'群組/房間ID', u'R或C開頭，並且長度為33字元', gid)
 

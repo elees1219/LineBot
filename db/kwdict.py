@@ -84,7 +84,7 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
             cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1 WHERE id = %(id)s'
-            cmd_update_dict = {'id': result[0][kwdict_col.id]}
+            cmd_update_dict = {'id': result[0][int(kwdict_col.id)]}
             self.sql_cmd(cmd_update, cmd_update_dict)
             return result
         else:
@@ -214,37 +214,37 @@ class kw_dict_mgr(object):
     
     @staticmethod
     def entry_basic_info(entry_row):
-        text = u'ID: {}\n'.format(entry_row[kwdict_col.id])
-        kw = entry_row[kwdict_col.keyword].decode('utf8')
-        if not entry_row[kwdict_col.is_sticker_kw]:
+        text = u'ID: {}\n'.format(entry_row[int(kwdict_col.id)])
+        kw = entry_row[int(kwdict_col.keyword)].decode('utf8')
+        if not entry_row[int(kwdict_col.is_sticker_kw)]:
             text += u'關鍵字: {}\n'.format(kw)
         else:
             text += u'關鍵字: (貼圖ID: {})\n'.format(kw)
-        text += u'回覆{}: {}'.format(u'圖片URL' if entry_row[kwdict_col.is_pic_reply] else u'文字',
-                                     entry_row[kwdict_col.reply].decode('utf-8'))
+        text += u'回覆{}: {}'.format(u'圖片URL' if entry_row[int(kwdict_col.is_pic_reply)] else u'文字',
+                                     entry_row[int(kwdict_col.reply)].decode('utf-8'))
         return text
 
     @staticmethod
     def entry_detailed_info(kwd_mgr, line_api, entry_row):
         detailed = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
         detailed += u'屬性:\n'
-        detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[kwdict_col.admin] else u'[ - ]',
-                                        u'[ 覆蓋 ]' if entry_row[kwdict_col.override] else u'[ - ]',
-                                        u'[ 刪除 ]' if entry_row[kwdict_col.deleted] else u'[ - ]')
-        detailed += u'呼叫次數: {} (第{}名)\n\n'.format(entry_row[kwdict_col.used_count], 
-                                                       kwd_mgr.used_count_rank(entry_row[kwdict_col.id]))
+        detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[int(kwdict_col.admin)] else u'[ - ]',
+                                        u'[ 覆蓋 ]' if entry_row[int(kwdict_col.override)] else u'[ - ]',
+                                        u'[ 刪除 ]' if entry_row[int(kwdict_col.deleted)] else u'[ - ]')
+        detailed += u'呼叫次數: {} (第{}名)\n\n'.format(entry_row[int(kwdict_col.used_count)], 
+                                                       kwd_mgr.used_count_rank(entry_row[int(kwdict_col.id)]))
 
-        creator_profile = line_api.get_profile(entry_row[kwdict_col.creator])
+        creator_profile = line_api.get_profile(entry_row[int(kwdict_col.creator)])
 
         detailed += u'製作者LINE使用者名稱:\n{}\n'.format(creator_profile.display_name)
-        detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[kwdict_col.creator])
-        detailed += u'製作時間:\n{} (UTC+0)'.format(entry_row[kwdict_col.created_time])
+        detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.creator)])
+        detailed += u'製作時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.created_time)])
 
-        if entry_row[kwdict_col.deletor] is not None:
-            deletor_profile = line_api.get_profile(entry_row[kwdict_col.deletor])
+        if entry_row[int(kwdict_col.deletor)] is not None:
+            deletor_profile = line_api.get_profile(entry_row[int(kwdict_col.deletor)])
             detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(deletor_profile.display_name)
-            detailed += u'刪除者LINE UUID:\n{}\n'.format(entry_row[kwdict_col.deletor])
-            detailed += u'刪除時間:\n{} (UTC+0)'.format(entry_row[kwdict_col.disabled_time])
+            detailed += u'刪除者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.deletor)])
+            detailed += u'刪除時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.disabled_time)])
 
         return detailed
     
@@ -261,11 +261,11 @@ class kw_dict_mgr(object):
         else:
             for index, row in enumerate(data, start=1):
                 text = 'ID: {} - {} {}{}{}\n'.format(
-                    row[kwdict_col.id],
-                    '(貼圖ID {})'.format(row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword],
-                    '[蓋]' if row[kwdict_col.override] else u'',
-                    '[頂]' if row[kwdict_col.admin] else u'',
-                    '[刪]' if row[kwdict_col.deleted] else u'')
+                    row[int(kwdict_col.id)],
+                    '(貼圖ID {})'.format(row[int(kwdict_col.keyword)]) if row[int(kwdict_col.is_sticker_kw)] else row[int(kwdict_col.keyword)],
+                    '[蓋]' if row[int(kwdict_col.override)] else u'',
+                    '[頂]' if row[int(kwdict_col.admin)] else u'',
+                    '[刪]' if row[int(kwdict_col.deleted)] else u'')
 
                 ret['full'] += text
 
@@ -312,11 +312,11 @@ class kw_dict_mgr(object):
 
         for row in data:
             text += u'\n第{}名 - ID: {} - {} ({}次{})'.format(
-                row[kwdict_col.used_rank],
-                row[kwdict_col.id],
-                u'(貼圖ID {id})'.format(id=row[kwdict_col.keyword]) if row[kwdict_col.is_sticker_kw] else row[kwdict_col.keyword].decode('utf-8'), 
-                row[kwdict_col.used_count],
-                u' - 已固定' if row[kwdict_col.deleted] or row[kwdict_col.override] else '')
+                row[int(kwdict_col.used_rank)],
+                row[int(kwdict_col.id)],
+                u'(貼圖ID {id})'.format(id=row[int(kwdict_col.keyword]) if row[int(kwdict_col.is_sticker_kw] else row[int(kwdict_col.keyword)].decode('utf-8'), 
+                row[int(kwdict_col.used_count)],
+                u' - 已固定' if row[int(kwdict_col.deleted)] or row[int(kwdict_col.override)] else '')
 
         return text
 
