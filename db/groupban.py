@@ -6,6 +6,7 @@ import urlparse
 import psycopg2
 from sqlalchemy.exc import IntegrityError
 import hashlib
+from enum import Enum
 
 import collections
 
