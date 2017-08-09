@@ -512,13 +512,15 @@ def handle_text_message(event):
         for err in ex.error.details:
             text += u'錯誤內容: {}\n錯誤訊息: {}\n'.format(err.property, err.message.decode("utf-8"))
 
-        webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
+        error_msgs = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
+        api_reply(token, error_msgs)
     except Exception as exc:
         text = u'開機時間: {}\n\n'.format(sys_data.boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'錯誤種類: {}\n錯誤訊息: {}\n第{}行'.format(exc_type, exc.message.decode("utf-8"), exc_tb.tb_lineno)
         
-        webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
+        error_msgs = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
+        api_reply(token, error_msgs)
     return 
 
     if text == 'confirm':
@@ -700,20 +702,20 @@ def introduction_template():
 
 
 def api_reply(reply_token, msgs, src):
-    if isinstance(msgs, TemplateSendMessage):
-        msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.send_stk)
-    elif isinstance(msgs, TextSendMessage):
-        msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.send_txt)
-
     if not sys_data.silence:
         if not isinstance(msgs, (list, tuple)):
             msgs = [msgs]
 
         for msg in msgs:
-            if isinstance(msg, TextSendMessage) and len(msg.text) > 2000:
-                api.reply_message(reply_token, 
-                                  TextSendMessage(text=error.main.text_length_too_long(webpage_generator.rec_text(msgs))))
-                return
+            if isinstance(msgs, TemplateSendMessage):
+                msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.send_stk)
+            elif isinstance(msgs, TextSendMessage):
+                msg_track.log_message_activity(line_api_proc.source_channel_id(src), msg_event_type.send_txt)
+
+                if len(msg.text) > 2000:
+                    api.reply_message(reply_token, 
+                                      TextSendMessage(text=error.main.text_length_too_long(webpage_generator.rec_text(msgs))))
+                    return
 
         api.reply_message(reply_token, msgs)
     else:
