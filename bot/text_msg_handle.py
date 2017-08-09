@@ -600,6 +600,8 @@ class text_msg(object):
                     text = error.main.incorrect_param(u'參數1(機率)', u'百分比加上符號%')
                 elif not system.string_is_float(scout_count):
                     text = error.main.incorrect_param(u'參數2(抽籤次數)', u'整數')
+                elif scout_count > int(999999):
+                    text = error.main.invalid_thing_with_correct_format(u'參數2(抽籤次數)', scout_count, u'小於999999的整數')
                 else:
                     for i in range(int(scout_count)):
                         result = random_gen.random_drawer.draw_probability(float(opportunity) / 100.0)
