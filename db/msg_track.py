@@ -71,7 +71,7 @@ class message_tracker(object):
             if len(result) < 1:
                 self.new_data(cid)
             
-            column_to_add = msg_track_col(int(type_of_event))
+            column_to_add = int(msg_track_col(int(type_of_event)))
 
             cmd = u'UPDATE msg_track SET {col} = {col} + 1{recv_time} WHERE cid = %(cid)s'.format(
                 recv_time=u', last_msg_recv = NOW()' if update_last_message_recv else u'',
