@@ -263,10 +263,11 @@ def get_error_list():
     sys_data.view_webpage()
     content = u'開機時間: {}\n\n錯誤清單(根據時間排列):\n'.format(sys_data.boot_up)
     content += '\n'.join(
-        [webpage_auto_gen.webpage.html_hyperlink(timestamp, request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]) 
+        [webpage_auto_gen.webpage.html_hyperlink(datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S'), request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]) 
          for timestamp in webpage_generator.error_list()]
         )
         
+    return webpage_auto_gen.webpage.html_render(content)
     return content.replace('\n', '<br/>')
 
 @app.route("/error/<timestamp>", methods=['GET'])
