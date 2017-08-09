@@ -5,8 +5,10 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    {% for Content in Contents %}
-    <p>{{ Content }}</p>    
-    {% endfor %}
+    <p>
+        {% for Content in Contents %}
+        {{ Content }}
+        {% endfor %}
+    </p>
 </body>
 </html>
