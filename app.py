@@ -513,14 +513,14 @@ def handle_text_message(event):
             text += u'錯誤內容: {}\n錯誤訊息: {}\n'.format(err.property, err.message.decode("utf-8"))
 
         error_msgs = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
-        api_reply(token, error_msgs)
+        api_reply(token, error_msgs, src)
     except Exception as exc:
         text = u'開機時間: {}\n\n'.format(sys_data.boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'錯誤種類: {}\n錯誤訊息: {}\n第{}行'.format(exc_type, exc.message.decode("utf-8"), exc_tb.tb_lineno)
         
         error_msgs = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
-        api_reply(token, error_msgs)
+        api_reply(token, error_msgs, src)
     return 
 
     if text == 'confirm':
