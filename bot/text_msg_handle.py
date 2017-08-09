@@ -251,7 +251,7 @@ class text_msg(object):
             results = self.kwd.get_info(kw)
 
         if results is not None:
-            i_object = kw_dict_mgr.list_keyword_info(self.kwd, api, results)
+            i_object = kw_dict_mgr.list_keyword_info(self.kwd, self.api_proc, results)
             text += i_object['limited']
             text += u'\n\n完整資訊URL: {}'.format(self._webpage_generator.rec_info(i_object['full']))
         else:
@@ -271,7 +271,7 @@ class text_msg(object):
             Valid = True
 
             if ranking_type == 'USER':
-                text = kw_dict_mgr.list_user_created_ranking(api, self.kwd.user_created_rank(limit))
+                text = kw_dict_mgr.list_user_created_ranking(self.api_proc, self.kwd.user_created_rank(limit))
             elif ranking_type == 'KW':
                 text = kw_dict_mgr.list_keyword_ranking(self.kwd.order_by_usedrank(limit))
             else:
