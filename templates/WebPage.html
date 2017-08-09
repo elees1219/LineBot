@@ -1,11 +1,11 @@
 ﻿{% extends "Base.html" %}
 {% block title %} Title {% endblock %}
 {% block content %}
-{% if True %}
 <p>
     {% for Content in Contents %}
-    {{ Content }}
+    {% if True %}
+    {{ Content }}    
+    {% endif %}
     {% endfor %}
 </p>
-{% endif %}
 {% endblock %}

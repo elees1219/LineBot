@@ -5,7 +5,7 @@
 <br/>
 <p>
     錯誤清單(根據時間排列):<br/>
-    {% for TimeStamp, ErrorURL in ErrorDict %}
+    {% for TimeStamp, ErrorURL in ErrorDict.items() %}
     <a href="{{ ErrorURL }}">{{ TimeStamp }}</a><br/>
     {% endfor %}
 </p>
