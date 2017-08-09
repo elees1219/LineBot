@@ -7,7 +7,7 @@ import traceback
 
 import time
 from datetime import datetime, timedelta
-from flask import request, url_for
+from flask import request, url_for, render_template
 
 from linebot.models import TextSendMessage
 
@@ -77,8 +77,9 @@ class webpage(object):
             return content
 
     @staticmethod
-    def html_paragraph(content):
-        return '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
+    def html_render(content):
+        return render_template('WebPage.html', Content=content)
+        # text += '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
     
     @staticmethod
     def html_hyperlink(content, link):

@@ -24,6 +24,7 @@
     <Content Include="requirements.txt" />
     <Content Include="runtime.txt" />
     <Content Include="static\style.css" />
+    <Content Include="templates\WebPage.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="app.py" />
@@ -74,6 +75,7 @@
     <Folder Include="bot\" />
     <Folder Include="db\" />
     <Folder Include="game\" />
+    <Folder Include="templates\" />
     <Folder Include="static\" />
     <Folder Include="tool\" />
   </ItemGroup>

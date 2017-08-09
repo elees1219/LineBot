@@ -273,25 +273,25 @@ def get_error_list():
 def get_error_message(timestamp):
     sys_data.view_webpage()
     content = webpage_generator.get_content(webpage_auto_gen.content_type.Error, timestamp)
-    return webpage_auto_gen.webpage.html_paragraph(content)
+    return webpage_auto_gen.webpage.html_render(content)
 
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
     sys_data.view_webpage()
     content = webpage_generator.get_content(webpage_auto_gen.content_type.Query, timestamp)
-    return webpage_auto_gen.webpage.html_paragraph(content)
+    return webpage_auto_gen.webpage.html_render(content)
 
 @app.route("/info/<timestamp>", methods=['GET'])
 def full_info(timestamp):
     sys_data.view_webpage()
     content = webpage_generator.get_content(webpage_auto_gen.content_type.Info, timestamp)
-    return webpage_auto_gen.webpage.html_paragraph(content)
+    return webpage_auto_gen.webpage.html_render(content)
 
 @app.route("/full/<timestamp>", methods=['GET'])
 def full_content(timestamp):
     sys_data.view_webpage()
     content = webpage_generator.get_content(webpage_auto_gen.content_type.Text, timestamp)
-    return webpage_auto_gen.webpage.html_paragraph(content)
+    return webpage_auto_gen.webpage.html_render(content)
 
 @app.route("/ranking/<type>", methods=['GET'])
 def full_ranking(type):
@@ -303,7 +303,7 @@ def full_ranking(type):
     else:
         content = error.webpage.no_content()
         
-    return webpage_auto_gen.webpage.html_paragraph(content)
+    return webpage_auto_gen.webpage.html_render(content)
 
 
 @handler.add(MessageEvent, message=TextMessage)
