@@ -64,14 +64,14 @@ class message_tracker(object):
             if type_of_event == msg_event_type.send_stk or type_of_event == msg_event_type.send_txt:
                 update_last_message_recv = False
             
-            column_to_add = type_of_event.column_name
-            
             cmd = u'SELECT * FROM msg_track WHERE cid = %(cid)s'
             cmd_dict = {'cid': cid}
             result = self.sql_cmd(cmd, cmd_dict)
             
             if len(result) < 1:
                 self.new_data(cid)
+            
+            column_to_add = msg_track_col(int(type_of_event))
 
             cmd = u'UPDATE msg_track SET {col} = {col} + 1{recv_time} WHERE cid = %(cid)s'.format(
                 recv_time=u', last_msg_recv = NOW()' if update_last_message_recv else u'',
@@ -208,3 +208,6 @@ class msg_event_type(Enum):
     recv_stk_repl = 4
     send_txt = 5
     send_stk = 6
+
+    def __int__(self):
+        return self.value
