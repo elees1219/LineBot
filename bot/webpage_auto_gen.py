@@ -26,7 +26,7 @@ class webpage(object):
         err_detail += u'\n\n'
         err_detail += traceback.format_exc()
 
-        print err_detail
+        print err_detail.encode('utf-8')
         self._page_content[self._error_route][timestamp] = err_detail
 
         err_list = u'詳細錯誤URL: {}\n錯誤清單: {}'.format(
