@@ -1,6 +1,6 @@
 ﻿{% extends "Base.html" %}
-{% block title %} Error List {% endblock %}
-{% block content %}
+{% block title %}錯誤清單{% endblock %}
+{% block content -%}
 開機時間:&nbsp;{{ boot_up }}
 <br/>
 <p>
@@ -9,4 +9,4 @@
     <a href="{{ ErrorURL }}">{{ TimeStamp }}</a><br/>
     {% endfor %}
 </p>
-{% endblock %}
+{%- endblock %}
