@@ -240,6 +240,7 @@ def make_static_tmp_dir():
         else:
             raise
 
+# TODO: make error become object (time, detail, url, error type)
 
 @app.route("/callback", methods=['POST'])
 def callback():
