@@ -21,20 +21,17 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 
-from app import (
-    boot_up, game_object, rec, sys_cmd_dict, game_cmd_dict, helper_cmd_dict # System Variants
-)
 from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col
 
 from error import error
 from bot import system, webpage_auto_gen
-from bot.system import line_api_proc
+from bot.system import line_api_proc, system_data
 
 # tool import
 from tool import mff, random_gen
 
 class text_msg(object):
-    def __init__(self, api_proc, kw_dict_mgr, group_ban, msg_trk, oxford_obj, permission_key_list):
+    def __init__(self, api_proc, kw_dict_mgr, group_ban, msg_trk, oxford_obj, permission_key_list, system_statistics):
         self.kwd = kw_dict_mgr
         self.gb = group_ban
         self.msg_trk = msg_trk
@@ -42,6 +39,7 @@ class text_msg(object):
         self._webpage_generator = webpage_auto_gen.webpage()
         self.permission_verifier = system.permission_verifier(permission_key_list)
         self.api_proc = api_proc
+        self.system_statistics = system_statistics
 
     def S(self, src, params):
         key = params.pop(1)
@@ -286,7 +284,7 @@ class text_msg(object):
 
         return text
 
-    def P(self, src, params):
+    def P(self, src, params, sys_data):
         if params[1] is not None:
             category = params[1]
 
@@ -346,12 +344,12 @@ class text_msg(object):
                 global game_object
 
                 text = u'【系統統計資料 - 開機後重設】\n'
-                text += u'開機時間: {} (UTC+8)\n'.format(boot_up)
-                text += u'\n【自動產生網頁相關】\n瀏覽次數: {}'.format(rec['webpage'])
-                text += u'\n\n【系統指令相關(包含呼叫失敗)】\n總呼叫次數: {}\n'.format(rec['cmd']['JC'])
-                text += u'\n'.join([u'指令{} - {}'.format(cmd, cmd_obj.count) for cmd, cmd_obj in sys_cmd_dict.items()])
-                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(rec['cmd']['HELP'])
-                text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(len(game_object['rps']), game_cmd_dict['RPS'].count)
+                text += u'開機時間: {} (UTC+8)\n'.format(sys_data.boot_up)
+                text += u'\n【自動產生網頁相關】\n瀏覽次數: {}'.format(sys_data.webpage_viewed)
+                text += u'\n\n【系統指令相關(包含呼叫失敗)】\n總呼叫次數: {}\n'.format(sys_data.sys_cmd_called)
+                text += u'\n'.join([u'指令{} - {}'.format(cmd, cmd_obj.count) for cmd, cmd_obj in sys_data.sys_cmd_dict.items()])
+                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(sys_data.helper_cmd_dict['MFF'])
+                text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(len(game_object['rps']), sys_data.game_cmd_dict['RPS'].count)
             else:
                 text = error.main.invalid_thing_with_correct_format(u'參數1', u'GRP、KW或SYS', params[1])
         else:
@@ -553,7 +551,10 @@ class text_msg(object):
             if type(j) is int:
                 code = j
 
-                text = u'Error occurred when looking up dictionary.\n\nStatus code: {} ({}).'.format(code, httplib.responses[code])
+                if code == 404:
+                    text = error.main.no_result()
+                else:
+                    text = u'查詢字典時發生錯誤。\n\n狀態碼: {} ({}).'.format(code, httplib.responses[code])
             else:
                 text = u''
                 section_splitter = u'.................................................................'
@@ -578,7 +579,7 @@ class text_msg(object):
                             
                             if 'examples' in sen:
                                 for ex in sen['examples']:
-                                    text += u'\n------{}'.format(ex['text'].decode("utf-8"))
+                                    text += u'\n------{}'.format(ex['text'])
 
                     text += u'\n{}\n'.format(section_splitter)
 
@@ -593,9 +594,9 @@ class text_msg(object):
                 scout_count = params[2]
                 shot_count = 0
                 miss_count = 0
-                if not system.string_is_int(opportunity):
+                if not system.string_is_float(opportunity):
                     text = error.main.incorrect_param(u'參數1(機率)', u'百分比加上符號%')
-                elif not system.string_is_int(scout_count):
+                elif not system.string_is_float(scout_count):
                     text = error.main.incorrect_param(u'參數2(抽籤次數)', u'整數')
                 else:
                     for i in range(int(scout_count)):
@@ -632,12 +633,12 @@ class text_msg(object):
 
         return text
 
-    def STK(self, src, params):
-        last_sticker = rec['last_stk'][line_api_proc.source_channel_id(src)]
+    def STK(self, src, params, sys_data):
+        last_sticker = sys_data.get_last_sticker(line_api_proc.source_channel_id(src))
         if last_sticker is not None:
             text = u'最後一個貼圖的貼圖ID為{}。'.format(last_sticker)
         else:
-            text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。'
+            text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。\n\n本次開機時間: {}'.format(sys_data.boot_up)
 
         return text
 

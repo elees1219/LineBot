@@ -23,9 +23,13 @@
     <Content Include="Procfile" />
     <Content Include="requirements.txt" />
     <Content Include="runtime.txt" />
+    <Content Include="static\style.css" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="app.py" />
+    <Compile Include="bot\game_object_holder.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="bot\system.py">
       <SubType>Code</SubType>
     </Compile>
@@ -70,6 +74,7 @@
     <Folder Include="bot\" />
     <Folder Include="db\" />
     <Folder Include="game\" />
+    <Folder Include="static\" />
     <Folder Include="tool\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # import custom module
-from bot import text_msg, oxford_dict, webpage_auto_gen
-from bot.system import line_api_proc, string_is_int
+from bot import text_msg, oxford_dict, webpage_auto_gen, game_objects
+from bot.system import line_api_proc, string_is_int, system_data
 
 import errno, os, sys, tempfile
 import traceback
@@ -51,73 +51,8 @@ msg_track = message_tracker("postgres", os.environ["DATABASE_URL"])
 
 # Main initialization
 app = Flask(__name__)
-boot_up = datetime.now() + timedelta(hours=8)
-
-rec = {'cmd': defaultdict(int),
-       'last_stk': defaultdict(str), 
-       'Silence': False, 'Intercept': True, 
-       'webpage': 0}
-report_content = {'Error': {}, 
-                  'FullQuery': {}, 
-                  'FullInfo': {},
-                  'Text': {}}
-game_object = {'rps': defaultdict(game.rps)}
-
-class command(object):
-    def __init__(self, min_split=2, max_split=2, non_user_permission_required=False):
-        self._split_max = max_split
-        self._split_min = min_split
-        self._count = 0
-        self._non_user_permission_required = non_user_permission_required
-
-    @property
-    def split_max(self):
-        """Maximum split count."""
-        return self._split_max + (1 if self._non_user_permission_required else 0) 
-
-    @property
-    def split_min(self):
-        """Minimum split count."""
-        return self._split_min
-
-    @property
-    def count(self):
-        """Called count."""
-        return self._count
-
-    @count.setter
-    def count(self, value):
-        """Called count."""
-        self._count = value 
-
-    @property
-    def non_user_permission_required(self):
-        """Required Permission"""
-        return self._non_user_permission_required
-
-# TODO: cmd dict modulize
-sys_cmd_dict = {'S': command(1, 1, True), 
-            'A': command(2, 4, False), 
-            'M': command(2, 4, True), 
-            'D': command(1, 2, False), 
-            'R': command(1, 2, True), 
-            'Q': command(1, 2, False), 
-            'C': command(0, 0, True), 
-            'I': command(1, 2, False), 
-            'K': command(2, 2, False), 
-            'P': command(0, 1, False), 
-            'G': command(0, 1, False), 
-            'GA': command(1, 5, True), 
-            'H': command(0, 1, False), 
-            'SHA': command(1, 1, False), 
-            'O': command(1, 1, False), 
-            'B': command(0, 0, False), 
-            'RD': command(1, 2, False),
-            'STK': command(0, 0, False)}
-
-game_cmd_dict = {'RPS': command(0, 4, True)}
-
-helper_cmd_dict = {'MFF': command(1, 8, True)}
+sys_data = system_data()
+game_data = game_objects()
 
 # Line Bot Environment initialization
 MAIN_UID_OLD = 'Ud5a2b5bb5eca86342d3ed75d1d606e2c'
@@ -153,17 +88,18 @@ oxford_dict_obj = oxford_dict('en')
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
+# IMPORTANT: error occurred when user profile not found in kwdict
 # TODO: move to msg_handle_game
 class game_processor(object):
-    def __init__(self, game_object):
-        self._game_object = game_object
+    def __init__(self, game_data):
+        self._game_data = game_data
 
     def RPS(self, src, params):
         cid = line_api_proc.source_channel_id(src)
         uid = line_api_proc.source_user_id(src)
 
         if params[4] is not None:
-            rps_obj = self._game_object['rps'].get(cid)
+            rps_obj = self._game_data.get_rps(cid)
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 action = params[1]
                 if action == 'ADD':
@@ -208,13 +144,13 @@ class game_processor(object):
                 if line_api_proc.is_valid_user_id(uid):
                     rps_obj.register_player(line_api.profile(uid).display_name, uid)
                     text = u'遊戲建立成功。\n\n剪刀貼圖ID: {}\n石頭貼圖ID: {}\n布貼圖ID: {}'.format(scissor, rock, paper)
-                    self._game_object['rps'][cid] = rps_obj
+                    self._game_data.set_rps(cid, rps_obj)
                 else:
                     text = error.main.unable_to_receive_user_id()
             else:
                 text = rps_obj
         elif params[2] is not None:
-            rps_obj = self._game_object['rps'].get(cid)
+            rps_obj = self._game_data.get_rps(cid)
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 action = params[1]
                 battle_item_text = params[2]
@@ -236,12 +172,12 @@ class game_processor(object):
             else:
                 text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
         elif params[1] is not None:
-            rps_obj =  self._game_object['rps'].get(cid)
+            rps_obj = self._game_data.get_rps(cid)
             action = params[1]
 
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 if action == 'DEL':
-                    self._game_object['rps'][cid] = None
+                    self._game_data.del_rps(cid)
                     text = u'猜拳遊戲已刪除。'
                 elif action == 'RST':
                     rps_obj.reset_statistics()
@@ -274,7 +210,7 @@ class game_processor(object):
             else:
                 text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
         else:
-            rps_obj = self._game_object['rps'].get(cid)
+            rps_obj = self._game_data.get_rps(cid)
             if rps_obj is not None and isinstance(rps_obj, game.rps):
                 if rps_obj.player_dict is not None and len(rps_obj.player_dict) > 0:
                     text = game.rps.player_stats_text(rps_obj.player_dict)
@@ -288,8 +224,8 @@ class game_processor(object):
         return text
 
 # Text parser initialization
-command_executor = text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator])
-game_executor = game_processor(game_object)
+command_executor = text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator], sys_data)
+game_executor = game_processor(game_data)
 
 # Webpage auto generator
 webpage_generator = webpage_auto_gen.webpage()
@@ -324,8 +260,8 @@ def callback():
 
 @app.route("/error", methods=['GET'])
 def get_error_list():
-    rec['webpage'] += 1
-    content = u'開機時間: {}\n\n錯誤清單(根據時間排列):\n'.format(boot_up)
+    sys_data.view_webpage()
+    content = u'開機時間: {}\n\n錯誤清單(根據時間排列):\n'.format(sys_data.boot_up)
     content += '\n'.join(
         [webpage_auto_gen.webpage.html_hyperlink(timestamp, request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]) 
          for timestamp in webpage_generator.error_list()]
@@ -335,31 +271,31 @@ def get_error_list():
 
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
-    rec['webpage'] += 1
+    sys_data.view_webpage()
     content = webpage_generator.get_content(webpage_auto_gen.content_type.Error, timestamp)
     return webpage_auto_gen.webpage.html_paragraph(content)
 
 @app.route("/query/<timestamp>", methods=['GET'])
 def full_query(timestamp):
-    rec['webpage'] += 1
+    sys_data.view_webpage()
     content = webpage_generator.get_content(webpage_auto_gen.content_type.Query, timestamp)
     return webpage_auto_gen.webpage.html_paragraph(content)
 
 @app.route("/info/<timestamp>", methods=['GET'])
 def full_info(timestamp):
-    rec['webpage'] += 1
+    sys_data.view_webpage()
     content = webpage_generator.get_content(webpage_auto_gen.content_type.Info, timestamp)
     return webpage_auto_gen.webpage.html_paragraph(content)
 
 @app.route("/full/<timestamp>", methods=['GET'])
 def full_content(timestamp):
-    rec['webpage'] += 1
+    sys_data.view_webpage()
     content = webpage_generator.get_content(webpage_auto_gen.content_type.Text, timestamp)
     return webpage_auto_gen.webpage.html_paragraph(content)
 
 @app.route("/ranking/<type>", methods=['GET'])
 def full_ranking(type):
-    rec['webpage'] += 1
+    sys_data.view_webpage()
     if type == 'user':
         content = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank())
     elif type == 'used':
@@ -372,7 +308,7 @@ def full_ranking(type):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    global game_object
+    global game_data
     global command_executor
     global game_executor
 
@@ -384,18 +320,17 @@ def handle_text_message(event):
     msg_track.log_message_activity(line_api_proc.source_channel_id(src), 1)
 
     if text == '561563ed706e6f696abbe050ad79cf334b9262da6f83bc1dcf7328f2':
-        rec['Intercept'] = not rec['Intercept']
-        api.reply_message(token, TextSendMessage(text='Bot {}.'.format(
-            'start to intercept messages' if rec['Intercept'] else 'stop intercepting messages')))
+        sys_data.intercept = not sys_data.intercept
+        api.reply_message(token, TextSendMessage(text='Bot {}.'.format('start to intercept messages' if sys_data.intercept else 'stop intercepting messages')))
         return
-    elif rec['Intercept']:
+    elif sys_data.intercept:
         intercept_text(event)
 
     if text == administrator:
-        rec['Silence'] = not rec['Silence']
-        api.reply_message(token, TextSendMessage(text='Bot set to {mute}.'.format(mute='Silent' if rec['Silence'] else 'Active')))
+        sys_data.silence = sys_data.silence
+        api.reply_message(token, TextSendMessage(text='Bot set to {}.'.format('Silent' if sys_data.silence else 'Active')))
         return
-    elif rec['Silence']:
+    elif sys_data.silence:
         return
 
     try:
@@ -403,16 +338,14 @@ def handle_text_message(event):
             head, cmd, oth = text_msg.split(text, splitter, 3)
 
             if head == 'JC':
-                rec['cmd']['JC'] += 1
-                
                 # TODO: put inside cmd proc module - static method - verify command - BEGIN
-                if cmd not in sys_cmd_dict:
+                if cmd not in sys_data.sys_cmd_dict:
                     text = error.main.invalid_thing(u'指令', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
                     return
 
-                max_prm = sys_cmd_dict[cmd].split_max
-                min_prm = sys_cmd_dict[cmd].split_min
+                max_prm = sys_data.sys_cmd_dict[cmd].split_max
+                min_prm = sys_data.sys_cmd_dict[cmd].split_min
                 params = text_msg.split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
@@ -421,7 +354,7 @@ def handle_text_message(event):
                     return
 
                 params.insert(0, None)
-                sys_cmd_dict[cmd].count += 1
+                sys_data.sys_cmd_dict[cmd].count += 1
                 # TODO: put inside cmd proc module - static method - verify command - END
                 
                 # SQL Command
@@ -431,7 +364,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # ADD keyword & ADD top keyword
                 elif cmd == 'A' or cmd == 'M':
-                    if sys_cmd_dict[cmd].non_user_permission_required:
+                    if sys_data.sys_cmd_dict[cmd].non_user_permission_required:
                         text = command_executor.M(src, params)
                     else:
                         text = command_executor.A(src, params)
@@ -439,7 +372,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # DELETE keyword & DELETE top keyword
                 elif cmd == 'D' or cmd == 'R':
-                    if sys_cmd_dict[cmd].non_user_permission_required:
+                    if sys_data.sys_cmd_dict[cmd].non_user_permission_required:
                         text = command_executor.R(src, params)
                     else:
                         text = command_executor.D(src, params)
@@ -462,7 +395,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # SPECIAL record
                 elif cmd == 'P':
-                    text = command_executor.P(src, params)
+                    text = command_executor.P(src, params, sys_data)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban basic (info)
@@ -497,17 +430,17 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # last STICKER message
                 elif cmd == 'STK':
-                    text = command_executor.STK(src, params)
+                    text = command_executor.STK(src, params, sys_data)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
-                    sys_cmd_dict[cmd].count -= 1
+                    sys_data.sys_cmd_dict[cmd].count -= 1
             elif head == 'HELP':
-                rec['cmd']['HELP'] += 1
                 data = text_msg.split(text, splitter, 2)
 
                 # TODO: restruct helper
                 # TODO: Helper modulize
+                # TODO: Helper no counter
                 if data[1].upper().startswith('MFF'):
                     api_reply(token, [TextSendMessage(text=mff.mff_dmg_calc.help_code()),
                                       TextSendMessage(text=u'下則訊息是訊息範本，您可以直接將其複製，更改其內容，然後使用。或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nMFF\nSKC 100%\n魔力 1090%\n魔力 10.9\n\n欲察看更多範例，請前往 https://sites.google.com/view/jellybot/mff傷害計算'),
@@ -534,15 +467,13 @@ def handle_text_message(event):
                     
                     api_reply(token, TextSendMessage(text=text), src)
             elif head == 'G':
-                rec['cmd']['GAME'] += 1
-
-                if cmd not in game_cmd_dict:
+                if cmd not in sys_data.game_cmd_dict:
                     text = error.main.invalid_thing(u'遊戲', cmd)
                     api_reply(token, TextSendMessage(text=text), src)
                     return
                 
-                max_prm = game_cmd_dict[cmd].split_max
-                min_prm = game_cmd_dict[cmd].split_min
+                max_prm = sys_data.game_cmd_dict[cmd].split_max
+                min_prm = sys_data.game_cmd_dict[cmd].split_min
                 params = text_msg.split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
@@ -558,9 +489,9 @@ def handle_text_message(event):
 
                     api_reply(token, TextSendMessage(text=text), src)
                 else:
-                    game_cmd_dict[cmd].count -= 1
+                    sys_data.game_cmd_dict[cmd].count -= 1
 
-        rps_obj = game_object['rps'].get(line_api_proc.source_channel_id(src))
+        rps_obj = game_data.get_rps(cid)
         if rps_obj is not None:
             rps_text = minigame_rps_capturing(rps_obj, False, text, line_api_proc.source_user_id(src))
             if rps_text is not None:
@@ -576,14 +507,14 @@ def handle_text_message(event):
             api_reply(token, TextSendMessage(text=text), src)
             return
     except exceptions.LineBotApiError as ex:
-        text = u'開機時間: {}\n\n'.format(boot_up)
+        text = u'開機時間: {}\n\n'.format(sys_data.boot_up)
         text += u'LINE API錯誤，狀態碼: {}\n\n'.format(ex.status_code)
         for err in ex.error.details:
             text += u'錯誤內容: {}\n錯誤訊息: {}\n'.format(err.property, err.message.decode("utf-8"))
 
         send_error_url_line(token, text, line_api_proc.source_channel_id(src))
     except Exception as exc:
-        text = u'開機時間: {}\n\n'.format(boot_up)
+        text = u'開機時間: {}\n\n'.format(sys_data.boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         text += u'錯誤種類: {}\n錯誤訊息: {}\n第{}行'.format(exc_type, exc.message.decode("utf-8"), exc_tb.tb_lineno)
 
@@ -626,10 +557,10 @@ def handle_sticker_message(event):
     cid = line_api_proc.source_channel_id(src)
     
     # TODO: Modulize handle received sticker message 
-    rec['last_stk'][cid] = sticker_id
+    sys_data.set_last_sticker(cid, sticker_id)
 
-    global game_object
-    rps_obj = game_object['rps'].get(cid)
+    global game_data
+    rps_obj = game_data.get_rps(cid)
 
     msg_track.log_message_activity(cid, 3)
 
@@ -774,7 +705,7 @@ def api_reply(reply_token, msgs, src):
     elif isinstance(msgs, TextSendMessage):
         msg_track.log_message_activity(line_api_proc.source_channel_id(src), 5)
 
-    if not rec['Silence']:
+    if not sys_data.silence:
         if not isinstance(msgs, (list, tuple)):
             msgs = [msgs]
 
@@ -846,7 +777,7 @@ def minigame_rps_capturing(rps_obj, is_sticker, content, uid):
                 if result is not None:
                     return result
                 else:
-                    game_cmd_dict['RPS'].count += 1
+                    sys_data.game_cmd_dict['RPS'].count += 1
                     if rps_obj.is_waiting_next:
                         return u'等待下一個玩家出拳中...'
                     if rps_obj.result_generated:
