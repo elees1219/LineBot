@@ -100,28 +100,17 @@ class message_tracker(object):
                 return None
 
     def count_sum(self):
-        """
-        Returns a dictionary contains data.
-
-        Keys(Data Description): 
-        text_msg = receive text message
-        text_msg_trig = receive text message and auto reply system has been triggered
-        stk_msg = receive sticker message
-        stk_msg_trig = receive sticker message and auto reply system has been triggered
-        text_rep = count of reply with text message
-        stk_rep = count of reply with sticker message
-        """
         results = defaultdict(int)
 
         cmd = u'SELECT MIN(last_msg_recv), SUM(text_msg), SUM(text_msg_trig), SUM(stk_msg), SUM(stk_msg_trig), SUM(text_rep), SUM(stk_rep) FROM msg_track'
         sql_result = self.sql_cmd_only(cmd)
         sql_result = sql_result[0]
-        results['text_msg'] = sql_result[msg_track_col.text_msg]
-        results['text_msg_trig'] = sql_result[msg_track_col.text_msg_trig]
-        results['stk_msg'] = sql_result[msg_track_col.stk_msg]
-        results['stk_msg_trig'] = sql_result[msg_track_col.stk_msg_trig]
-        results['text_rep'] = sql_result[msg_track_col.text_rep]
-        results['stk_rep'] = sql_result[msg_track_col.stk_rep]
+        results[msg_event_type.recv_txt] = sql_result[msg_track_col.text_msg]
+        results[msg_event_type.recv_txt_repl] = sql_result[msg_track_col.text_msg_trig]
+        results[msg_event_type.recv_stk] = sql_result[msg_track_col.stk_msg]
+        results[msg_event_type.recv_stk_repl] = sql_result[msg_track_col.stk_msg_trig]
+        results[msg_event_type.send_txt] = sql_result[msg_track_col.text_rep]
+        results[msg_event_type.send_stk] = sql_result[msg_track_col.stk_rep]
         return results
 
     def order_by_recorded_msg_count(self, limit=1000):
@@ -209,3 +198,6 @@ class msg_event_type(Enum):
     recv_stk_repl = 4
     send_txt = 5
     send_stk = 6
+
+    def __int__(self):
+        return self.value

@@ -29,6 +29,7 @@ from bot.system import line_api_proc, system_data
 
 # tool import
 from tool import mff, random_gen
+from db.msg_track import msg_event_type
 
 class text_msg(object):
     def __init__(self, api_proc, kw_dict_mgr, group_ban, msg_trk, oxford_obj, permission_key_list, system_statistics):
@@ -295,9 +296,9 @@ class text_msg(object):
                 tracking_data = message_tracker.entry_detail_list(msg_track.order_by_recorded_msg_count(), limit, self.gb)
 
                 text = u'【訊息流量統計】'
-                text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg'], sum_data['stk_msg'])
-                text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_msg_trig'], sum_data['stk_msg_trig'])
-                text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data['text_rep'], sum_data['stk_rep'])
+                text += u'\n收到(無對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data[msg_event_type.recv_txt], sum_data[msg_event_type.recv_stk])
+                text += u'\n收到(有對應回覆組): {}則文字訊息 | {}則貼圖訊息'.format(sum_data[msg_event_type.recv_txt_repl], sum_data[msg_event_type.recv_stk_repl])
+                text += u'\n回覆: {}則文字訊息 | {}則貼圖訊息'.format(sum_data[msg_event_type.send_txt], sum_data[msg_event_type.send_stk])
 
                 text += u'\n\n【群組訊息統計資料 - 前{}名】\n'.format(limit)
                 text += tracking_data['limited']
