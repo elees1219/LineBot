@@ -520,7 +520,7 @@ def handle_text_message(event):
         text += u'錯誤種類: {}\n錯誤訊息: {}\n第{}行'.format(exc_type, exc.message.decode("utf-8"), exc_tb.tb_lineno)
         
         error_msgs = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
-        api_reply(token, error_msgs, src)
+        api_reply(token, [TextSendMessage(text=msg) for msg in error_msgs], src)
     return 
 
     if text == 'confirm':

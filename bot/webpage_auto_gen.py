@@ -8,6 +8,8 @@ import time
 from datetime import datetime, timedelta
 from flask import request, url_for
 
+from linebot.models import TextSendMessage
+
 class webpage(object):
     def __init__(self):
         self._error_route = 'Error'
@@ -29,7 +31,7 @@ class webpage(object):
             request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
             request.url_root + url_for('get_error_list')[1:])
         
-        return str(err_sum.encode('utf-8')), str(err_list.encode('utf-8'))
+        return err_sum, err_list
     
     def rec_query(self, full_query):
         timestamp = str(int(time.time()))
