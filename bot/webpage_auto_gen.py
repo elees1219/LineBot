@@ -29,7 +29,7 @@ class webpage(object):
             request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
             request.url_root + url_for('get_error_list')[1:])
         
-        return str(err_sum), str(err_list)
+        return str(err_sum.encode('utf-8')), str(err_list.encode('utf-8'))
     
     def rec_query(self, full_query):
         timestamp = str(int(time.time()))
