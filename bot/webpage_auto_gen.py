@@ -78,7 +78,7 @@ class webpage(object):
 
     @staticmethod
     def html_render(content, title=None):
-        return render_template('WebPage.html', Contents=content.replace(' ', '&nbsp;').split('\n'), Title=title)
+        return render_template('WebPage.html', Contents=content.split('\n'), Title=title)
 
     @staticmethod
     def html_render_error_list(boot_up, error_dict):
