@@ -3,6 +3,7 @@ import enum
 from datetime import datetime, timedelta
 from collections import defaultdict
 from linebot import exceptions
+import hashlib
 
 class _command(object):
     def __init__(self, min_split=2, max_split=2, non_user_permission_required=False):
@@ -134,7 +135,7 @@ class permission_verifier(object):
 
     def permission_level(self, key):
         try:
-            return permission(self._permission_list.index(key))
+            return permission(self._permission_list.index(hashlib.sha224(key).hexdigest()))
         except ValueError:
             return permission.user
 
