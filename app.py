@@ -298,7 +298,7 @@ def full_content(timestamp):
 def full_ranking(type):
     sys_data.view_webpage()
     if type == 'user':
-        content = kw_dict_mgr.list_user_created_ranking(api, kwd.user_created_rank())
+        content = kw_dict_mgr.list_user_created_ranking(line_api, kwd.user_created_rank())
     elif type == 'used':
         content = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())
     else:

@@ -327,7 +327,7 @@ class kw_dict_mgr(object):
         for row in data:
             text += u'\n\n第{}名 - {}\n製作{}組 | 共使用{}次 | 平均每組被使用{}次'.format(
                 row[0],
-                line_api.get_profile(row[1]).display_name,
+                line_api.profile(row[1]).display_name,
                 row[2],
                 row[3],
                 row[4])
