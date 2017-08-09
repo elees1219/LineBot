@@ -41,19 +41,19 @@ class kw_dict_mgr(object):
     @property
     def table_structure(self):
         cmd = u'CREATE TABLE keyword_dict( \
-                    {} SERIAL, \
-                    {} VARCHAR(500), \
-                    {} VARCHAR(500), \
-                    {} BOOLEAN NOT NULL DEFAULT FALSE, \
-                    {} BOOLEAN NOT NULL DEFAULT FALSE, \
-                    {} BOOLEAN NOT NULL DEFAULT FALSE, \
-                    {} INTEGER NOT NULL, \
-                    {} VARCHAR(33) NOT NULL, \
-                    {} BOOLEAN DEFAULT FALSE, \
-                    {} BOOLEAN DEFAULT FALSE, \
-                    {} TIMESTAMP DEFAULT NOW(), \
-                    {} TIMESTAMP, \
-                    {} VARCHAR(33);'.format(*_col_list)
+                id SERIAL, \
+                keyword VARCHAR(500), \
+                reply VARCHAR(500), \
+                deleted BOOLEAN NOT NULL DEFAULT FALSE, \
+                override BOOLEAN NOT NULL DEFAULT FALSE, \
+                admin BOOLEAN NOT NULL DEFAULT FALSE, \
+                used_count INTEGER NOT NULL, \
+                creator VARCHAR(33) NOT NULL, \
+                is_pic_reply BOOLEAN DEFAULT FALSE, \
+                is_sticker_kw BOOLEAN DEFAULT FALSE, \
+                deletor VARCHAR(33), \
+                created_time TIMESTAMP DEFAULT NOW(), \
+                disabled_time TIMESTAMP);'
         return cmd
 
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):

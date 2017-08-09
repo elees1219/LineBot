@@ -44,16 +44,16 @@ class group_ban(object):
     @property
     def table_structure(self):
         cmd = u'CREATE TABLE group_ban( \
-                    {} VARCHAR(33) PRIMARY KEY, \
-                    {} BOOLEAN NOT NULL DEFAULT FALSE, \
-                    {} VARCHAR(33) NOT NULL, \
-                    {} VARCHAR(56) NOT NULL, \
-                    {} VARCHAR(33), \
-                    {} VARCHAR(56), \
-                    {} VARCHAR(33), \
-                    {} VARCHAR(56), \
-                    {} VARCHAR(33), \
-                    {} VARCHAR(56));'.format(*_col_list)
+                groupId VARCHAR(33) PRIMARY KEY, \
+                silence BOOLEAN NOT NULL DEFAULT FALSE, \
+                admin VARCHAR(33) NOT NULL, \
+                admin_sha VARCHAR(56) NOT NULL, \
+                moderator1 VARCHAR(33), \
+                moderator1_sha VARCHAR(56), \
+                moderator2 VARCHAR(33), \
+                moderator2_sha VARCHAR(56), \
+                moderator3 VARCHAR(33), \
+                moderator3_sha VARCHAR(56));'
         return cmd
 
     def new_data(self, groupId, adminUID, key_for_admin):

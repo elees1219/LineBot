@@ -46,13 +46,14 @@ class message_tracker(object):
     @property
     def table_structure(self):
         cmd = u'CREATE TABLE msg_track( \
-                    {} VARCHAR(33) PRIMARY KEY, \
-                    {} INTEGER NOT NULL DEFAULT 0, \
-                    {} INTEGER NOT NULL DEFAULT 0, \
-                    {} INTEGER NOT NULL DEFAULT 0, \
-                    {} INTEGER NOT NULL DEFAULT 0, \
-                    {} INTEGER NOT NULL DEFAULT 0, \
-                    {} INTEGER NOT NULL DEFAULT 0);'.format(*_col_list)
+                cid VARCHAR(33) PRIMARY KEY, \
+                text_msg INTEGER NOT NULL DEFAULT 0, \
+                text_msg_trig INTEGER NOT NULL DEFAULT 0, \
+                stk_msg INTEGER NOT NULL DEFAULT 0, \
+                stk_msg_trig INTEGER NOT NULL DEFAULT 0, \
+                text_rep INTEGER NOT NULL DEFAULT 0, \
+                stk_rep INTEGER NOT NULL DEFAULT 0, \
+                last_msg_recv TIMESTAMP NOT NULL DEFAULT NOW());'
         return cmd
 
     def log_message_activity(self, cid, type_of_event):
@@ -63,7 +64,7 @@ class message_tracker(object):
             if type_of_event == msg_event_type.send_stk or type_of_event == msg_event_type.send_txt:
                 update_last_message_recv = False
             
-            column_to_add = int(type_of_event)
+            column_to_add = type_of_event.column_name
             
             cmd = u'SELECT * FROM msg_track WHERE cid = %(cid)s'
             cmd_dict = {'cid': cid}
@@ -182,14 +183,23 @@ class message_tracker(object):
 
 
 class msg_track_col(Enum):
-    cid = 0
-    text_msg = 1
-    text_msg_trig = 2
-    stk_msg = 3
-    stk_msg_trig = 4
-    text_rep = 5
-    stk_rep = 6
-    last_msg_recv = 7
+    cid = 0, 'cid'
+    text_msg = 1, 'text_msg'
+    text_msg_trig = 2, 'text_msg_trig'
+    stk_msg = 3, 'stk_msg'
+    stk_msg_trig = 4, 'stk_msg_trig'
+    text_rep = 5, 'text_rep'
+    stk_rep = 6, 'stk_rep'
+    last_msg_recv = 7, 'last_msg_recv'
+
+    def __new__(cls, value, col_name):
+        member = object.__new__(cls)
+        member._value_ = value
+        member.column_name = col_name
+        return member
+
+    def __int__(self):
+        return self.value
 
 class msg_event_type(Enum):
     recv_txt = 1
@@ -198,6 +208,3 @@ class msg_event_type(Enum):
     recv_stk_repl = 4
     send_txt = 5
     send_stk = 6
-
-    def __int__(self):
-        return self.value
