@@ -316,7 +316,7 @@ class text_msg(object):
                 limit = 10
 
                 text = u'【回覆組相關統計資料】'
-                text += u'\n\n已使用回覆組【{}】次'.format(kwd.used_count_sum())
+                text += u'\n\n已使用回覆組【{}】次'.format(self.kwd.used_count_sum())
                 text += u'\n\n已登錄【{}】組回覆組\n【{}】組貼圖關鍵字 | 【{}】組圖片回覆'.format(
                     kwpct,
                     self.kwd.sticker_keyword_count(),
@@ -350,7 +350,7 @@ class text_msg(object):
                 text += u'\n【自動產生網頁相關】\n瀏覽次數: {}'.format(self.system_data.webpage_viewed)
                 text += u'\n\n【系統指令相關(包含呼叫失敗)】\n總呼叫次數: {}\n'.format(self.system_data.sys_cmd_called)
                 text += u'\n'.join([u'指令{} - {}'.format(cmd, cmd_obj.count) for cmd, cmd_obj in self.system_data.sys_cmd_dict.items()])
-                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(self.system_data.helper_cmd_dict['MFF'])
+                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(self.system_data.helper_cmd_dict['MFF'].count)
                 text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(self.game_object.rps_instance_count, self.system_data.game_cmd_dict['RPS'].count)
             else:
                 text = error.main.invalid_thing_with_correct_format(u'參數1', u'GRP、KW或SYS', params[1])
