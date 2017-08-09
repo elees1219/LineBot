@@ -224,7 +224,7 @@ class game_processor(object):
         return text
 
 # Text parser initialization
-command_executor = text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator], sys_data)
+command_executor = text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator], sys_data, game_data)
 game_executor = game_processor(game_data)
 
 # Webpage auto generator
@@ -396,7 +396,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # SPECIAL record
                 elif cmd == 'P':
-                    text = command_executor.P(src, params, sys_data)
+                    text = command_executor.P(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # GROUP ban basic (info)

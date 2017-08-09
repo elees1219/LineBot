@@ -32,7 +32,7 @@ from tool import mff, random_gen
 from db.msg_track import msg_event_type
 
 class text_msg(object):
-    def __init__(self, api_proc, kw_dict_mgr, group_ban, msg_trk, oxford_obj, permission_key_list, system_statistics):
+    def __init__(self, api_proc, kw_dict_mgr, group_ban, msg_trk, oxford_obj, permission_key_list, system_data, game_object):
         self.kwd = kw_dict_mgr
         self.gb = group_ban
         self.msg_trk = msg_trk
@@ -40,7 +40,8 @@ class text_msg(object):
         self._webpage_generator = webpage_auto_gen.webpage()
         self.permission_verifier = system.permission_verifier(permission_key_list)
         self.api_proc = api_proc
-        self.system_statistics = system_statistics
+        self.system_data = system_data
+        self.game_object = game_object
 
     def S(self, src, params):
         key = params.pop(1)
@@ -285,7 +286,7 @@ class text_msg(object):
 
         return text
 
-    def P(self, src, params, sys_data):
+    def P(self, src, params):
         if params[1] is not None:
             category = params[1]
 
@@ -345,12 +346,12 @@ class text_msg(object):
                 global game_object
 
                 text = u'【系統統計資料 - 開機後重設】\n'
-                text += u'開機時間: {} (UTC+8)\n'.format(sys_data.boot_up)
-                text += u'\n【自動產生網頁相關】\n瀏覽次數: {}'.format(sys_data.webpage_viewed)
-                text += u'\n\n【系統指令相關(包含呼叫失敗)】\n總呼叫次數: {}\n'.format(sys_data.sys_cmd_called)
-                text += u'\n'.join([u'指令{} - {}'.format(cmd, cmd_obj.count) for cmd, cmd_obj in sys_data.sys_cmd_dict.items()])
-                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(sys_data.helper_cmd_dict['MFF'])
-                text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(len(game_object['rps']), sys_data.game_cmd_dict['RPS'].count)
+                text += u'開機時間: {} (UTC+8)\n'.format(self.system_data.boot_up)
+                text += u'\n【自動產生網頁相關】\n瀏覽次數: {}'.format(self.system_data.webpage_viewed)
+                text += u'\n\n【系統指令相關(包含呼叫失敗)】\n總呼叫次數: {}\n'.format(self.system_data.sys_cmd_called)
+                text += u'\n'.join([u'指令{} - {}'.format(cmd, cmd_obj.count) for cmd, cmd_obj in self.system_data.sys_cmd_dict.items()])
+                text += u'\n\n【內建小工具相關】\nMFF傷害計算輔助 - {}'.format(self.system_data.helper_cmd_dict['MFF'])
+                text += u'\n\n【小遊戲相關】\n猜拳遊戲數量 - {}\n猜拳次數 - {}'.format(self.game_object.rps_instance_count, self.system_data.game_cmd_dict['RPS'].count)
             else:
                 text = error.main.invalid_thing_with_correct_format(u'參數1', u'GRP、KW或SYS', params[1])
         else:
