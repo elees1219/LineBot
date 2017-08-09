@@ -314,7 +314,7 @@ class kw_dict_mgr(object):
             text += u'\n第{}名 - ID: {} - {} ({}次{})'.format(
                 row[int(kwdict_col.used_rank)],
                 row[int(kwdict_col.id)],
-                u'(貼圖ID {id})'.format(id=row[int(kwdict_col.keyword]) if row[int(kwdict_col.is_sticker_kw] else row[int(kwdict_col.keyword)].decode('utf-8'), 
+                u'(貼圖ID {id})'.format(id=row[int(kwdict_col.keyword)]) if row[int(kwdict_col.is_sticker_kw)] else row[int(kwdict_col.keyword)].decode('utf-8'), 
                 row[int(kwdict_col.used_count)],
                 u' - 已固定' if row[int(kwdict_col.deleted)] or row[int(kwdict_col.override)] else '')
 
