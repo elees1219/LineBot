@@ -1,0 +1,12 @@
+﻿{% extends "Base.html" %}
+{% block title %} Error List {% endblock %}
+{% block content %}
+<p>開機時間:&nbsp;{{ boot_up }}</p>
+<br/>
+<p>
+    錯誤清單(根據時間排列):<br/>
+    {% for TimeStamp, ErrorURL in ErrorDict %}
+    <a href="{{ ErrorURL }}">{{ TimeStamp }}</a><br/>
+    {% endfor %}
+</p>
+{% endblock %}

@@ -1,14 +1,9 @@
-﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <p>
-        {% for Content in Contents %}
-        {{ Content }}
-        {% endfor %}
-    </p>
-</body>
-</html>
+﻿{% extends "Base.html" %}
+{% block title %} Title {% endblock %}
+{% block content %}
+<p>
+    {% for Content in Contents %}
+    {{ Content }}
+    {% endfor %}
+</p>
+{% endblock %}

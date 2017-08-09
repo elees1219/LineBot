@@ -77,12 +77,17 @@ class webpage(object):
             return content
 
     @staticmethod
-    def html_render(content):
-        return render_template('WebPage.html', Contents=content.split('\n'))
-    
+    def html_render(content, title=None):
+        return render_template('WebPage.html', Contents=content.replace(' ', '&nbsp;').split('\n'), Title=title)
+
     @staticmethod
-    def html_hyperlink(content, link):
-        return '<a href=\"{}\">{}</a>'.format(link, content)
+    def html_render_error_list(boot_up, error_dict):
+        """
+        Error dict 
+        key=timestamp
+        value=URL
+        """
+        return render_template('ErrorList.html', boot_up=boot_up, ErrorDict=error_dict)
 
 class content_type(Enum):
     Error = 0

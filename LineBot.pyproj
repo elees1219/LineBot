@@ -24,6 +24,8 @@
     <Content Include="requirements.txt" />
     <Content Include="runtime.txt" />
     <Content Include="static\style.css" />
+    <Content Include="templates\Base.html" />
+    <Content Include="templates\ErrorList.html" />
     <Content Include="templates\WebPage.html" />
   </ItemGroup>
   <ItemGroup>

@@ -261,14 +261,13 @@ def callback():
 @app.route("/error", methods=['GET'])
 def get_error_list():
     sys_data.view_webpage()
-    content = u'開機時間: {}\n\n錯誤清單(根據時間排列):\n'.format(sys_data.boot_up)
-    content += '\n'.join(
-        [webpage_auto_gen.webpage.html_hyperlink(datetime.fromtimestamp(float(timestamp)).strftime('%Y-%m-%d %H:%M:%S'), request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]) 
-         for timestamp in webpage_generator.error_list()]
-        )
-        
-    return webpage_auto_gen.webpage.html_render(content)
-    return content.replace('\n', '<br/>')
+
+    error_dict = defaultdict(str)    
+    error_timestamp_list = webpage_generator.error_list()
+    for timestamp in error_timestamp_list:
+        error_dict[datetime.fromtimestamp(float(timestamp)).strftime('%Y-%m-%d %H:%M:%S')] = request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]
+
+    return webpage_auto_gen.webpage.html_render(sys_data.boot_up, error_dict)
 
 @app.route("/error/<timestamp>", methods=['GET'])
 def get_error_message(timestamp):
