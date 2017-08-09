@@ -78,7 +78,7 @@ class webpage(object):
 
     @staticmethod
     def html_render(content):
-        return render_template('WebPage.html', Content=content)
+        return render_template('WebPage.html', Content=content.replace('\n', '<br/>'))
         # text += '<p>' + escape(content).replace(' ', '&nbsp;').replace('\n', '<br/>') + '</p>'
     
     @staticmethod
