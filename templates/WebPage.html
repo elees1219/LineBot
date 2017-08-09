@@ -2,8 +2,8 @@
 {% block title %} {{ Title }} {% endblock %}
 {% block content %}
 <p>
-    {%+ for Content in Contents %}
+    {% for Content in Contents -%}
     {{ Content }}<br />
-    {% endfor %}
+    {%- endfor %}
 </p>
 {% endblock %}
