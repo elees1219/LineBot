@@ -24,7 +24,7 @@ class webpage(object):
         err_detail = u'錯誤發生時間: {}\n'.format(datetime.now() + timedelta(hours=8))
         err_detail += u'頻道ID: {}'.format(channel_id)
         err_detail += u'\n\n'
-        err_detail += traceback.format_exc()
+        err_detail += traceback.format_exc().decode('utf-8')
 
         print err_detail.encode('utf-8')
         self._page_content[self._error_route][timestamp] = err_detail
