@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 from error import error
-# -*- coding: utf-8 -*-
+
 import traceback
 
 import time
@@ -16,14 +16,21 @@ class webpage(object):
         self._text_route = 'Text'
         self._page_content = {self._error_route: {}, self._query_route: {}, self._info_route: {}, self._text_route: {}}
 
-    def rec_error(self, details, channel_id):
+    def rec_error(self, err_sum, channel_id):
         if details is not None:
             timestamp = str(int(time.time()))
-            self._page_content[self._error_route][timestamp] = u'錯誤發生時間: {}\n'.format(datetime.now() + timedelta(hours=8))
-            self._page_content[self._error_route][timestamp] = u'頻道ID: {}'.format(channel_id)
-            self._page_content[self._error_route][timestamp] += u'\n\n'
-            self._page_content[self._error_route][timestamp] += details  
-            return timestamp
+            err_detail = u'錯誤發生時間: {}\n'.format(datetime.now() + timedelta(hours=8))
+            err_detail += u'頻道ID: {}'.format(channel_id)
+            err_detail += u'\n\n'
+            err_detail += traceback.format_exc()  
+
+            self._page_content[self._error_route][timestamp] = err_detail
+
+            err_list = u'詳細錯誤URL: {}\n錯誤清單: {}'.format(
+                request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
+                request.url_root + url_for('get_error_list')[1:])
+            
+            return err_sum, err_list
     
     def rec_query(self, full_query):
         timestamp = str(int(time.time()))
@@ -42,13 +49,6 @@ class webpage(object):
         timestamp = str(int(time.time()))
         self._page_content[self._text_route][timestamp] = '\n===============================\n'.join(['【Message {}】\n\n{}'.format(index, txt.text) for index, txt in enumerate(textmsg_list, start=1)])
         return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
-    
-    def error_message(self, error_text, channel_id):
-        timestamp = self.rec_error(traceback.format_exc(), channel_id)
-        err_detail = u'詳細錯誤URL: {}\n錯誤清單: {}'.format(
-            request.url_root + url_for('get_error_message', timestamp=timestamp)[1:],
-            request.url_root + url_for('get_error_list')[1:])
-        return error_text, err_detail
 
     def error_list(self):
         return self._page_content[self._error_route].keys()
