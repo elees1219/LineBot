@@ -371,7 +371,7 @@ class kwdict_col(Enum):
     used_count = 6
     creator = 7
     is_pic_reply = 8
-    # is_sticker_kw = 9
+    is_sticker_kw = 9
     deletor = 10
     created_time = 11
     disabled_time = 12
