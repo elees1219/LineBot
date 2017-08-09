@@ -7,10 +7,6 @@ class game_objects(object):
     def __init__(self):
         self._rps = defaultdict(game.rps)
 
-    @rps_collection.setter
-    def rps_collection(self, value):
-        self._rps = value
-
     def set_rps(self, cid, rps):
         self._rps[cid] = rps
 
