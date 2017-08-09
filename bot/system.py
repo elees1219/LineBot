@@ -159,7 +159,7 @@ class line_api_proc(object):
         return event_source.sender_id
     
     @staticmethod
-    def source_user_id(source_event):
+    def source_user_id(event_source):
         return event_source.user_id
     
     @staticmethod
