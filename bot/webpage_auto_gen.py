@@ -54,7 +54,8 @@ class webpage(object):
         return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
 
     def error_list(self):
-        return self._page_content[self._error_route].keys()
+        sorted_list = sorted(self._page_content[self._error_route].items(), key=self._page_content[self._error_route].get, reverse=True)
+        return sorted_list
 
     def get_content(self, type, timestamp):
         content = None

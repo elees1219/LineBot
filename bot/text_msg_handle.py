@@ -63,75 +63,78 @@ class text_msg(object):
 
     def A(self, src, params, pinned=False):
         new_uid = line_api_proc.source_user_id(src)
-
-        if params[4] is not None:
-            action_kw = params[1]
-            kw = params[2]
-            action_rep = params[3]
-            rep = params[4]
-             
-            if action_kw != 'STK':
-                results = None
-                text = error.main.incorrect_param(u'參數1', u'STK')
-            elif not system.string_is_int(kw):
-                results = None
-                text = error.main.incorrect_param(u'參數2', u'整數數字')
-            elif action_rep != 'PIC':
-                results = None
-                text =  error.main.incorrect_param(u'參數3', u'PIC')
-            else:
-                if system.string_is_int(rep):
-                    rep = kw_dict_mgr.sticker_png_url(rep)
-                    url_val_result = True
-                else:
-                    url_val_result = url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
-
-                if type(url_val_result) is bool and url_val_result:
-                    results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, True, True)
-                else:
-                    results = None
-                    text = error.main.incorrect_param(u'參數4', u'HTTPS協定，並且是合法的網址。')
-        elif params[3] is not None:
-            rep = params[3]
-
-            if params[2] == 'PIC':
-                kw = params[1]
-
-                if system.string_is_int(rep):
-                    rep = kw_dict_mgr.sticker_png_url(rep)
-                    url_val_result = True
-                else:
-                    url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
-
-                if type(url_val_result) is bool and url_val_result:
-                    results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
-                else:
-                    results = None
-                    text = error.main.incorrect_param(u'參數3', u'HTTPS協定，並且是合法的網址。')
-            elif params[1] == 'STK':
+        
+        if not line_api_proc.is_valid_user_id(new_uid):
+            text = error.main.unable_to_receive_user_id()
+        else:
+            if params[4] is not None:
+                action_kw = params[1]
                 kw = params[2]
-
-                if system.string_is_int(kw):
-                    results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
-                else:
+                action_rep = params[3]
+                rep = params[4]
+                 
+                if action_kw != 'STK':
+                    results = None
+                    text = error.main.incorrect_param(u'參數1', u'STK')
+                elif not system.string_is_int(kw):
                     results = None
                     text = error.main.incorrect_param(u'參數2', u'整數數字')
+                elif action_rep != 'PIC':
+                    results = None
+                    text =  error.main.incorrect_param(u'參數3', u'PIC')
+                else:
+                    if system.string_is_int(rep):
+                        rep = kw_dict_mgr.sticker_png_url(rep)
+                        url_val_result = True
+                    else:
+                        url_val_result = url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
+
+                    if type(url_val_result) is bool and url_val_result:
+                        results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, True, True)
+                    else:
+                        results = None
+                        text = error.main.incorrect_param(u'參數4', u'HTTPS協定，並且是合法的網址。')
+            elif params[3] is not None:
+                rep = params[3]
+
+                if params[2] == 'PIC':
+                    kw = params[1]
+
+                    if system.string_is_int(rep):
+                        rep = kw_dict_mgr.sticker_png_url(rep)
+                        url_val_result = True
+                    else:
+                        url_val_result = True if validators.url(rep) and urlparse(rep).scheme == 'https' else False
+
+                    if type(url_val_result) is bool and url_val_result:
+                        results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, False, True)
+                    else:
+                        results = None
+                        text = error.main.incorrect_param(u'參數3', u'HTTPS協定，並且是合法的網址。')
+                elif params[1] == 'STK':
+                    kw = params[2]
+
+                    if system.string_is_int(kw):
+                        results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
+                    else:
+                        results = None
+                        text = error.main.incorrect_param(u'參數2', u'整數數字')
+                else:
+                    text = error.main.unable_to_determine()
+                    results = None
+            elif params[2] is not None:
+                kw = params[1]
+                rep = params[2]
+
+                results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, False, False)
             else:
-                text = error.main.unable_to_determine()
                 results = None
-        elif params[2] is not None:
-            kw = params[1]
-            rep = params[2]
+                text = error.main.lack_of_thing(u'參數')
 
-            results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, False, False)
-        else:
-            results = None
-            text = error.main.lack_of_thing(u'參數')
-
-        if results is not None:
-            text = u'已新增回覆組。{}\n'.format(u'(置頂)' if pinned else '')
-            for result in results:
-                text += kw_dict_mgr.entry_basic_info(result)
+            if results is not None:
+                text = u'已新增回覆組。{}\n'.format(u'(置頂)' if pinned else '')
+                for result in results:
+                    text += kw_dict_mgr.entry_basic_info(result)
 
         return text
 
@@ -148,38 +151,41 @@ class text_msg(object):
 
     def D(self, src, params, pinned=False):
         deletor_uid = line_api_proc.source_user_id(src)
-        if params[2] is None:
-            kw = params[1]
-
-            results = self.kwd.delete_keyword(kw, deletor_uid, pinned)
+        if not line_api_proc.is_valid_user_id(deletor_uid):
+            text = error.main.unable_to_receive_user_id()
         else:
-            action = params[1]
+            if params[2] is None:
+                kw = params[1]
 
-            if action == 'ID':
-                pair_id = params[2]
+                results = self.kwd.delete_keyword(kw, deletor_uid, pinned)
+            else:
+                action = params[1]
 
-                if system.string_is_int(pair_id):
-                    results = self.kwd.delete_keyword_id(pair_id, deletor_uid, pinned)
+                if action == 'ID':
+                    pair_id = params[2]
+
+                    if system.string_is_int(pair_id):
+                        results = self.kwd.delete_keyword_id(pair_id, deletor_uid, pinned)
+                    else:
+                        results = None
+                        text = error.main.incorrect_param(u'參數2', u'整數數字')
                 else:
                     results = None
-                    text = error.main.incorrect_param(u'參數2', u'整數數字')
-            else:
-                results = None
-                text = error.main.incorrect_param(u'參數1', u'ID')
+                    text = error.main.incorrect_param(u'參數1', u'ID')
 
-        if results is not None and len(results) > 0:
-            for result in results:
-                line_profile = self.api_proc.profile(result[int(kwdict_col.creator)])
+            if results is not None and len(results) > 0:
+                for result in results:
+                    line_profile = self.api_proc.profile(result[int(kwdict_col.creator)])
 
-                text = u'已刪除回覆組。{}\n'.format(u'(置頂)' if pinned else '')
-                text += kw_dict_mgr.entry_basic_info(result)
-                text += u'\n此回覆組由 {} 製作。'.format(
-                     error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name)
-        else:
-            if system.string_is_int(kw):
-                text = error.main.miscellaneous(u'偵測到參數1是整數。若欲使用ID作為刪除根據，請參閱小水母使用說明。')
+                    text = u'已刪除回覆組。{}\n'.format(u'(置頂)' if pinned else '')
+                    text += kw_dict_mgr.entry_basic_info(result)
+                    text += u'\n此回覆組由 {} 製作。'.format(
+                         error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name)
             else:
-                text = error.main.pair_not_exist_or_insuffieicnt_permission()
+                if system.string_is_int(kw):
+                    text = error.main.miscellaneous(u'偵測到參數1是整數。若欲使用ID作為刪除根據，請參閱小水母使用說明。')
+                else:
+                    text = error.main.pair_not_exist_or_insuffieicnt_permission()
 
         return text
 
@@ -221,7 +227,7 @@ class text_msg(object):
         if results is not None:
             q_list = kw_dict_mgr.list_keyword(results)
             text = q_list['limited']
-            text += u'\n\n完整搜尋結果顯示: {}'.format(self._webpage_generator.rec_query(q_list['full']))
+            text += u'\n\n完整搜尋結果顯示: {}'.format(self._webpage_generator.rec_query(q_list['full']).decode('utf-8'))
         else:
             if params[2] is not None:
                 text = u'找不到和指定的ID範圍({}~{})有關的結果。'.format(si, ei)
