@@ -225,7 +225,7 @@ class kw_dict_mgr(object):
         return text
 
     @staticmethod
-    def entry_detailed_info(kwd_mgr, line_api, entry_row):
+    def entry_detailed_info(kwd_mgr, line_api_proc, entry_row):
         detailed = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
         detailed += u'屬性:\n'
         detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[int(kwdict_col.admin)] else u'[ - ]',
@@ -234,14 +234,14 @@ class kw_dict_mgr(object):
         detailed += u'呼叫次數: {} (第{}名)\n\n'.format(entry_row[int(kwdict_col.used_count)], 
                                                        kwd_mgr.used_count_rank(entry_row[int(kwdict_col.id)]))
 
-        creator_profile = line_api.get_profile(entry_row[int(kwdict_col.creator)])
+        creator_profile = line_api_proc.profile(entry_row[int(kwdict_col.creator)])
 
         detailed += u'製作者LINE使用者名稱:\n{}\n'.format(creator_profile.display_name)
         detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.creator)])
         detailed += u'製作時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.created_time)])
 
         if entry_row[int(kwdict_col.deletor)] is not None:
-            deletor_profile = line_api.get_profile(entry_row[int(kwdict_col.deletor)])
+            deletor_profile = line_api_proc.profile(entry_row[int(kwdict_col.deletor)])
             detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(deletor_profile.display_name)
             detailed += u'刪除者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.deletor)])
             detailed += u'刪除時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.disabled_time)])
@@ -279,7 +279,7 @@ class kw_dict_mgr(object):
         return ret
 
     @staticmethod
-    def list_keyword_info(kwd_mgr, line_api, data, limit=2):
+    def list_keyword_info(kwd_mgr, line_api_proc, data, limit=2):
         """return two object to access by [\'limited\'] and [\'full\']."""
         ret = {'limited': '', 'full': ''}
         limited = False
@@ -292,7 +292,7 @@ class kw_dict_mgr(object):
         else:
             for index, row in enumerate(data, start=1):
                 text = separator
-                text += kw_dict_mgr.entry_detailed_info(kwd_mgr, line_api, row)
+                text += kw_dict_mgr.entry_detailed_info(kwd_mgr, line_api_proc, row)
                 text += u'\n'
                 ret['full'] += text
 
