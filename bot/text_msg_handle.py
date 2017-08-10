@@ -174,7 +174,7 @@ class text_msg(object):
                 text = u'已刪除回覆組。{}\n'.format(u'(置頂)' if pinned else '')
                 text += kw_dict_mgr.entry_basic_info(result)
                 text += u'\n此回覆組由 {} 製作。'.format(
-                    '(LINE account data not found)' if line_profile is None else line_profile.display_name)
+                     error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name)
         else:
             if system.string_is_int(kw):
                 text = error.main.miscellaneous(u'偵測到參數1是整數。若欲使用ID作為刪除根據，請參閱小水母使用說明。')

@@ -235,14 +235,13 @@ class kw_dict_mgr(object):
                                                        kwd_mgr.used_count_rank(entry_row[int(kwdict_col.id)]))
 
         creator_profile = line_api_proc.profile(entry_row[int(kwdict_col.creator)])
-
-        detailed += u'製作者LINE使用者名稱:\n{}\n'.format(creator_profile.display_name)
+        detailed += u'製作者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if creator_profile is None else creator_profile.display_name)
         detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.creator)])
         detailed += u'製作時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.created_time)])
 
         if entry_row[int(kwdict_col.deletor)] is not None:
-            deletor_profile = line_api_proc.profile(entry_row[int(kwdict_col.deletor)])
-            detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(deletor_profile.display_name)
+            deletor_profile = line_api_proc.profile(entry_row[int(kwdict_col.deletor)]) 
+            detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if deletor_profile is None else deletor_profile.display_name)
             detailed += u'刪除者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.deletor)])
             detailed += u'刪除時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.disabled_time)])
 
@@ -325,12 +324,12 @@ class kw_dict_mgr(object):
         text = u'回覆組製作排行 (前{}名):'.format(len(data))
 
         for row in data:
-            text += u'\n\n第{}名 - {}\n製作{}組 | 共使用{}次 | 平均每組被使用{}次'.format(
-                row[0],
-                line_api.profile(row[1]).display_name,
-                row[2],
-                row[3],
-                row[4])
+            profile = line_api.profile(row[1])
+            if profile is None:
+                uname = error.main.line_account_data_not_found()
+            else:
+                uname = profile.display_name
+            text += u'\n\n第{}名 - {}\n製作{}組 | 共使用{}次 | 平均每組被使用{}次'.format(row[0], uname, row[2], row[3], row[4])
 
         return text
 

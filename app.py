@@ -88,7 +88,6 @@ oxford_dict_obj = oxford_dict('en')
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-# IMPORTANT: error occurred when user profile not found in kwdict
 # TODO: move to msg_handle_game
 class game_processor(object):
     def __init__(self, game_data):
@@ -752,6 +751,7 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
         if result[int(kwdict_col.is_pic_reply)]:
             line_profile = line_api.profile(result[int(kwdict_col.creator)])
 
+            print result
             api_reply(token, TemplateSendMessage(
                 alt_text=u'圖片/貼圖回覆.\n關鍵字ID: {}'.format(id=result[int(kwdict_col.id)]),
                 template=ButtonsTemplate(text=u'由{}製作。\n回覆組ID: {}'.format(
