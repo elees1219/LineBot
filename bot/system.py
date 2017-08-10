@@ -89,7 +89,7 @@ class system_data(object):
     def intercept(self):
         return self._intercept
 
-    @silence.setter
+    @intercept.setter
     def intercept(self, value):
         self._intercept = value
 
