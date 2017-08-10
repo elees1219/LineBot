@@ -752,6 +752,7 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
             line_profile = line_api.profile(result[int(kwdict_col.creator)])
 
             print result
+            print int(kwdict_col.id)
             api_reply(token, TemplateSendMessage(
                 alt_text=u'圖片/貼圖回覆.\n關鍵字ID: {}'.format(id=result[int(kwdict_col.id)]),
                 template=ButtonsTemplate(text=u'由{}製作。\n回覆組ID: {}'.format(
@@ -759,7 +760,7 @@ def auto_reply_system(token, keyword, is_sticker_kw, src):
                     result[int(kwdict_col.id)]), 
                                          thumbnail_image_url=reply,
                                          actions=[
-                                             URITemplateAction(label=u'Original Picture', uri=reply)
+                                             URITemplateAction(label=u'原始圖片', uri=reply)
                                          ])), src)
             return True
         else:
