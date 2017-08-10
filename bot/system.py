@@ -75,7 +75,7 @@ class system_data(object):
         self._last_sticker[cid] = str(stk_id)
 
     def get_last_sticker(self, cid):
-        return self._last_sticker[cid]
+        return self._last_sticker.get(cid)
 
     @property
     def silence(self):
