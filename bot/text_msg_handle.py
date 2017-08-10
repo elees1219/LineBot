@@ -227,7 +227,7 @@ class text_msg(object):
         if results is not None:
             q_list = kw_dict_mgr.list_keyword(results)
             text = q_list['limited']
-            text += '\n\n完整搜尋結果顯示: {}'.format(self._webpage_generator.rec_query(q_list['full']))
+            text += '\n完整搜尋結果顯示: {}'.format(self._webpage_generator.rec_query(q_list['full']))
         else:
             if params[2] is not None:
                 text = u'找不到和指定的ID範圍({}~{})有關的結果。'.format(si, ei)
@@ -260,7 +260,7 @@ class text_msg(object):
         if results is not None:
             i_object = kw_dict_mgr.list_keyword_info(self.kwd, self.api_proc, results)
             text += i_object['limited']
-            text += '\n\n完整資訊URL: {}'.format(self._webpage_generator.rec_info(i_object['full']))
+            text += '\n完整資訊URL: {}'.format(self._webpage_generator.rec_info(i_object['full']))
         else:
             text = error.main.miscellaneous(u'資料查詢主體為空。')
 

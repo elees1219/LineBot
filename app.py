@@ -517,7 +517,7 @@ def handle_text_message(event):
     except Exception as exc:
         text = u'開機時間: {}\n\n'.format(sys_data.boot_up)
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        text += u'錯誤種類: {}\n\n第{}行 - {}'.format(exc_type, exc_tb.tb_lineno, exc.message)
+        text += u'錯誤種類: {}\n\n第{}行 - {}'.format(exc_type, exc_tb.tb_lineno, exc.message.decode("utf-8"))
         
         error_msg = webpage_generator.rec_error(text, line_api_proc.source_channel_id(src))
         api_reply(token, TextSendMessage(text=error_msg), src)
