@@ -250,21 +250,21 @@ class kw_dict_mgr(object):
     @staticmethod
     def list_keyword(data, limit=25):
         """return two object to access by [\'limited\'] and [\'full\']."""
-        ret = {'limited': '', 'full': ''}
+        ret = {'limited': u'', 'full': u''}
         limited = False
         count = len(data)
-        ret['full'] = '共有{}筆結果\n\n'.format(count)
+        ret['full'] = u'共有{}筆結果\n\n'.format(count)
 
         if count <= 0:
             ret['limited'] = error.main.no_result()
         else:
             for index, row in enumerate(data, start=1):
-                text = 'ID: {} - {} {}{}{}\n'.format(
+                text = u'ID: {} - {} {}{}{}\n'.format(
                     row[int(kwdict_col.id)],
-                    '(貼圖ID {})'.format(row[int(kwdict_col.keyword)]) if row[int(kwdict_col.is_sticker_kw)] else row[int(kwdict_col.keyword)],
-                    '[蓋]' if row[int(kwdict_col.override)] else u'',
-                    '[頂]' if row[int(kwdict_col.admin)] else u'',
-                    '[刪]' if row[int(kwdict_col.deleted)] else u'')
+                    u'(貼圖ID {})'.format(row[int(kwdict_col.keyword)]) if row[int(kwdict_col.is_sticker_kw)] else row[int(kwdict_col.keyword)],
+                    u'[蓋]' if row[int(kwdict_col.override)] else u'',
+                    u'[頂]' if row[int(kwdict_col.admin)] else u'',
+                    u'[刪]' if row[int(kwdict_col.deleted)] else u'')
 
                 ret['full'] += text
 
@@ -272,7 +272,7 @@ class kw_dict_mgr(object):
                     ret['limited'] += text
 
                     if index > limit:
-                        ret['limited'] += '...(還有{}筆)'.format(count-limit)
+                        ret['limited'] += u'...(還有{}筆)'.format(count-limit)
                         limited = True
 
         return ret
@@ -280,7 +280,7 @@ class kw_dict_mgr(object):
     @staticmethod
     def list_keyword_info(kwd_mgr, line_api_proc, data, limit=2):
         """return two object to access by [\'limited\'] and [\'full\']."""
-        ret = {'limited': '', 'full': ''}
+        ret = {'limited': u'', 'full': u''}
         limited = False
         count = len(data)
         separator = u'====================\n'
