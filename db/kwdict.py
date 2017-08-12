@@ -261,7 +261,7 @@ class kw_dict_mgr(object):
             for index, row in enumerate(data, start=1):
                 text = u'ID: {} - {} {}{}{}\n'.format(
                     row[int(kwdict_col.id)],
-                    u'(貼圖ID {})'.format(row[int(kwdict_col.keyword)]) if row[int(kwdict_col.is_sticker_kw)] else row[int(kwdict_col.keyword)],
+                    u'(貼圖ID {})'.format(row[int(kwdict_col.keyword)].decode('utf-8')) if row[int(kwdict_col.is_sticker_kw)] else row[int(kwdict_col.keyword)].decode('utf-8'),
                     u'[蓋]' if row[int(kwdict_col.override)] else u'',
                     u'[頂]' if row[int(kwdict_col.admin)] else u'',
                     u'[刪]' if row[int(kwdict_col.deleted)] else u'')
