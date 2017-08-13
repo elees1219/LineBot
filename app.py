@@ -433,6 +433,11 @@ def handle_text_message(event):
                     text = command_executor.STK(src, params, sys_data)
 
                     api_reply(token, TextSendMessage(text=text), src)
+                # TRANSLATE text to URL form
+                elif cmd == 'T':
+                    text = command_executor.T(src, params)
+
+                    api_reply(token, TextSendMessage(text=text), src)
                 else:
                     sys_data.sys_cmd_dict[cmd].count -= 1
             elif head == 'HELP':

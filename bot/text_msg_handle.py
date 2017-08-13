@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import errno, os, sys
 import validators
+import urllib
 from urlparse import urlparse
 import requests
 
@@ -650,6 +651,25 @@ class text_msg(object):
         else:
             text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。\n\n本次開機時間: {}'.format(sys_data.boot_up)
 
+        return text
+
+    def T(self, src, params):
+        if params[1] is not None:
+            text = params[1]
+
+            if isinstance(text, unicode):
+                # unicode to utf-8
+                text = text.encode('utf-8')
+            else:
+                try:
+                    # maybe utf-8
+                    text = text.decode('utf-8').encode('utf-8')
+                except UnicodeError:
+                    # gbk to utf-8
+                    text = text.decode('gbk').encode('utf-8')
+        else:
+            text = error.main.lack_of_thing(u'參數')
+        
         return text
 
     @staticmethod

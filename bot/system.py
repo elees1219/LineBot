@@ -55,7 +55,8 @@ _sys_cmd_dict = {'S': _command(1, 1, True),
                 'O': _command(1, 1, False), 
                 'B': _command(0, 0, False), 
                 'RD': _command(1, 2, False),
-                'STK': _command(0, 0, False)}
+                'STK': _command(0, 0, False),
+                'T': _command(1, 1, False)}
 
 _game_cmd_dict = {'RPS': _command(0, 4, True)}
 
