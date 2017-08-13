@@ -670,7 +670,7 @@ class text_msg(object):
         else:
             text = error.main.lack_of_thing(u'參數')
         
-        return text
+        return urllib.quote(text)
 
     @staticmethod
     def split(text, splitter, size):
