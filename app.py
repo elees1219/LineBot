@@ -338,10 +338,10 @@ def handle_text_message(event):
             head, cmd, oth = text_msg.split(text, splitter, 3)
 
             if head == 'JC':
-                result = command_executor.split_verify(cmd, splitter, oth)
+                params = command_executor.split_verify(cmd, splitter, oth)
 
-                if isinstance(result, unicode):
-                    api_reply(token, TextSendMessage(text=result), src)
+                if isinstance(params, unicode):
+                    api_reply(token, TextSendMessage(text=params), src)
                     return
                 
                 # SQL Command
