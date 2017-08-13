@@ -338,24 +338,11 @@ def handle_text_message(event):
             head, cmd, oth = text_msg.split(text, splitter, 3)
 
             if head == 'JC':
-                # TODO: put inside cmd proc module - static method - verify command - BEGIN
-                if cmd not in sys_data.sys_cmd_dict:
-                    text = error.main.invalid_thing(u'指令', cmd)
-                    api_reply(token, TextSendMessage(text=text), src)
+                result = command_executor.split_verify(cmd, splitter, oth)
+
+                if isinstance(result, unicode):
+                    api_reply(token, TextSendMessage(text=result), src)
                     return
-
-                max_prm = sys_data.sys_cmd_dict[cmd].split_max
-                min_prm = sys_data.sys_cmd_dict[cmd].split_min
-                params = text_msg.split(oth, splitter, max_prm)
-
-                if min_prm > len(params) - params.count(None):
-                    text = error.main.lack_of_thing(u'參數')
-                    api_reply(token, TextSendMessage(text=text), src)
-                    return
-
-                params.insert(0, None)
-                sys_data.sys_cmd_dict[cmd].count += 1
-                # TODO: put inside cmd proc module - static method - verify command - END
                 
                 # SQL Command
                 if cmd == 'S':
@@ -430,7 +417,7 @@ def handle_text_message(event):
                     api_reply(token, TextSendMessage(text=text), src)
                 # last STICKER message
                 elif cmd == 'STK':
-                    text = command_executor.STK(src, params, sys_data)
+                    text = command_executor.STK(src, params)
 
                     api_reply(token, TextSendMessage(text=text), src)
                 # TRANSLATE text to URL form

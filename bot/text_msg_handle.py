@@ -644,12 +644,12 @@ class text_msg(object):
 
         return text
 
-    def STK(self, src, params, sys_data):
-        last_sticker = sys_data.get_last_sticker(line_api_proc.source_channel_id(src))
+    def STK(self, src, params):
+        last_sticker = self.system_data.get_last_sticker(line_api_proc.source_channel_id(src))
         if last_sticker is not None:
             text = u'最後一個貼圖的貼圖ID為{}。'.format(last_sticker)
         else:
-            text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。\n\n本次開機時間: {}'.format(sys_data.boot_up)
+            text = u'沒有登記到本頻道的最後貼圖ID。如果已經有貼過貼圖，則可能是因為機器人剛剛才啟動而造成。\n\n本次開機時間: {}'.format(self.system_data.boot_up)
 
         return text
 
@@ -688,6 +688,22 @@ class text_msg(object):
             list.append(None)
         
         return list
+
+    def split_verify(self, cmd, splitter, param_text):
+        if cmd not in self.sys_data.sys_cmd_dict:
+            return error.main.invalid_thing(u'指令', cmd)
+
+        max_prm = self.sys_data.sys_cmd_dict[cmd].split_max
+        min_prm = self.sys_data.sys_cmd_dict[cmd].split_min
+        params = text_msg.split(param_text, splitter, max_prm)
+
+        if min_prm > len(params) - params.count(None):
+            return error.main.lack_of_thing(u'參數')
+
+        params.insert(0, None)
+        self.sys_data.sys_cmd_dict[cmd].count += 1
+        return params
+
 
 class oxford_dict(object):
     def __init__(self, language):
