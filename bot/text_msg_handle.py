@@ -428,7 +428,7 @@ class text_msg(object):
                 action_dict = {'SF': True, 'ST': False}
                 status_silence = {True: u'停用', False: u'啟用'}
 
-                if action in action_dict:
+                if action.replace(' ', '') in action_dict:
                     settarget = action_dict[action]
 
                     if self.gb.set_silence(gid, str(settarget), pw):
@@ -680,7 +680,6 @@ class text_msg(object):
             for i in range(size):
                 if splitter not in text or i == size - 1:
                     list.append(text)
-                    print text
                     break
                 list.append(text[0:text.index(splitter)])
                 text = text[text.index(splitter)+len(splitter):]
