@@ -421,14 +421,14 @@ class text_msg(object):
 
             # Set bot auto-reply switch
             if perm >= 1 and param_count == 3:
-                action = params[1]
+                action = params[1].replace(' ', '')
                 gid = params[2]
                 pw = params[3]
 
                 action_dict = {'SF': True, 'ST': False}
                 status_silence = {True: u'停用', False: u'啟用'}
 
-                if action.replace(' ', '') in action_dict:
+                if action in action_dict:
                     settarget = action_dict[action]
 
                     if self.gb.set_silence(gid, str(settarget), pw):
