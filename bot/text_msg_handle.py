@@ -421,8 +421,6 @@ class text_msg(object):
 
             # Set bot auto-reply switch
             if perm >= 1 and param_count == 3:
-                print params
-
                 action = params[1]
                 gid = params[2]
                 pw = params[3]
@@ -682,6 +680,7 @@ class text_msg(object):
             for i in range(size):
                 if splitter not in text or i == size - 1:
                     list.append(text)
+                    print text
                     break
                 list.append(text[0:text.index(splitter)])
                 text = text[text.index(splitter)+len(splitter):]
