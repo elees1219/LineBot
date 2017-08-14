@@ -264,6 +264,7 @@ def get_error_list():
 
     error_dict = defaultdict(str)    
     error_timestamp_list = webpage_generator.error_list()
+    print timestamp
     for timestamp in error_timestamp_list:
         error_dict[datetime.fromtimestamp(float(int(timestamp))).strftime('%Y-%m-%d %H:%M:%S')] = request.url_root + url_for('get_error_message', timestamp=timestamp)[1:]
 

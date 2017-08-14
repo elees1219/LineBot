@@ -574,21 +574,25 @@ class text_msg(object):
                     
                     lexentarr = lexent['entries']
                     for lexentElem in lexentarr:
-                        sens = lexentElem['senses']
-                        
-                        text += u'\nDefinition:'
-                        for index, sen in enumerate(sens, start=1):
-                            if 'definitions' in sen:
-                                for de in sen['definitions']:
-                                    text += u'\n{}. {} {}'.format(index, de, u'({})'.format(u', '.join(sen['registers'])) if u'registers' in sen else u'')
-                                    
-                            if 'crossReferenceMarkers' in sen:
-                                for crm in sen['crossReferenceMarkers']:
-                                    text += u'\n{}. {} (Cross Reference Marker)'.format(index, crm)
+                        if 'senses' in lexentElem:
+                            sens = lexentElem['senses']
                             
-                            if 'examples' in sen:
-                                for ex in sen['examples']:
-                                    text += u'\n------{}'.format(ex['text'])
+                            text += u'\nDefinition:'
+                            for index, sen in enumerate(sens, start=1):
+                                if 'definitions' in sen:
+                                    for de in sen['definitions']:
+                                        text += u'\n{}. {} {}'.format(index, de, u'({})'.format(u', '.join(sen['registers'])) if u'registers' in sen else u'')
+                                        
+                                if 'crossReferenceMarkers' in sen:
+                                    for crm in sen['crossReferenceMarkers']:
+                                        text += u'\n{}. {} (Cross Reference Marker)'.format(index, crm)
+                                
+                                if 'examples' in sen:
+                                    for ex in sen['examples']:
+                                        text += u'\n------{}'.format(ex['text'])
+                        else:
+                            print xxxxxx
+                            text += u'Senses Not Found.'
 
                     text += u'\n{}\n'.format(section_splitter)
 
