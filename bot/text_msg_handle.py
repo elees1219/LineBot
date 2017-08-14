@@ -421,6 +421,8 @@ class text_msg(object):
 
             # Set bot auto-reply switch
             if perm >= 1 and param_count == 3:
+                print params
+
                 action = params[1]
                 gid = params[2]
                 pw = params[3]
