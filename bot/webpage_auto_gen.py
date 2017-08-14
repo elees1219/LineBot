@@ -53,8 +53,8 @@ class webpage(object):
         self._page_content[self._text_route][timestamp] = '\n===============================\n'.join(['【Message {}】\n\n{}'.format(index, txt.text) for index, txt in enumerate(textmsg_list, start=1)])
         return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
 
-    def error_list(self):
-        sorted_list = sorted(self._page_content[self._error_route].items(), key=self._page_content[self._error_route].get, reverse=True)
+    def error_timestamp_list(self):
+        sorted_list = sorted(self._page_content[self._error_route].keys(), key=self._page_content[self._error_route].get, reverse=True)
         return sorted_list
 
     def get_content(self, type, timestamp):
