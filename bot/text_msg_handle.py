@@ -592,7 +592,7 @@ class text_msg(object):
                                         text += u'\n------{}'.format(ex['text'])
                         else:
                             print xxxxxx
-                            text += u'Senses Not Found.'
+                            text += u'Senses not found in dictionary.'
 
                     text += u'\n{}\n'.format(section_splitter)
 
