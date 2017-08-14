@@ -425,13 +425,13 @@ class text_msg(object):
                 gid = params[2]
                 pw = params[3]
 
-                action_dict = {u'SF': True, u'ST': False}
+                action_dict = {'SF': True, 'ST': False}
                 status_silence = {True: u'停用', False: u'啟用'}
 
                 if action in action_dict:
                     settarget = action_dict[action]
 
-                    if self.gb.set_silence(params[2], str(settarget), pw):
+                    if self.gb.set_silence(gid, str(settarget), pw):
                         text = u'群組自動回覆功能已{}。\n\n群組/房間ID: {}'.format(status_silence[settarget], gid)
                     else:
                         text = u'群組靜音設定變更失敗。\n\n群組/房間ID: {}'.format(gid)
