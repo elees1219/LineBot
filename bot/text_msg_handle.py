@@ -591,7 +591,6 @@ class text_msg(object):
                                     for ex in sen['examples']:
                                         text += u'\n------{}'.format(ex['text'])
                         else:
-                            print xxxxxx
                             text += u'Senses not found in dictionary.'
 
                     text += u'\n{}\n'.format(section_splitter)
