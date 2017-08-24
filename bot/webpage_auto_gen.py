@@ -60,6 +60,7 @@ class webpage(object):
 
     def get_content(self, type, timestamp):
         timestamp = str(timestamp)
+        print self._page_content
         content = None
         if type == content_type.Error:
             content = self._page_content[self._error_route].get(timestamp)
