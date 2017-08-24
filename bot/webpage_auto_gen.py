@@ -43,8 +43,7 @@ class webpage(object):
     def rec_info(self, full_info):
         timestamp = str(int(time.time()))
         self._page_content[self._info_route][timestamp] = full_info
-        print timestamp
-        print self._page_content[self._info_route]
+        print self._page_content
         return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
     
     def rec_text(self, textmsg_list):
@@ -70,7 +69,7 @@ class webpage(object):
             type_chn = u'索引'
         elif type == content_type.Info:
             content = self._page_content[self._info_route].get(timestamp)
-            print self._page_content[self._info_route]
+            print self._page_content
             type_chn = u'查詢詳細資料'
         elif type == content_type.Text:
             content = self._page_content[self._text_route].get(timestamp)
