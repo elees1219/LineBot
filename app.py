@@ -334,6 +334,8 @@ def handle_text_message(event):
         return
 
     try:
+        if text == 'ERRORERRORERRORERROR':
+            raise Exception('THIS ERROR IS CREATED FOR TESTING PURPOSE.')
         if splitter in text:
             head, cmd, oth = text_msg.split(text, splitter, 3)
 
@@ -491,7 +493,7 @@ def handle_text_message(event):
                 return
 
         replied = auto_reply_system(token, text, False, src)
-        if (text.startswith('JC') or text.startswith('HELP') or text.startswith('G')) and ((' ' or '  ') in text) and not replied:
+        if (text.startswith('JC ') or text.startswith('HELP ') or text.startswith('G ')) and ((' ' or '  ') in text) and not replied:
             msg = u'小水母指令分隔字元已從【雙空格】修改為【換行】。'
             msg += u'\n\n如欲輸入指令，請以換行分隔指令，例如:\nJC\nA\n你！\n我？'
             msg += u'\n\n如果參數中要包含換行的話，請輸入【\\n】。\n另外，JC RD的文字抽籤中，原先以換行分隔，現在則以單空格分隔。'
