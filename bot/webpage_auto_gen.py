@@ -66,7 +66,10 @@ class webpage(object):
             content = self._page_content[self._query_route].get(timestamp)
             type_chn = u'索引'
         elif type == content_type.Info:
+            print timestamp
             content = self._page_content[self._info_route].get(timestamp)
+            print content
+            print self._page_content[self._info_route]
             type_chn = u'查詢詳細資料'
         elif type == content_type.Text:
             content = self._page_content[self._text_route].get(timestamp)
