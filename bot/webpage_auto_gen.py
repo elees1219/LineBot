@@ -42,8 +42,8 @@ class webpage(object):
     
     def rec_info(self, full_info):
         timestamp = str(int(time.time()))
-        self._page_content[self._info_route][timestamp] = full_info
-        print self._page_content
+        data_to_store = full_info
+        self._page_content[self._info_route][timestamp] = data_to_store
         return request.url_root + url_for('full_info', timestamp=timestamp)[1:]
     
     def rec_text(self, textmsg_list):
