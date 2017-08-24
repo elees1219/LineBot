@@ -221,13 +221,13 @@ class game_processor(object):
                 text = error.main.miscellaneous(u'尚未建立猜拳遊戲。')
 
         return text
-
-# Text parser initialization
-command_executor = text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator], sys_data, game_data)
-game_executor = game_processor(game_data)
-
+    
 # Webpage auto generator
 webpage_generator = webpage_auto_gen.webpage()
+
+# Text parser initialization
+command_executor = text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator], sys_data, game_data, webpage_generator)
+game_executor = game_processor(game_data)
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():

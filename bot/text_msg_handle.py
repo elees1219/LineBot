@@ -33,16 +33,16 @@ from tool import mff, random_gen
 from db.msg_track import msg_event_type
 
 class text_msg(object):
-    def __init__(self, api_proc, kw_dict_mgr, group_ban, msg_trk, oxford_obj, permission_key_list, system_data, game_object):
+    def __init__(self, api_proc, kw_dict_mgr, group_ban, msg_trk, oxford_obj, permission_key_list, system_data, game_object, webpage_generator):
         self.kwd = kw_dict_mgr
         self.gb = group_ban
         self.msg_trk = msg_trk
         self.oxford_obj = oxford_obj
-        self._webpage_generator = webpage_auto_gen.webpage()
         self.permission_verifier = system.permission_verifier(permission_key_list)
         self.api_proc = api_proc
         self.system_data = system_data
         self.game_object = game_object
+        self.webpage_generator = webpage_generator
 
     def S(self, src, params):
         key = params.pop(1)
@@ -228,7 +228,7 @@ class text_msg(object):
         if results is not None:
             q_list = kw_dict_mgr.list_keyword(results)
             text = q_list['limited']
-            text += u'\n完整搜尋結果顯示: {}'.format(self._webpage_generator.rec_query(q_list['full']))
+            text += u'\n完整搜尋結果顯示: {}'.format(self.webpage_generator.rec_query(q_list['full']))
         else:
             if params[2] is not None:
                 text = u'找不到和指定的ID範圍({}~{})有關的結果。'.format(si, ei)
@@ -261,7 +261,7 @@ class text_msg(object):
         if results is not None:
             i_object = kw_dict_mgr.list_keyword_info(self.kwd, self.api_proc, results)
             text += i_object['limited']
-            text += u'\n完整資訊URL: {}'.format(self._webpage_generator.rec_info(i_object['full']))
+            text += u'\n完整資訊URL: {}'.format(self.webpage_generator.rec_info(i_object['full']))
         else:
             text = error.main.miscellaneous(u'資料查詢主體為空。')
 
@@ -310,7 +310,7 @@ class text_msg(object):
 
                 text += u'\n\n【群組訊息統計資料 - 前{}名】\n'.format(limit)
                 text += tracking_data['limited']
-                text += u'\n\n完整資訊URL: {}'.format(self._webpage_generator.rec_info(tracking_data['full']))
+                text += u'\n\n完整資訊URL: {}'.format(self.webpage_generator.rec_info(tracking_data['full']))
             elif category == 'KW':
                 kwpct = self.kwd.row_count()
 
