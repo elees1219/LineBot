@@ -54,7 +54,7 @@ class webpage(object):
             textmsg_list = [textmsg_list]
     
         timestamp = str(int(time.time()))
-        self._page_content[self._text_route][timestamp] = '\n===============================\n'.join(['【Message {}】\n\n{}'.format(index, txt.text) for index, txt in enumerate(textmsg_list, start=1)])
+        self._page_content[self._text_route][timestamp] = u'\n===============================\n'.join([u'【Message {}】\n\n{}'.format(index, txt.text) for index, txt in enumerate(textmsg_list, start=1)])
         return request.url_root + url_for('full_content', timestamp=timestamp)[1:]
 
     def error_timestamp_list(self):
