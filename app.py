@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 # import custom module
-from bot import text_msg, oxford_dict, webpage_auto_gen, game_objects, game_msg
+from bot import webpage_auto_gen, game_objects
 from bot.system import line_api_proc, string_is_int, system_data
+
+import msg_handler
 
 import errno, os, sys, tempfile
 import traceback
@@ -83,7 +85,7 @@ handler = WebhookHandler(channel_secret)
 line_api = line_api_proc(api)
 
 # Oxford Dictionary Environment initialization
-oxford_dict_obj = oxford_dict('en')
+oxford_dict_obj = msg_handler.oxford_dict('en')
 
 # File path
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
@@ -92,8 +94,8 @@ static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 webpage_generator = webpage_auto_gen.webpage()
 
 # Message handler initialization
-command_executor = text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator], sys_data, game_data, webpage_generator)
-game_executor = game_msg(game_data, line_api)
+command_executor = msg_handler.text_msg(line_api, kwd, gb, msg_track, oxford_dict_obj, [group_mod, group_admin, administrator], sys_data, game_data, webpage_generator)
+game_executor = msg_handler.game_msg(game_data, line_api)
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -203,7 +205,7 @@ def handle_text_message(event):
         if text == 'ERRORERRORERRORERROR':
             raise Exception('THIS ERROR IS CREATED FOR TESTING PURPOSE.')
         if splitter in text:
-            head, cmd, oth = text_msg.split(text, splitter, 3)
+            head, cmd, oth = msg_handler.text_msg.split(text, splitter, 3)
 
             if head == 'JC':
                 params = command_executor.split_verify(cmd, splitter, oth)
@@ -296,7 +298,7 @@ def handle_text_message(event):
                 else:
                     sys_data.sys_cmd_dict[cmd].count -= 1
             elif head == 'HELP':
-                data = text_msg.split(text, splitter, 2)
+                data = msg_handler.text_msg.split(text, splitter, 2)
 
                 # TODO: restruct helper
                 # TODO: Helper modulize
@@ -334,7 +336,7 @@ def handle_text_message(event):
                 
                 max_prm = sys_data.game_cmd_dict[cmd].split_max
                 min_prm = sys_data.game_cmd_dict[cmd].split_min
-                params = text_msg.split(oth, splitter, max_prm)
+                params = msg_handler.text_msg.split(oth, splitter, max_prm)
 
                 if min_prm > len(params) - params.count(None):
                     text = error.main.lack_of_thing(u'參數')
