@@ -33,13 +33,13 @@
     <Compile Include="bot\game_object_holder.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="msg_handler\game.py">
+    <Compile Include="msg_handler\game_msg.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="bot\system.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="msg_handler\text.py" />
+    <Compile Include="msg_handler\text_msg.py" />
     <Compile Include="bot\webpage_auto_gen.py">
       <SubType>Code</SubType>
     </Compile>
