@@ -33,10 +33,13 @@
     <Compile Include="bot\game_object_holder.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="bot\handler\game_msg_handle.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="bot\system.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="bot\text_msg_handle.py" />
+    <Compile Include="bot\handler\text_msg_handle.py" />
     <Compile Include="bot\webpage_auto_gen.py">
       <SubType>Code</SubType>
     </Compile>
@@ -75,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bot\" />
+    <Folder Include="bot\handler\" />
     <Folder Include="db\" />
     <Folder Include="game\" />
     <Folder Include="templates\" />
