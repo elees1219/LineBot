@@ -150,7 +150,7 @@ class kw_dict_mgr(object):
         keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() \
-                WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE \
+                WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE AND override = FALSE \
                 RETURNING *;'
         cmd_dict = {'kw': keyword, 'top': is_top, 'dt': deletor}
         result = self.sql_cmd(cmd, cmd_dict)
@@ -159,7 +159,7 @@ class kw_dict_mgr(object):
     def delete_keyword_id(self, id, deletor, is_top):
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() \
-                WHERE id = %(id)s AND admin = %(top)s AND deleted = FALSE \
+                WHERE id = %(id)s AND admin = %(top)s AND deleted = FALSE AND overrdie = FALSE \
                 RETURNING *;'
                 
         cmd_dict = {'id': id, 'top': is_top, 'dt': deletor}
@@ -271,8 +271,8 @@ class kw_dict_mgr(object):
                 if not limited:
                     ret['limited'] += text
 
-                    if index > limit:
-                        ret['limited'] += u'...(還有{}筆)'.format(count - limit - 1)
+                    if index > limit - 1:
+                        ret['limited'] += u'...(還有{}筆)'.format(count - limit)
                         limited = True
 
         return ret
@@ -298,9 +298,9 @@ class kw_dict_mgr(object):
                 if not limited:
                     ret['limited'] += text
 
-                    if index > limit:
+                    if index > limit - 1:
                         ret['limited'] += separator
-                        ret['limited'] += u'還有{}筆資料沒有顯示。'.format(count - limit - 1)
+                        ret['limited'] += u'還有{}筆資料沒有顯示。'.format(count - limit)
                         limited = True
 
         return ret
