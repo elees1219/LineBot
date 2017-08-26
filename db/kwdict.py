@@ -278,7 +278,7 @@ class kw_dict_mgr(object):
         return ret
 
     @staticmethod
-    def list_keyword_info(kwd_mgr, line_api_proc, data, limit=2):
+    def list_keyword_info(kwd_mgr, line_api_proc, data, limit=3):
         """return two object to access by [\'limited\'] and [\'full\']."""
         ret = {'limited': u'', 'full': u''}
         limited = False
