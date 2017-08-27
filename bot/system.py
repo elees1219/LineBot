@@ -5,6 +5,8 @@ from collections import defaultdict
 from linebot import exceptions
 import hashlib
 import operator
+import traceback
+from math import *
 
 class _command(object):
     def __init__(self, min_split=2, max_split=2, non_user_permission_required=False):
