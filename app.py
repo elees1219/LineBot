@@ -374,7 +374,7 @@ def handle_text_message(event):
                 calc_result = text_calculator.calc(text)
                 if calc_result is not None:
                     sys_data.helper_cmd_dict['CALC'].count += 1
-                    text = u'算式: {}\n計算結果: {}'.format(text, calc_result)
+                    text = u'算式: {}\n\n計算結果: {}'.format('\n{}.format(text)' if '\n' in text else text, calc_result)
 
                     api_reply(token, TextSendMessage(text=text), src)
                     return
