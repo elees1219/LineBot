@@ -2,7 +2,7 @@
 
 # import custom module
 from bot import webpage_auto_gen, game_objects
-from bot.system import line_api_proc, string_is_int, system_data, text_calculator
+from bot.system import line_api_proc, string_can_be_int, system_data, text_calculator
 
 import msg_handler
 

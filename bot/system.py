@@ -192,11 +192,19 @@ class text_calculator(object):
         except:
             return 
 
-def string_is_int(s):
-    return isinstance(s, int)
+def string_can_be_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
-def string_is_float(s):
-    return isinstance(s, float)
+def string_can_be_float(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
     
 

@@ -2,7 +2,7 @@
 import os, sys
 
 from error import error
-from bot.system import line_api_proc, string_is_int
+from bot.system import line_api_proc, string_can_be_int
 
 import game
 
@@ -37,7 +37,7 @@ class game_msg(object):
 
                     if battle_item is not None:
                         if is_sticker == 'STK':
-                            if string_is_int(content):
+                            if string_can_be_int(content):
                                 rps_obj.register_battle_item(battle_item, True, content)
                                 text = rps_obj.battle_item_dict_text()
                             else:

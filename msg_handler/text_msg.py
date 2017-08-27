@@ -26,7 +26,7 @@ from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_
 
 from error import error
 from bot import system, webpage_auto_gen
-from bot.system import line_api_proc, system_data, string_is_float, string_is_int
+from bot.system import line_api_proc, system_data, string_can_be_float, string_can_be_int
 
 # tool import
 from tool import mff, random_gen
@@ -77,14 +77,14 @@ class text_msg(object):
                 if action_kw != 'STK':
                     results = None
                     text = error.main.incorrect_param(u'參數1', u'STK')
-                elif not system.string_is_int(kw):
+                elif not system.string_can_be_int(kw):
                     results = None
                     text = error.main.incorrect_param(u'參數2', u'整數數字')
                 elif action_rep != 'PIC':
                     results = None
                     text =  error.main.incorrect_param(u'參數3', u'PIC')
                 else:
-                    if system.string_is_int(rep):
+                    if system.string_can_be_int(rep):
                         rep = kw_dict_mgr.sticker_png_url(rep)
                         url_val_result = True
                     else:
@@ -101,7 +101,7 @@ class text_msg(object):
                 if params[2] == 'PIC':
                     kw = params[1]
 
-                    if system.string_is_int(rep):
+                    if system.string_can_be_int(rep):
                         rep = kw_dict_mgr.sticker_png_url(rep)
                         url_val_result = True
                     else:
@@ -115,7 +115,7 @@ class text_msg(object):
                 elif params[1] == 'STK':
                     kw = params[2]
 
-                    if system.string_is_int(kw):
+                    if system.string_can_be_int(kw):
                         results = self.kwd.insert_keyword(kw, rep, new_uid, pinned, True, False)
                     else:
                         results = None
@@ -165,7 +165,7 @@ class text_msg(object):
                 if action == 'ID':
                     pair_id = params[2]
 
-                    if system.string_is_int(pair_id):
+                    if system.string_can_be_int(pair_id):
                         results = self.kwd.delete_keyword_id(pair_id, deletor_uid, pinned)
                     else:
                         results = None
@@ -183,7 +183,7 @@ class text_msg(object):
                     text += u'\n此回覆組由 {} 製作。'.format(
                          error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name)
             else:
-                if system.string_is_int(kw):
+                if system.string_can_be_int(kw):
                     text = error.main.miscellaneous(u'偵測到參數1是整數。若欲使用ID作為刪除根據，請參閱小水母使用說明。')
                 else:
                     text = error.main.pair_not_exist_or_insuffieicnt_permission()
@@ -238,19 +238,22 @@ class text_msg(object):
         return text
 
     def I(self, src, params):
+        error = False
         if params[2] is not None:
             action = params[1]
             pair_id = params[2]
             text = u'搜尋條件: 【回覆組ID】為【{}】的回覆組。\n'.format(pair_id)
 
             if action != 'ID':
-                text += error.main.invalid_thing_with_correct_format(u'參數1', u'ID', action)
                 results = None
+                error = True
+                text += error.main.invalid_thing_with_correct_format(u'參數1', u'ID', action)
             else:
-                if system.string_is_int(pair_id):
+                if system.string_can_be_int(pair_id):
                     results = self.kwd.get_info_id(pair_id)   
                 else:
                     results = None
+                    error = True
                     text += error.main.invalid_thing_with_correct_format(u'參數2', u'正整數', pair_id)
         else:
             kw = params[1]
@@ -262,8 +265,8 @@ class text_msg(object):
             i_object = kw_dict_mgr.list_keyword_info(self.kwd, self.api_proc, results)
             text += i_object['limited']
             text += u'\n完整資訊URL: {}'.format(self.webpage_generator.rec_info(i_object['full']))
-        else:
-            text = error.main.miscellaneous(u'資料查詢主體為空。')
+        elif not error:
+            text = error.main.miscellaneous(u'查無相符資料。')
 
         return text
 
@@ -406,7 +409,7 @@ class text_msg(object):
         return text
 
     def GA(self, src, params):
-        error_no_action_fetch = error.main.miscellaneous(u'無對應指令。有可能是因為權限不足或是缺少參數造成的。')
+        error_no_action_fetch = error.main.miscellaneous(u'無對應指令。有可能是因為權限不足或是缺少參數而造成。')
        
         perm_dict = {3: u'權限: 開發者/機器人管理員',
                      2: u'權限: Group Admin',
@@ -607,9 +610,9 @@ class text_msg(object):
                 scout_count = params[2]
                 shot_count = 0
                 miss_count = 0
-                if not system.string_is_float(opportunity):
+                if not system.string_can_be_float(opportunity):
                     text = error.main.incorrect_param(u'參數1(機率)', u'百分比加上符號%')
-                elif not system.string_is_float(scout_count):
+                elif not system.string_can_be_float(scout_count):
                     text = error.main.incorrect_param(u'參數2(抽籤次數)', u'整數')
                 elif int(scout_count) > 999999:
                     text = error.main.invalid_thing_with_correct_format(u'參數2(抽籤次數)', u'小於999999的整數', scout_count)
