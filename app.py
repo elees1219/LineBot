@@ -299,10 +299,10 @@ def handle_text_message(event):
                     sys_data.sys_cmd_dict[cmd].count -= 1
             elif head == 'HELP':
                 data = msg_handler.text_msg.split(text, splitter, 2)
+                sys_data.helper_cmd_dict['MFF'].count += 1
 
                 # TODO: restruct helper
                 # TODO: Helper modulize
-                # TODO: Helper no counter
                 if data[1].upper().startswith('MFF'):
                     api_reply(token, [TextSendMessage(text=mff.mff_dmg_calc.help_code()),
                                       TextSendMessage(text=u'下則訊息是訊息範本，您可以直接將其複製，更改其內容，然後使用。或是遵照以下格式輸入資料。\n\n{代碼(參見上方)} {參數}(%)\n\n例如:\nMFF\nSKC 100%\n魔力 1090%\n魔力 10.9\n\n欲察看更多範例，請前往 https://sites.google.com/view/jellybot/mff傷害計算'),
@@ -372,6 +372,7 @@ def handle_text_message(event):
             else:
                 calc_result = text_calculator.calc(text)
                 if calc_result is not None:
+                    sys_data.helper_cmd_dict['CALC'].count += 1
                     text = u'算式: {}\n計算結果: {}'.format(text, calc_result)
 
                     api_reply(token, TextSendMessage(text=text), src)
