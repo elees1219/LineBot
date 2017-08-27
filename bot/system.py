@@ -174,6 +174,16 @@ class line_api_proc(object):
     def is_valid_room_group_id(uid):
         return uid is not None and len(uid) == 33 and (uid.startswith('C') or uid.startswith('R'))
 
+class text_calculator(object):
+    @staticmethod
+    def calc(text):
+        try:
+            result = str(eval(text))
+            if result != text:
+                return result
+        except:
+            return 
+
 def string_is_int(s):
     try: 
         int(s)

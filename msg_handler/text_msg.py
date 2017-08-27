@@ -26,7 +26,7 @@ from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_
 
 from error import error
 from bot import system, webpage_auto_gen
-from bot.system import line_api_proc, system_data
+from bot.system import line_api_proc, system_data, string_is_float, string_is_int
 
 # tool import
 from tool import mff, random_gen
