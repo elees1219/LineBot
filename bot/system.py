@@ -179,25 +179,22 @@ class text_calculator(object):
     @staticmethod
     def calc(text):
         try:
-            result = str(eval(text))
-            if result != text:
+            result = ''
+            if 'result=' not in text:
+                exec('result={}'.format(text))
+            else:
+                exec(text)
+
+            if result != '' and isinstance(result, (float, int)):
                 return result
         except:
             return 
 
 def string_is_int(s):
-    try: 
-        int(s)
-        return True
-    except ValueError:
-        return False
+    return isinstance(s, int)
 
 def string_is_float(s):
-    try: 
-        float(s)
-        return True
-    except ValueError:
-        return False
+    return isinstance(s, float)
 
     
 
