@@ -16,6 +16,7 @@ from cgi import escape
 from datetime import datetime, timedelta
 from error import error
 from flask import Flask, request, url_for
+from math import *
 
 # import for Oxford Dictionary
 import httplib
