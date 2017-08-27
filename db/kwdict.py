@@ -122,14 +122,14 @@ class kw_dict_mgr(object):
         result = self.sql_cmd(cmd, cmd_dict)
         return result
 
-    def order_by_usedrank(self, limit=1000):
+    def order_by_usedrank(self, limit=5000):
         cmd = u'SELECT *, RANK() OVER (ORDER BY used_count DESC) AS used_rank FROM keyword_dict ORDER BY used_rank ASC LIMIT %(limit)s;'
         cmd_dict = {'limit': limit}
         
         result = self.sql_cmd(cmd, cmd_dict)
         return result
 
-    def user_created_rank(self, limit=1000):
+    def user_created_rank(self, limit=50):
         """[0]=Rank, [1]=User ID, [2]=Count, [3]=Total Used Count, [4]=Used Count per Pair"""
         cmd = u' SELECT RANK() OVER (ORDER BY created_count DESC), *, ROUND(total_used / CAST(created_count as NUMERIC), 2) FROM (SELECT creator, COUNT(creator) AS created_count, SUM(used_count) AS total_used FROM keyword_dict GROUP BY creator ORDER BY created_count DESC) AS FOO LIMIT %(limit)s'
         cmd_dict = {'limit': limit}
