@@ -221,18 +221,6 @@ class kw_dict_mgr(object):
 
     
     @staticmethod
-    def entry_basic_info(entry_row):
-        text = u'ID: {}\n'.format(entry_row[int(kwdict_col.id)])
-        kw = entry_row[int(kwdict_col.keyword)].decode('utf8')
-        if not entry_row[int(kwdict_col.is_sticker_kw)]:
-            text += u'關鍵字: {}\n'.format(kw)
-        else:
-            text += u'關鍵字: (貼圖ID: {})\n'.format(kw)
-        text += u'回覆{}: {}'.format(u'圖片URL' if entry_row[int(kwdict_col.is_pic_reply)] else u'文字',
-                                     entry_row[int(kwdict_col.reply)].decode('utf-8'))
-        return text
-    
-    @staticmethod
     def list_keyword(data, limit=25):
         """return two object to access by [\'limited\'] and [\'full\']."""
         ret = {'limited': u'', 'full': u''}
@@ -261,6 +249,26 @@ class kw_dict_mgr(object):
                         limited = True
 
         return ret
+
+    @staticmethod
+    def list_keyword_recently_called(data):
+        ret = '\n'.join(['ID: {} - {} @{}'.format(row[int(kwdict_col.id)], 
+                                                  row[int(kwdict_col.keyword)], 
+                                                  row[int(kwdict_col.last_call)]) for row in data])
+
+        return ret
+
+    @staticmethod
+    def entry_basic_info(entry_row):
+        text = u'ID: {}\n'.format(entry_row[int(kwdict_col.id)])
+        kw = entry_row[int(kwdict_col.keyword)].decode('utf8')
+        if not entry_row[int(kwdict_col.is_sticker_kw)]:
+            text += u'關鍵字: {}\n'.format(kw)
+        else:
+            text += u'關鍵字: (貼圖ID: {})\n'.format(kw)
+        text += u'回覆{}: {}'.format(u'圖片URL' if entry_row[int(kwdict_col.is_pic_reply)] else u'文字',
+                                     entry_row[int(kwdict_col.reply)].decode('utf-8'))
+        return text
 
     @staticmethod
     def entry_detailed_info(kwd_mgr, line_api_proc, entry_row):
