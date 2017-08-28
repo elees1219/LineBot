@@ -166,9 +166,11 @@ def full_content(timestamp):
 def full_ranking(type):
     sys_data.view_webpage()
     if type == 'user':
-        content = kw_dict_mgr.list_user_created_ranking(line_api, kwd.user_created_rank())
+        content = kw_dict_mgr.list_user_created_ranking(line_api, kwd.user_created_rank(50))
     elif type == 'used':
-        content = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank())
+        content = kw_dict_mgr.list_keyword_ranking(kwd.order_by_usedrank(10000))
+    elif type == 'called':
+        content = kw_dict_mgr.list_keyword_recently_called(kwd.recently_called(10000))
     else:
         content = error.webpage.no_content()
         

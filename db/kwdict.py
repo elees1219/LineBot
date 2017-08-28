@@ -253,8 +253,8 @@ class kw_dict_mgr(object):
     @staticmethod
     def list_keyword_recently_called(data):
         ret = u'\n'.join([u'ID: {} - {} @{}'.format(row[int(kwdict_col.id)], 
-                                                  row[int(kwdict_col.keyword)].decode('utf-8'), 
-                                                  row[int(kwdict_col.last_call)]) for row in data])
+                                                    u'(貼圖ID {})'.format(row[int(kwdict_col.keyword)].decode('utf-8')) if row[int(kwdict_col.is_sticker_kw)] else row[int(kwdict_col.keyword)].decode('utf-8'), 
+                                                    row[int(kwdict_col.last_call)]) for row in data])
 
         return ret
 

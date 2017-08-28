@@ -294,7 +294,8 @@ class text_msg(object):
             if Valid:
                 text += u'\n\n完整使用者排名: {}\n完整關鍵字排名: {}'.format(
                     request.url_root + url_for('full_ranking', type='user')[1:],
-                    request.url_root + url_for('full_ranking', type='used')[1:])
+                    request.url_root + url_for('full_ranking', type='used')[1:],
+                    request.url_root + url_for('full_ranking', type='called')[1:])
 
         return text
 
@@ -354,13 +355,12 @@ class text_msg(object):
                 text += u'\n\n使用次數最少的回覆組【{}次，{}組】:\n'.format(last[0][int(kwdict_col.used_count)], len(last))
                 text += u'\n'.join([u'ID: {} - {}'.format(entry[int(kwdict_col.id)],
                                                          u'(貼圖ID {})'.format(entry[int(kwdict_col.keyword)].decode('utf-8')) if entry[int(kwdict_col.is_sticker_kw)] else entry[int(kwdict_col.keyword)].decode('utf-8')) for entry in last[0 : limit - 1]])
-
-                text += u'\n\n最近被使用的{}組回覆組:\n'.format(limit)
-                text += kw_dict_mgr.list_keyword_recently_called(recently_called_data)
-                
                 
                 if last_count - limit > 0:
                     text += u'\n...(還有{}組)'.format(last_count - limit)
+
+                text += u'\n\n最近被使用的{}組回覆組:\n'.format(limit)
+                text += kw_dict_mgr.list_keyword_recently_called(recently_called_data)
             elif category == 'SYS':
                 global game_object
 
