@@ -17,10 +17,16 @@ class text_calculator(object):
             elif debug:
                 print 'String math calculation failed:'
                 print type(result)
+                print 'Original Text:'
                 print text
+                print 'Result variant:'
+                print result
         except:
             if debug:
                 print 'String math calculation failed:'
                 print type(result)
+                print 'Original Text:'
                 print text
+                print 'Result variant:'
+                print result
             return 
