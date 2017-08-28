@@ -159,7 +159,7 @@ class kw_dict_mgr(object):
     def delete_keyword_id(self, id, deletor, is_top):
         cmd = u'UPDATE keyword_dict \
                 SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() \
-                WHERE id = %(id)s AND admin = %(top)s AND deleted = FALSE AND overrdie = FALSE \
+                WHERE id = %(id)s AND admin = %(top)s AND deleted = FALSE AND override = FALSE \
                 RETURNING *;'
                 
         cmd_dict = {'id': id, 'top': is_top, 'dt': deletor}
