@@ -84,7 +84,7 @@ class kw_dict_mgr(object):
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
-            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1, last_call = NOW() WHERE id = %(id)s AND (EXTRACT(EPOCH FROM (NOW() - last_call) > 5 OR last_call IS NULL'
+            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1, last_call = NOW() WHERE id = %(id)s AND (EXTRACT(EPOCH FROM (NOW() - last_call) > 5 OR last_call IS NULL)'
             cmd_update_dict = {'id': result[0][int(kwdict_col.id)]}
             self.sql_cmd(cmd_update, cmd_update_dict)
             return result
