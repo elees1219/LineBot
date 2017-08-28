@@ -292,7 +292,7 @@ class text_msg(object):
                 Valid = False
 
             if Valid:
-                text += u'\n\n完整使用者排名: {}\n完整關鍵字排名: {}'.format(
+                text += u'\n\n完整使用者排名: {}\n完整關鍵字排名: {}\n完整最新呼叫表: {}'.format(
                     request.url_root + url_for('full_ranking', type='user')[1:],
                     request.url_root + url_for('full_ranking', type='used')[1:],
                     request.url_root + url_for('full_ranking', type='called')[1:])
