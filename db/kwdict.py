@@ -53,7 +53,8 @@ class kw_dict_mgr(object):
                 is_sticker_kw BOOLEAN DEFAULT FALSE, \
                 deletor VARCHAR(33), \
                 created_time TIMESTAMP DEFAULT NOW(), \
-                disabled_time TIMESTAMP);'
+                disabled_time TIMESTAMP, \
+                last_call TIMESTAMP);'
         return cmd
 
     def insert_keyword(self, keyword, reply, creator_id, is_top, is_sticker_kw, is_pic_reply):
@@ -83,7 +84,7 @@ class kw_dict_mgr(object):
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
-            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1 WHERE id = %(id)s'
+            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1, last_call = NOW() WHERE id = %(id)s AND EXTRACT(EPOCH FROM (NOW() - last_call)) > 5'
             cmd_update_dict = {'id': result[0][int(kwdict_col.id)]}
             self.sql_cmd(cmd_update, cmd_update_dict)
             return result
@@ -231,11 +232,14 @@ class kw_dict_mgr(object):
         detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[int(kwdict_col.admin)] else u'[ - ]',
                                         u'[ 覆蓋 ]' if entry_row[int(kwdict_col.override)] else u'[ - ]',
                                         u'[ 刪除 ]' if entry_row[int(kwdict_col.deleted)] else u'[ - ]')
-        detailed += u'呼叫次數: {} (第{}名)\n\n'.format(entry_row[int(kwdict_col.used_count)], 
+        detailed += u'呼叫次數: {} (第{}名)\n'.format(entry_row[int(kwdict_col.used_count)], 
                                                        kwd_mgr.used_count_rank(entry_row[int(kwdict_col.id)]))
+            
+        if entry_row[int(kwdict_col.last_call)] is not None:
+            detailed += u'最後呼叫時間:\n{}\n'.format(entry_row[int(kwdict_col.last_call)])
 
         creator_profile = line_api_proc.profile(entry_row[int(kwdict_col.creator)])
-        detailed += u'製作者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if creator_profile is None else creator_profile.display_name)
+        detailed += u'\n製作者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if creator_profile is None else creator_profile.display_name)
         detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.creator)])
         detailed += u'製作時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.created_time)])
 
@@ -374,7 +378,9 @@ class kwdict_col(Enum):
     deletor = 10
     created_time = 11
     disabled_time = 12
-    used_rank = 13
+    last_call = 13
+
+    used_rank = 14
 
     def __int__(self):
         return self.value
