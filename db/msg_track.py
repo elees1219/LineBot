@@ -53,7 +53,7 @@ class message_tracker(object):
                 stk_msg_trig INTEGER NOT NULL DEFAULT 0, \
                 text_rep INTEGER NOT NULL DEFAULT 0, \
                 stk_rep INTEGER NOT NULL DEFAULT 0, \
-                last_msg_recv TIMESTAMP NOT NULL DEFAULT NOW());'
+                last_msg_recv TIMESTAMP NOT NULL DEFAULT NOW() AT TIME ZONE \'CCT\');'
         return cmd
 
     def log_message_activity(self, cid, type_of_event):
@@ -74,7 +74,7 @@ class message_tracker(object):
             column_to_add = msg_track_col(int(type_of_event)).column_name
 
             cmd = u'UPDATE msg_track SET {col} = {col} + 1{recv_time} WHERE cid = %(cid)s'.format(
-                recv_time=u', last_msg_recv = NOW()' if update_last_message_recv else u'',
+                recv_time=u', last_msg_recv = NOW() AT TIME ZONE \'CCT\'' if update_last_message_recv else u'',
                 col=column_to_add)
             self.sql_cmd(cmd, cmd_dict)
         

@@ -52,7 +52,7 @@ class kw_dict_mgr(object):
                 is_pic_reply BOOLEAN DEFAULT FALSE, \
                 is_sticker_kw BOOLEAN DEFAULT FALSE, \
                 deletor VARCHAR(33), \
-                created_time TIMESTAMP DEFAULT NOW(), \
+                created_time TIMESTAMP DEFAULT NOW() AT TIME ZONE \'CCT\', \
                 disabled_time TIMESTAMP, \
                 last_call TIMESTAMP);'
         return cmd
@@ -67,7 +67,7 @@ class kw_dict_mgr(object):
                     VALUES(%(kw)s, %(rep)s, %(cid)s, 0, %(sys)s, %(stk_kw)s, %(pic_rep)s) \
                     RETURNING *;'
             cmd_dict = {'kw': keyword, 'rep': reply, 'cid': creator_id, 'sys': is_top, 'stk_kw': is_sticker_kw, 'pic_rep': is_pic_reply}
-            cmd_override = u'UPDATE keyword_dict SET override = TRUE, deletor = %(dt)s, disabled_time = NOW() \
+            cmd_override = u'UPDATE keyword_dict SET override = TRUE, deletor = %(dt)s, disabled_time = NOW() AT TIME ZONE \'CCT\' \
                              WHERE keyword = %(kw)s AND deleted = FALSE AND override = FALSE AND admin = %(adm)s'
             cmd_override_dict = {'kw': keyword, 'dt': creator_id, 'adm': is_top}
             self.sql_cmd(cmd_override, cmd_override_dict)
@@ -84,7 +84,7 @@ class kw_dict_mgr(object):
         db_dict = {'kw': keyword, 'stk_kw': is_sticker_kw}
         result = self.sql_cmd(cmd, db_dict)
         if len(result) > 0:
-            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1, last_call = NOW() WHERE id = %(id)s AND EXTRACT(EPOCH FROM (NOW() - last_call)) > 5'
+            cmd_update = u'UPDATE keyword_dict SET used_count = used_count + 1, last_call = NOW() AT TIME ZONE \'CCT\' WHERE id = %(id)s AND EXTRACT(EPOCH FROM (NOW() AT TIME ZONE \'CCT\' - last_call)) > 5'
             cmd_update_dict = {'id': result[0][int(kwdict_col.id)]}
             self.sql_cmd(cmd_update, cmd_update_dict)
             return result
@@ -150,7 +150,7 @@ class kw_dict_mgr(object):
     def delete_keyword(self, keyword, deletor, is_top):
         keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
         cmd = u'UPDATE keyword_dict \
-                SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() \
+                SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() AT TIME ZONE \'CCT\' \
                 WHERE keyword = %(kw)s AND admin = %(top)s AND deleted = FALSE AND override = FALSE \
                 RETURNING *;'
         cmd_dict = {'kw': keyword, 'top': is_top, 'dt': deletor}
@@ -159,7 +159,7 @@ class kw_dict_mgr(object):
 
     def delete_keyword_id(self, id, deletor, is_top):
         cmd = u'UPDATE keyword_dict \
-                SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() \
+                SET deleted = TRUE, deletor = %(dt)s, disabled_time = NOW() AT TIME ZONE \'CCT\' \
                 WHERE id = %(id)s AND admin = %(top)s AND deleted = FALSE AND override = FALSE \
                 RETURNING *;'
                 
