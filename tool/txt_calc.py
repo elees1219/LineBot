@@ -2,11 +2,11 @@
 
 class text_calculator(object):
     @staticmethod
-    def calc(text):
+    def calc(text, debug=False):
+        result = ''
         if text.startswith('0'):
             return
         try:
-            result = ''
             if 'result=' not in text:
                 exec('result={}'.format(text))
             else:
@@ -14,5 +14,13 @@ class text_calculator(object):
 
             if result != '' and text != str(result) and isinstance(result, (float, int, long)):
                 return result
+            elif debug:
+                print 'String math calculation failed:'
+                print type(result)
+                print text
         except:
+            if debug:
+                print 'String math calculation failed:'
+                print type(result)
+                print text
             return 

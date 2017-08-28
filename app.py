@@ -197,6 +197,10 @@ def handle_text_message(event):
     elif sys_data.intercept:
         intercept_text(event)
 
+    if text == '43afdb2391686dd9710c3879a86c04b5c0a2fc3391ffd2c6a05e4ce0': # SHA of CALCULATOR DEBUG
+        sys_data.calc_debug = not sys_data.calc_debug
+        print 'Calculator debugging {}.'.format('enabled' if sys_data.calc_debug else 'disabled')
+
     if text == administrator:
         sys_data.silence = not sys_data.silence
         api.reply_message(token, TextSendMessage(text='Bot set to {}.'.format('Silent' if sys_data.silence else 'Active')))
@@ -373,7 +377,7 @@ def handle_text_message(event):
                 api_reply(token, TextSendMessage(text=text), src)
                 return
             else:
-                calc_result = txt_calc.text_calculator.calc(text)
+                calc_result = txt_calc.text_calculator.calc(text, sys_data.calc_debug)
                 if calc_result is not None:
                     sys_data.helper_cmd_dict['CALC'].count += 1
                     text = u'算式: {}\n\n計算結果: {}'.format('\n{}'.format(text) if '\n' in text else text, calc_result)

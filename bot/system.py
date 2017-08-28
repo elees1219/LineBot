@@ -70,6 +70,7 @@ class system_data(object):
         self._boot_up = datetime.now() + timedelta(hours=8)
         self._silence = False
         self._intercept = True
+        self._string_calc_debug = False
         self._last_sticker = defaultdict(str)
         self._sys_cmd_dict = _sys_cmd_dict
         self._game_cmd_dict = _game_cmd_dict
@@ -97,6 +98,14 @@ class system_data(object):
     @intercept.setter
     def intercept(self, value):
         self._intercept = value
+        
+    @property
+    def calc_debug(self):
+        return self._string_calc_debug
+
+    @calc_debug.setter
+    def calc_debug(self, value):
+        self._string_calc_debug = value
 
     @property
     def boot_up(self):
