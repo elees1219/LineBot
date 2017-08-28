@@ -3,6 +3,8 @@
 class text_calculator(object):
     @staticmethod
     def calc(text):
+        if text.startswith('0'):
+            return
         try:
             result = ''
             if 'result=' not in text:
