@@ -18,15 +18,15 @@ class text_calculator(object):
                 print 'String math calculation failed:'
                 print type(result)
                 print 'Original Text:'
-                print text
+                print unicode(text)
                 print 'Result variant:'
-                print result
+                print unicode(result)
         except:
             if debug:
                 print 'String math calculation failed:'
                 print type(result)
                 print 'Original Text:'
-                print text
+                print unicode(text)
                 print 'Result variant:'
-                print result
+                print unicode(result)
             return 
