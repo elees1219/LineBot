@@ -285,6 +285,9 @@ class text_msg(object):
                 text = kw_dict_mgr.list_user_created_ranking(self.api_proc, self.kwd.user_created_rank(limit))
             elif ranking_type == 'KW':
                 text = kw_dict_mgr.list_keyword_ranking(self.kwd.order_by_usedrank(limit))
+            elif ranking_type == 'KWRC':
+                data = self.kwd.recently_called(limit)
+                text = kw_dict_mgr.list_keyword(data, limit)
             else:
                 text = error.main.incorrect_param(u'參數1(種類)', u'USER(使用者排行)或KW(關鍵字排行)')
                 Valid = False
@@ -320,10 +323,12 @@ class text_msg(object):
                 user_list_top = self.kwd.user_sort_by_created_pair()[0]
                 line_profile = self.api_proc.profile(user_list_top[0])
                 
+                limit = 10
+
                 first = self.kwd.most_used()
                 last = self.kwd.least_used()
+                recently_called = self.kwd.recently_called(limit)
                 last_count = len(last)
-                limit = 10
 
                 text = u'【回覆組相關統計資料】'
                 text += u'\n\n已使用回覆組【{}】次'.format(self.kwd.used_count_sum())
@@ -347,9 +352,16 @@ class text_msg(object):
                 text += u'\n'.join([u'ID: {} - {}'.format(entry[int(kwdict_col.id)],
                                                          u'(貼圖ID {})'.format(entry[int(kwdict_col.keyword)].decode('utf-8')) if entry[int(kwdict_col.is_sticker_kw)] else entry[int(kwdict_col.keyword)].decode('utf-8')) for entry in first[0 : limit - 1]])
                 
-                text += u'\n\n使用次數最少的回覆組 【{}次，{}組】:\n'.format(last[0][int(kwdict_col.used_count)], len(last))
+                text += u'\n\n使用次數最少的回覆組【{}次，{}組】:\n'.format(last[0][int(kwdict_col.used_count)], len(last))
                 text += u'\n'.join([u'ID: {} - {}'.format(entry[int(kwdict_col.id)],
                                                          u'(貼圖ID {})'.format(entry[int(kwdict_col.keyword)].decode('utf-8')) if entry[int(kwdict_col.is_sticker_kw)] else entry[int(kwdict_col.keyword)].decode('utf-8')) for entry in last[0 : limit - 1]])
+
+                text += u'\n\n最近被使用的10組回覆組:\n'
+                text += u'\n'.join([u'ID: {} - {} @{}'.format(entry[int(kwdict_col.id)],
+                                                              u'(貼圖ID {})'.format(entry[int(kwdict_col.keyword)].decode('utf-8')) if entry[int(kwdict_col.is_sticker_kw)] else entry[int(kwdict_col.keyword)].decode('utf-8'),
+                                                              entry[int(kwdict_col.last_call)]) for entry in recently_called[0 : limit - 1]])
+                
+                
                 if last_count - limit > 0:
                     text += u'\n...(還有{}組)'.format(last_count - limit)
             elif category == 'SYS':

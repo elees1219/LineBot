@@ -143,9 +143,16 @@ class kw_dict_mgr(object):
         return result
 
     def least_used(self):
-        cmd = u'SELECT * FROM keyword_dict WHERE used_count = (SELECT MIN(used_count) FROM keyword_dict) AND override = FALSE AND deleted = FALSE;'
+        cmd = u'SELECT * FROM keyword_dict WHERE used_count = (SELECT MIN(used_count) FROM keyword_dict) AND override = FALSE AND deleted = FALSE ORDER BY id ASC'
         result = self.sql_cmd_only(cmd)
         return result
+
+    def recently_called(self, limit=10):
+        cmd = u'SELECT * FROM keyword_dict WHERE last_call IS NOT NULL ORDER BY last_call DESC LIMIT %(limit)s'
+        cmd_dict = {'limit': limit}
+        result = self.sql_cmd(cmd, cmd_dict)
+        return result
+
 
     def delete_keyword(self, keyword, deletor, is_top):
         keyword = keyword.replace('\\', '\\\\').replace(r'\\n', '\n')
@@ -224,32 +231,6 @@ class kw_dict_mgr(object):
         text += u'回覆{}: {}'.format(u'圖片URL' if entry_row[int(kwdict_col.is_pic_reply)] else u'文字',
                                      entry_row[int(kwdict_col.reply)].decode('utf-8'))
         return text
-
-    @staticmethod
-    def entry_detailed_info(kwd_mgr, line_api_proc, entry_row):
-        detailed = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
-        detailed += u'屬性:\n'
-        detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[int(kwdict_col.admin)] else u'[ - ]',
-                                        u'[ 覆蓋 ]' if entry_row[int(kwdict_col.override)] else u'[ - ]',
-                                        u'[ 刪除 ]' if entry_row[int(kwdict_col.deleted)] else u'[ - ]')
-        detailed += u'呼叫次數: {} (第{}名)\n'.format(entry_row[int(kwdict_col.used_count)], 
-                                                       kwd_mgr.used_count_rank(entry_row[int(kwdict_col.id)]))
-            
-        if entry_row[int(kwdict_col.last_call)] is not None:
-            detailed += u'最後呼叫時間:\n{}\n'.format(entry_row[int(kwdict_col.last_call)])
-
-        creator_profile = line_api_proc.profile(entry_row[int(kwdict_col.creator)])
-        detailed += u'\n製作者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if creator_profile is None else creator_profile.display_name)
-        detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.creator)])
-        detailed += u'製作時間:\n{}'.format(entry_row[int(kwdict_col.created_time)])
-
-        if entry_row[int(kwdict_col.deletor)] is not None:
-            deletor_profile = line_api_proc.profile(entry_row[int(kwdict_col.deletor)]) 
-            detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if deletor_profile is None else deletor_profile.display_name)
-            detailed += u'刪除者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.deletor)])
-            detailed += u'刪除時間:\n{}'.format(entry_row[int(kwdict_col.disabled_time)])
-
-        return detailed
     
     @staticmethod
     def list_keyword(data, limit=25):
@@ -280,6 +261,32 @@ class kw_dict_mgr(object):
                         limited = True
 
         return ret
+
+    @staticmethod
+    def entry_detailed_info(kwd_mgr, line_api_proc, entry_row):
+        detailed = kw_dict_mgr.entry_basic_info(entry_row) + u'\n\n'
+        detailed += u'屬性:\n'
+        detailed += u'{} {} {}\n\n'.format(u'[ 置頂 ]' if entry_row[int(kwdict_col.admin)] else u'[ - ]',
+                                        u'[ 覆蓋 ]' if entry_row[int(kwdict_col.override)] else u'[ - ]',
+                                        u'[ 刪除 ]' if entry_row[int(kwdict_col.deleted)] else u'[ - ]')
+        detailed += u'呼叫次數: {} (第{}名)\n'.format(entry_row[int(kwdict_col.used_count)], 
+                                                       kwd_mgr.used_count_rank(entry_row[int(kwdict_col.id)]))
+            
+        if entry_row[int(kwdict_col.last_call)] is not None:
+            detailed += u'最後呼叫時間:\n{}\n'.format(entry_row[int(kwdict_col.last_call)])
+
+        creator_profile = line_api_proc.profile(entry_row[int(kwdict_col.creator)])
+        detailed += u'\n製作者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if creator_profile is None else creator_profile.display_name)
+        detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.creator)])
+        detailed += u'製作時間:\n{}'.format(entry_row[int(kwdict_col.created_time)])
+
+        if entry_row[int(kwdict_col.deletor)] is not None:
+            deletor_profile = line_api_proc.profile(entry_row[int(kwdict_col.deletor)]) 
+            detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if deletor_profile is None else deletor_profile.display_name)
+            detailed += u'刪除者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.deletor)])
+            detailed += u'刪除時間:\n{}'.format(entry_row[int(kwdict_col.disabled_time)])
+
+        return detailed
 
     @staticmethod
     def list_keyword_info(kwd_mgr, line_api_proc, data, limit=3):
