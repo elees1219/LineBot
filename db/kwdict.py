@@ -252,7 +252,7 @@ class kw_dict_mgr(object):
 
     @staticmethod
     def list_keyword_recently_called(data):
-        ret = '\n'.join(['ID: {} - {} @{}'.format(row[int(kwdict_col.id)], 
+        ret = u'\n'.join([u'ID: {} - {} @{}'.format(row[int(kwdict_col.id)], 
                                                   row[int(kwdict_col.keyword)], 
                                                   row[int(kwdict_col.last_call)]) for row in data])
 
