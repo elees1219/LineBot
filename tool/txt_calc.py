@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from math import *
 
 class text_calculator(object):
     @staticmethod
