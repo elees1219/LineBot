@@ -2,7 +2,7 @@
 
 # import custom module
 from bot import webpage_auto_gen, game_objects
-from bot.system import line_api_proc, string_can_be_int, system_data, text_calculator
+from bot.system import line_api_proc, string_can_be_int, system_data
 
 import msg_handler
 
@@ -27,7 +27,7 @@ import json
 from db import kw_dict_mgr, kwdict_col, group_ban, gb_col, message_tracker, msg_track_col, msg_event_type
 
 # tool import
-from tool import mff, random_gen
+from tool import mff, random_gen, txt_calc
 
 # games import
 import game
@@ -371,7 +371,7 @@ def handle_text_message(event):
                 api_reply(token, TextSendMessage(text=text), src)
                 return
             else:
-                calc_result = text_calculator.calc(text)
+                calc_result = txt_calc.text_calculator.calc(text)
                 if calc_result is not None:
                     sys_data.helper_cmd_dict['CALC'].count += 1
                     text = u'算式: {}\n\n計算結果: {}'.format('\n{}'.format(text) if '\n' in text else text, calc_result)

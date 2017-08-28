@@ -72,6 +72,9 @@
     <Compile Include="tool\random_gen.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tool\txt_calc.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tool\__init__.py">
       <SubType>Code</SubType>
     </Compile>
