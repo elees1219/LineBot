@@ -183,7 +183,7 @@ class text_msg(object):
                     text += u'\n此回覆組由 {} 製作。'.format(
                          error.main.line_account_data_not_found() if line_profile is None else line_profile.display_name)
             else:
-                if system.string_can_be_int(kw):
+                if system.string_can_be_int(params[1]):
                     text = error.main.miscellaneous(u'偵測到參數1是整數。若欲使用ID作為刪除根據，請參閱小水母使用說明。')
                 else:
                     text = error.main.pair_not_exist_or_insuffieicnt_permission()
