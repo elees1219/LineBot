@@ -241,13 +241,13 @@ class kw_dict_mgr(object):
         creator_profile = line_api_proc.profile(entry_row[int(kwdict_col.creator)])
         detailed += u'\n製作者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if creator_profile is None else creator_profile.display_name)
         detailed += u'製作者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.creator)])
-        detailed += u'製作時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.created_time)])
+        detailed += u'製作時間:\n{}'.format(entry_row[int(kwdict_col.created_time)])
 
         if entry_row[int(kwdict_col.deletor)] is not None:
             deletor_profile = line_api_proc.profile(entry_row[int(kwdict_col.deletor)]) 
             detailed += u'\n刪除者LINE使用者名稱:\n{}\n'.format(error.main.line_account_data_not_found() if deletor_profile is None else deletor_profile.display_name)
             detailed += u'刪除者LINE UUID:\n{}\n'.format(entry_row[int(kwdict_col.deletor)])
-            detailed += u'刪除時間:\n{} (UTC+0)'.format(entry_row[int(kwdict_col.disabled_time)])
+            detailed += u'刪除時間:\n{}'.format(entry_row[int(kwdict_col.disabled_time)])
 
         return detailed
     
